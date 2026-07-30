@@ -1,9 +1,11 @@
-import { EditorState } from "@codemirror/state";
+import { EditorState, Text } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { EventEmitter } from "./EventEmitter.ts";
 import type { EditorEvents, EditorOptions } from "./types.ts";
 
 export class Editor extends EventEmitter<EditorEvents> {
+  private _te: TextEncoder = new TextEncoder();
+
   options: EditorOptions;
   view: EditorView;
 
@@ -15,8 +17,33 @@ export class Editor extends EventEmitter<EditorEvents> {
     return this.state.doc.toString();
   }
 
+  public set content(newContent: string) {
+    this.view.dispatch({
+      changes: {
+        from: 0,
+        to: this.view.state.doc.length,
+        insert: newContent,
+      },
+    });
+  }
+
   public get json(): string[] {
     return this.state.doc.toJSON();
+  }
+
+  public set json(newContent: string[]) {
+    this.view.dispatch({
+      changes: {
+        from: 0,
+        to: this.view.state.doc.length,
+        insert: Text.of(newContent),
+      },
+    });
+  }
+
+  // TODO: add setter for binary
+  public get binary(): Uint8Array<ArrayBuffer> {
+    return this._te.encode(this.content);
   }
 
   constructor(options: EditorOptions) {
