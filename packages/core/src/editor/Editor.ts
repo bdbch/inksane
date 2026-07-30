@@ -5,6 +5,7 @@ import type { EditorEvents, EditorOptions } from "./types.ts";
 
 export class Editor extends EventEmitter<EditorEvents> {
   private _te: TextEncoder = new TextEncoder();
+  private _td: TextDecoder = new TextDecoder();
 
   options: EditorOptions;
   view: EditorView;
@@ -41,9 +42,12 @@ export class Editor extends EventEmitter<EditorEvents> {
     });
   }
 
-  // TODO: add setter for binary
   public get binary(): Uint8Array<ArrayBuffer> {
     return this._te.encode(this.content);
+  }
+
+  public set binary(newContent: Uint8Array<ArrayBuffer>) {
+    this.content = this._td.decode(newContent);
   }
 
   constructor(options: EditorOptions) {
