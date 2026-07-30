@@ -7,11 +7,11 @@ image: nixos
 
 dependencies:
   - pnpm
-  - github:ryoppippi/nix-vite-plus
+  - github:ryoppippi/nix-vite-plus#vp
 
 steps:
   - name: "Install dependencies"
-    command: pnpm install
+    command: pnpm install --frozen-lockfile
 
   - name: "Run Linter"
     command: "vp check"
