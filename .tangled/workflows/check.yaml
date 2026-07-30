@@ -6,6 +6,7 @@ engine: microvm
 image: nixos
 
 dependencies:
+  - nodejs
   - pnpm
   - github:ryoppippi/nix-vite-plus#vp
 
