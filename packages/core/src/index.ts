@@ -1,3 +1,2 @@
-export function fn() {
-  return "Hello, tsdown!";
-}
+export * from "./Editor.ts";
+export { Editor as default } from "./Editor.ts";

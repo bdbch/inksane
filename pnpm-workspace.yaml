@@ -11,6 +11,8 @@ catalog:
   vite: npm:@voidzero-dev/vite-plus-core@latest
   vitest: npm:@voidzero-dev/vite-plus-test@latest
   vite-plus: latest
+  "@codemirror/state": ^6.7.1
+  "@codemirror/view": ^6.43.7
 overrides:
   vite: "catalog:"
   vitest: "catalog:"
