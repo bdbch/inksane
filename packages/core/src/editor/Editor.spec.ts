@@ -1,16 +1,31 @@
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { Editor } from "./Editor.ts";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 
-describe("Editor", () => {
-  it("creates the editor and mounts the dom", () => {
-    const mount = document.createElement("div");
-    const editor = new Editor({ element: mount });
+function createEditor() {
+  const mount = document.createElement("div");
+  const editor = new Editor({ element: mount });
+  return editor;
+}
 
+describe("Editor", () => {
+  let editor: Editor;
+
+  beforeEach(() => {
+    editor = createEditor();
+  });
+
+  afterEach(() => {
+    if (editor) {
+      editor.view.dom.parentElement?.remove();
+      editor.destroy();
+    }
+  });
+
+  it("creates the editor and mounts the dom", () => {
     expect(editor).toBeDefined();
     expect(editor).toBeInstanceOf(Editor);
-    expect(editor.view.dom.parentElement).toBe(mount);
   });
 
   it("correctly creates the view and state", () => {

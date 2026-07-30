@@ -22,4 +22,9 @@ export class Editor extends EventEmitter<EditorEvents> {
 
     this.emit("create", { editor: this });
   }
+
+  // TODO: extend destruction of editor instance here
+  public destroy(): void {
+    this.view.destroy();
+  }
 }
