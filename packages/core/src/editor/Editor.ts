@@ -5,8 +5,19 @@ import type { EditorEvents, EditorOptions } from "./types.ts";
 
 export class Editor extends EventEmitter<EditorEvents> {
   options: EditorOptions;
-  state: EditorState;
   view: EditorView;
+
+  get state(): EditorState {
+    return this.view.state;
+  }
+
+  public get content(): string {
+    return this.state.doc.toString();
+  }
+
+  public get json(): string[] {
+    return this.state.doc.toJSON();
+  }
 
   constructor(options: EditorOptions) {
     super();
@@ -15,16 +26,15 @@ export class Editor extends EventEmitter<EditorEvents> {
 
     this.emit("beforeCreate", { editor: this });
 
-    this.state = EditorState.create({
+    const initialState = EditorState.create({
       doc: content ?? "",
     });
+
     this.view = new EditorView({
-      state: this.state,
+      state: initialState,
       parent: element,
     });
-
-    // @ts-expect-error we set the editor here so users can access the editor object from the DOM element
-    this.options.element["editor"] = this;
+    this.setupDOM();
 
     this.emit("create", { editor: this });
   }
@@ -34,11 +44,20 @@ export class Editor extends EventEmitter<EditorEvents> {
     this.view.destroy();
   }
 
-  get content(): string {
-    return this.state.doc.toString();
-  }
+  private setupDOM(): void {
+    this.view.dom.dataset.inkwellEditor = "";
+    this.view.dom.classList.add("inkwell-editor");
 
-  get json(): string[] {
-    return this.state.doc.toJSON();
+    this.view.contentDOM.dataset.inkwellEditorContent = "";
+    this.view.contentDOM.classList.add("inkwell-editor--content");
+
+    // @ts-expect-error we set the editor here so users can access the editor object from the DOM element
+    this.options.element["editor"] = this;
+
+    // @ts-expect-error we set the editor here so users can access the editor object from the DOM element
+    this.view.dom["editor"] = this;
+
+    // @ts-expect-error we set the editor here so users can access the editor object from the DOM element
+    this.view.contentDOM["editor"] = this;
   }
 }
