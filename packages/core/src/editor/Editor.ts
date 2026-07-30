@@ -9,13 +9,14 @@ export class Editor extends EventEmitter<EditorEvents> {
 
   constructor(options: EditorOptions) {
     super();
-    const { element, ...config } = options;
+    const { element, content } = options;
 
     this.emit("beforeCreate", { editor: this });
 
-    this.state = EditorState.create(config);
+    this.state = EditorState.create({
+      doc: content ?? "",
+    });
     this.view = new EditorView({
-      ...config,
       state: this.state,
       parent: element,
     });

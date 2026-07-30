@@ -1,9 +1,9 @@
 import type { EditorSelection, Transaction } from "@codemirror/state";
-import type { EditorViewConfig } from "@codemirror/view";
 import type { Editor } from "./Editor.ts";
 
-export type EditorOptions = Omit<EditorViewConfig, "parent" | "state"> & {
+export type EditorOptions = {
   element: HTMLElement;
+  content?: string;
 };
 
 export type EditorEvents = {
