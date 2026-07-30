@@ -1,2 +1,3 @@
-export * from "./Editor.ts";
-export { Editor as default } from "./Editor.ts";
+export * from "./editor/index.ts";
+
+export { Editor as default } from "./editor/index.ts";

@@ -4,6 +4,9 @@ export default defineConfig({
   staged: {
     "*": "vp check --fix",
   },
+  test: {
+    environment: "jsdom",
+  },
   fmt: {},
   lint: {
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],

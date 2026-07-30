@@ -1,0 +1,25 @@
+import { EditorState } from "@codemirror/state";
+import { EditorView } from "@codemirror/view";
+import { EventEmitter } from "./EventEmitter.ts";
+import type { EditorEvents, EditorOptions } from "./types.ts";
+
+export class Editor extends EventEmitter<EditorEvents> {
+  state: EditorState;
+  view: EditorView;
+
+  constructor(options: EditorOptions) {
+    super();
+    const { element, ...config } = options;
+
+    this.emit("beforeCreate", { editor: this });
+
+    this.state = EditorState.create(config);
+    this.view = new EditorView({
+      ...config,
+      state: this.state,
+      parent: element,
+    });
+
+    this.emit("create", { editor: this });
+  }
+}
