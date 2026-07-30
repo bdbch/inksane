@@ -1,0 +1,17 @@
+when:
+  - event: ["push", "pull_request"]
+    branch: ["main"]
+
+engine: microvm
+image: nixos
+
+dependencies:
+  - pnpm
+  - github:ryoppippi/nix-vite-plus
+
+steps:
+  - name: "Install dependencies"
+    run: pnpm install
+
+  - name: "Run Linter"
+    run: "vp check"
