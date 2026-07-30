@@ -9,11 +9,12 @@ engine: "nixery"
 dependencies:
   nixpkgs:
     - nodejs_22
-    - pnpm_11
 
 steps:
   - name: "Install dependencies"
-    command: "pnpm install --frozen-lockfile"
+    command: |
+      corepack enable
+      pnpm install --frozen-lockfile
   - name: "Lint"
     command: "pnpm exec vp check"
   - name: "Test"
