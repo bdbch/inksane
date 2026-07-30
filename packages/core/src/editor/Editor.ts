@@ -2,10 +2,12 @@ import { EditorState, Text } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { EventEmitter } from "./EventEmitter.ts";
 import type { EditorEvents, EditorOptions } from "./types.ts";
+import { ExtensionManager } from "../extensions/index.ts";
 
 export class Editor extends EventEmitter<EditorEvents> {
   private _te: TextEncoder = new TextEncoder();
   private _td: TextDecoder = new TextDecoder();
+  private _extensionManager: ExtensionManager;
 
   options: EditorOptions;
   view: EditorView;
@@ -54,6 +56,7 @@ export class Editor extends EventEmitter<EditorEvents> {
     super();
     this.options = options;
     const { element, content } = this.options;
+    this._extensionManager = new ExtensionManager(this, this.options?.extensions ?? []);
 
     this.emit("beforeCreate", { editor: this });
 
@@ -64,6 +67,7 @@ export class Editor extends EventEmitter<EditorEvents> {
     this.view = new EditorView({
       state: initialState,
       parent: element,
+      extensions: this._extensionManager.cmExtensions,
     });
     this.setupDOM();
 

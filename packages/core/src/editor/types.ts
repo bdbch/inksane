@@ -1,9 +1,11 @@
 import type { EditorSelection, Transaction } from "@codemirror/state";
 import type { Editor } from "./Editor.ts";
+import type { InkwellExtension } from "../extensions/types.ts";
 
 export type EditorOptions = {
   element: HTMLElement;
   content?: string;
+  extensions?: InkwellExtension[];
 };
 
 export type EditorEvents = {

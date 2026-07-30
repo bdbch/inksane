@@ -10,6 +10,8 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@codemirror/state": "catalog:",
+    "@codemirror/view": "catalog:",
     "astro": "^7.1.6"
   },
   "engines": {

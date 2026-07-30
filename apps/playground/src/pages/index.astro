@@ -1,26 +1,57 @@
 ---
-import '../assets/global.css'
+import "../assets/global.css";
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Inkwell Playground</title>
-	</head>
-	<body>
-		<div id="editor-mount"></div>
-	</body>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Inkwell Playground</title>
+    </head>
+    <body>
+        <div id="editor-mount"></div>
+    </body>
 </html>
 
 <script>
-import { Editor } from '@inkwell/core'
+    import { Editor } from "@inkwell/core";
+    import { keymap } from "@codemirror/view";
+    import type { InkwellExtension } from "@inkwell/core/extensions/types";
 
-const editor = new Editor({
-	element: document.getElementById('editor-mount')!,
-	content: '# This is the Inkwell playground\n\nFeel free to play around'
-})
+    function dummyKeymap(tag) {
+        return keymap.of([
+            {
+                key: "Enter",
+                run() {
+                    console.log(this, tag);
+                    return true;
+                },
+            },
+        ]);
+    }
+
+    const ChildExtension: InkwellExtension = {
+        name: "child",
+        addCodeMirrorExtensions: () => [],
+    };
+
+    const TestExtension: InkwellExtension = {
+        name: "test",
+        priority: 10,
+        addExtensions: () => [ChildExtension],
+        addCodeMirrorExtensions: ({ editor }) => {
+            return [dummyKeymap("a")];
+        },
+    };
+
+    const editor = new Editor({
+        element: document.getElementById("editor-mount")!,
+        content: "# This is the Inkwell playground\n\nFeel free to play around",
+        extensions: [TestExtension],
+    });
+
+    console.log(editor);
 </script>
