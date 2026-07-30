@@ -11,7 +11,7 @@ dependencies:
 
 steps:
   - name: "Install dependencies"
-    run: pnpm install
+    command: pnpm install
 
   - name: "Run Linter"
-    run: "vp check"
+    command: "vp check"
