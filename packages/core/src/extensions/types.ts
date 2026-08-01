@@ -1,6 +1,7 @@
 import type { Editor } from "../editor/index.ts";
 import type { Extension as CMExtension } from "@codemirror/state";
 import type { EditorEvents } from "../editor/types.ts";
+import type { KeyBinding } from "@codemirror/view";
 
 export interface EditorContext {
   editor: Editor;
@@ -35,5 +36,5 @@ export type InkwellExtension = ExtensionEventHandlers & {
   addExtensions?: (ctx: EditorContext) => InkwellExtension[];
 
   // TODO: define addKeybinds correctly
-  addKeybinds?: (ctx: EditorContext) => Record<string, () => void>;
+  addKeybinds?: (ctx: EditorContext) => readonly KeyBinding[] | undefined;
 };
