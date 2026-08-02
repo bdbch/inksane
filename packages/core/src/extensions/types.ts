@@ -32,6 +32,7 @@ export type InkwellExtension = ExtensionEventHandlers & {
 
   addNodes?: (ctx: EditorContext) => NodeConfig[];
   addMarks?: (ctx: EditorContext) => MarkConfig[];
+  addCommands?: (ctx: EditorContext) => Record<string, () => void>;
   addCodeMirrorExtensions?: (ctx: EditorContext) => CMExtension[];
   addExtensions?: (ctx: EditorContext) => InkwellExtension[];
 

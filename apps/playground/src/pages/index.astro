@@ -21,30 +21,31 @@ import "../assets/global.css";
     import { keymap } from "@codemirror/view";
     import type { InkwellExtension } from "@inkwell/core/extensions/types";
 
-    function dummyKeymap(tag) {
-        return keymap.of([
-            {
-                key: "Enter",
-                run() {
-                    console.log(this, tag);
-                    return true;
-                },
-            },
-        ]);
-    }
-
-    const ChildExtension: InkwellExtension = {
-        name: "child",
-        addCodeMirrorExtensions: () => [],
-    };
-
     const TestExtension: InkwellExtension = {
         name: "test",
         priority: 10,
-        addExtensions: () => [ChildExtension],
-        addCodeMirrorExtensions: ({ editor }) => {
-            return [dummyKeymap("a")];
-        },
+        addKeybinds() {
+            return [
+                {
+                    key: 'Mod-Enter',
+                    run(view) {
+                        const newContent = `Hello World!\n\n**This** is a great text _extension_!`
+                        // insert "Hello World" at the current cursor position
+                        view.dispatch({
+                            changes: {
+                                from: view.state.selection.main.from,
+                                to: view.state.selection.main.to,
+                                insert: newContent,
+                            },
+                            selection: {
+                                anchor: view.state.selection.main.from + newContent.length
+                            }
+                        })
+                        return true
+                    }
+                }
+            ]
+        }
     };
 
     const editor = new Editor({
