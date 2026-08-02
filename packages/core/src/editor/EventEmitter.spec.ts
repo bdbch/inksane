@@ -1,5 +1,5 @@
 import { describe, it, vi, expect } from "vite-plus/test";
-import { EventEmitter } from "../EventEmitter.ts";
+import { EventEmitter } from "./EventEmitter.ts";
 
 describe("EventEmitter", () => {
   it("creates listeners and triggers callbacks", () => {

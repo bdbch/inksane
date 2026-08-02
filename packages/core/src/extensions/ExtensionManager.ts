@@ -2,6 +2,7 @@ import type { Extension as CMExtension } from "@codemirror/state";
 import { type KeyBinding, keymap } from "@codemirror/view";
 import type { Editor } from "../editor/Editor.ts";
 import type { InkwellExtension } from "./types.ts";
+import { resolveExtensionsOnEditor } from "./helpers/resolveExtensionsOnEditor.ts";
 
 /**
  * Manages and resolves extensions so the editor receives one complete CodeMirror setup.
@@ -20,7 +21,7 @@ export class ExtensionManager {
   private _addonCMExtensions: CMExtension[] = [];
 
   /** Stores keybindings before they become one CodeMirror keymap. */
-  private _keybindings: KeyBinding[] = [];
+  private _keybindings: CMExtension[] = [];
 
   /**
    * Creates one extension setup lifecycle for the editor and its configured extensions.
@@ -50,17 +51,12 @@ export class ExtensionManager {
 
   /** Provides CodeMirror extensions ready for the editor state. */
   get cmExtensions(): CMExtension[] {
-    return [keymap.of(this._keybindings), ...this._addonCMExtensions];
+    return [...this._keybindings, ...this._addonCMExtensions];
   }
 
   /** Provides root and child extensions that can contribute to editor setup. */
   get resolvedExtensions(): InkwellExtension[] {
     return [...this._resolvedExtensions];
-  }
-
-  /** Provides one CodeMirror keymap containing all configured keybindings. */
-  get keybindings(): CMExtension {
-    return keymap.of(this._keybindings);
   }
 
   /**
@@ -69,31 +65,7 @@ export class ExtensionManager {
    * @returns The complete extension list, including child extensions.
    */
   resolveExtensions(): InkwellExtension[] {
-    const resolved: InkwellExtension[] = [];
-    const visited = new Set<InkwellExtension>();
-    const visitedNames = new Set<string>();
-
-    // TODO: add name-guarding / deduping
-    const resolve = (ext: InkwellExtension) => {
-      if (visited.has(ext) || visitedNames.has(ext.name)) return;
-
-      visited.add(ext);
-      resolved.push(ext);
-      visitedNames.add(ext.name);
-
-      if (ext.addExtensions) {
-        const childExtensions = ext.addExtensions({ editor: this.editor });
-        for (const childExtension of childExtensions) {
-          resolve(childExtension);
-        }
-      }
-    };
-
-    for (const ext of this._extensions) {
-      resolve(ext);
-    }
-
-    return resolved;
+    return resolveExtensionsOnEditor(this.editor, this._extensions);
   }
 
   /**
@@ -142,7 +114,7 @@ export class ExtensionManager {
     const keyBinds =
       addKeybinds({ editor: this.editor })?.filter((kb): kb is KeyBinding => kb !== undefined) ??
       [];
-    this._keybindings.push(...keyBinds);
+    this._keybindings.push(keymap.of(keyBinds));
   }
 
   /**
