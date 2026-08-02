@@ -58,16 +58,11 @@ export class Editor extends EventEmitter<EditorEvents> {
     const { element, content } = this.options;
     this._extensionManager = new ExtensionManager(this, this.options?.extensions ?? []);
 
-    const editorExtensions = [
-      ...this._extensionManager.cmExtensions,
-      this._extensionManager.keybindings,
-    ];
-
     this.emit("beforeCreate", { editor: this });
 
     const initialState = EditorState.create({
       doc: content ?? "",
-      extensions: editorExtensions,
+      extensions: this._extensionManager.cmExtensions,
     });
 
     this.view = new EditorView({

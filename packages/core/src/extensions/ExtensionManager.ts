@@ -3,11 +3,14 @@ import { type KeyBinding, keymap } from "@codemirror/view";
 import type { Editor } from "../editor/Editor.ts";
 import type { InkwellExtension } from "./types.ts";
 
+/**
+ * The ExtensionManager class is responsible for managing and resolving extensions, binding their properties & exposing CodeMirror extensions to the editor.
+ */
 export class ExtensionManager {
   private editor: Editor;
   private _extensions: InkwellExtension[] = [];
   private _resolvedExtensions: InkwellExtension[] = [];
-  private _cmExtensions: CMExtension[] = [];
+  private _addonCMExtensions: CMExtension[] = [];
   private _keybindings: KeyBinding[] = [];
 
   constructor(editor: Editor, extensions: InkwellExtension[]) {
@@ -29,7 +32,7 @@ export class ExtensionManager {
   }
 
   get cmExtensions(): CMExtension[] {
-    return [...this._cmExtensions];
+    return [keymap.of(this._keybindings), ...this._addonCMExtensions];
   }
 
   get resolvedExtensions(): InkwellExtension[] {
@@ -74,17 +77,14 @@ export class ExtensionManager {
   }
 
   private bindNodes(addNodes: NonNullable<InkwellExtension["addNodes"]>) {
-    console.log(addNodes({ editor: this.editor }));
     // TODO: implement node binding logic, noop for now
   }
 
   private bindMarks(addMarks: NonNullable<InkwellExtension["addMarks"]>) {
-    console.log(addMarks({ editor: this.editor }));
     // TODO: implement mark binding logic, noop for now
   }
 
   private bindCommands(addCommands: NonNullable<InkwellExtension["addCommands"]>) {
-    console.log(addCommands({ editor: this.editor }));
     // TODO: implement command binding logic, noop for now
   }
 
@@ -99,10 +99,15 @@ export class ExtensionManager {
     this._keybindings.push(...keyBinds);
   }
 
+  /**
+   * Binds CodeMirror extensions from all resolved extensions.
+   * @param addCodeMirrorExtensions - A function that returns an array of CodeMirror extensions.
+   * @returns An array of CodeMirror extensions from all resolved extensions.
+   */
   private bindCmExtensions(
     addCodeMirrorExtensions: NonNullable<InkwellExtension["addCodeMirrorExtensions"]>,
   ) {
     const cmExtensions: CMExtension[] = addCodeMirrorExtensions({ editor: this.editor }) ?? [];
-    this._cmExtensions.push(...cmExtensions);
+    this._addonCMExtensions.push(...cmExtensions);
   }
 }
