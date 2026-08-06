@@ -3,6 +3,9 @@ import { EditorView } from "@codemirror/view";
 import { EventEmitter } from "./EventEmitter.ts";
 import type { EditorEvents, EditorOptions } from "./types.ts";
 import { ExtensionManager } from "../extensions/index.ts";
+import { CommandChain } from "../commands/CommandChain.ts";
+import { coreExtensions } from "../commands/coreExtensions.ts";
+import type { ChainedCommands, SingleCommands } from "../commands/types.ts";
 
 export class Editor extends EventEmitter<EditorEvents> {
   private _te: TextEncoder = new TextEncoder();
@@ -14,6 +17,35 @@ export class Editor extends EventEmitter<EditorEvents> {
 
   get state(): EditorState {
     return this.view.state;
+  }
+
+  /** Starts a command chain. State is snapshotted at run(), not here. */
+  chain(): ChainedCommands {
+    return CommandChain.create(this, this._extensionManager.commands);
+  }
+
+  /** Bound commands that run immediately as one-step chains. */
+  get commands(): SingleCommands {
+    return this.buildCommands();
+  }
+
+  /** Builds the bound commands object from the registry. */
+  private buildCommands(): SingleCommands {
+    const registry = this._extensionManager.commands;
+    const bound = {} as Record<string, (...args: unknown[]) => boolean>;
+
+    for (const name of Object.keys(registry)) {
+      bound[name] = (...args: unknown[]) => {
+        const chain = CommandChain.create(this, registry);
+        // Proxy forwards unknown keys to add(name, args), returns the chain.
+        (chain as unknown as Record<string, (...args: unknown[]) => ChainedCommands>)[name](
+          ...args,
+        );
+        return chain.run();
+      };
+    }
+
+    return bound as unknown as SingleCommands;
   }
 
   public get content(): string {
@@ -56,7 +88,10 @@ export class Editor extends EventEmitter<EditorEvents> {
     super();
     this.options = options;
     const { element, content } = this.options;
-    this._extensionManager = new ExtensionManager(this, this.options?.extensions ?? []);
+    this._extensionManager = new ExtensionManager(this, [
+      coreExtensions,
+      ...(this.options?.extensions ?? []),
+    ]);
 
     this.emit("beforeCreate", { editor: this });
 

@@ -4,12 +4,12 @@ import type { ChainedCommands, Command, CommandContext } from "./types.ts";
 
 /** One collected chain step: a command impl and the args to call it with. */
 type CommandStep = {
-  command: Command<unknown>;
-  args: unknown;
+  command: Command<unknown[]>;
+  args: unknown[];
 };
 
 /** Flat map of command name to curried impl, populated by ExtensionManager. */
-export type CommandRegistry = Record<string, Command<unknown>>;
+export type CommandRegistry = Record<string, Command<any[]>>;
 
 /**
  * Collects commands + args until `run()` executes them as one dispatch.
@@ -35,7 +35,7 @@ export class CommandChain {
         if (prop in target || typeof prop !== "string") {
           return Reflect.get(target, prop);
         }
-        return (args: unknown) => {
+        return (...args: unknown[]) => {
           target.add(prop, args);
           return proxy;
         };
@@ -45,7 +45,7 @@ export class CommandChain {
   }
 
   /** Pushes a step by command name. Called by the proxy on property access. */
-  private add(name: string, args: unknown): this {
+  private add(name: string, args: unknown[]): this {
     const command = this.registry[name];
     if (!command) throw new Error(`Command "${name}" is not registered.`);
     this.steps.push({ command, args });
@@ -88,7 +88,7 @@ export class CommandChain {
           projected = projected.update(spec).state;
         },
       };
-      const succeeded = step.command(ctx)(step.args);
+      const succeeded = step.command(ctx)(...step.args);
       if (!succeeded) allSucceeded = false;
     }
 

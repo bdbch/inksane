@@ -16,7 +16,16 @@ import type { EditorView } from "@codemirror/view";
  *   }
  * }
  */
-export interface InkwellCommands<ReturnType = any> {}
+export interface InkwellCommands<ReturnType = any> {
+  core: {
+    /**
+     * Sets the content of the document.
+     * @param content The content to set.
+     * @returns A boolean indicating whether the command was executed successfully.
+     */
+    setContent: (content: string) => ReturnType;
+  };
+}
 
 /** Runtime context handed to a command. State is projected (post prior steps). */
 export interface CommandContext {
@@ -27,7 +36,9 @@ export interface CommandContext {
 }
 
 /** Curried impl: ctx applied at construction, args at call time. Returns false to skip. */
-export type Command<Args> = (ctx: CommandContext) => (args: Args) => boolean;
+export type Command<Args extends any[] = any[]> = (
+  ctx: CommandContext,
+) => (...args: Args) => boolean;
 
 /** Turns a union of object types into an intersection of those types. */
 export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
@@ -53,6 +64,8 @@ export type UnionCommands<ReturnType = boolean> = UnionToIntersection<
 export type RawCommands = {
   [K in keyof UnionCommands]: (ctx: CommandContext) => UnionCommands<boolean>[K];
 };
+
+export type NamedCommand<T extends keyof RawCommands> = RawCommands[T];
 
 /** What `editor.commands` exposes: ctx applied, returns boolean. */
 export type SingleCommands = {

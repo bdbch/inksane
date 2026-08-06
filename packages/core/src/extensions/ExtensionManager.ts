@@ -2,6 +2,7 @@ import type { Extension as CMExtension } from "@codemirror/state";
 import { type KeyBinding, keymap } from "@codemirror/view";
 import type { Editor } from "../editor/Editor.ts";
 import type { InkwellExtension } from "./types.ts";
+import type { CommandRegistry } from "../commands/CommandChain.ts";
 import { resolveExtensionsOnEditor } from "./helpers/resolveExtensionsOnEditor.ts";
 
 /**
@@ -22,6 +23,9 @@ export class ExtensionManager {
 
   /** Stores keybindings before they become one CodeMirror keymap. */
   private _keybindings: CMExtension[] = [];
+
+  /** Flat map of command name to curried impl, collected from extensions. */
+  private _commands: CommandRegistry = {};
 
   /**
    * Creates one extension setup lifecycle for the editor and its configured extensions.
@@ -57,6 +61,11 @@ export class ExtensionManager {
   /** Provides root and child extensions that can contribute to editor setup. */
   get resolvedExtensions(): InkwellExtension[] {
     return [...this._resolvedExtensions];
+  }
+
+  /** Provides the collected command registry for editor.commands and chain(). */
+  get commands(): CommandRegistry {
+    return { ...this._commands };
   }
 
   /**
@@ -96,13 +105,10 @@ export class ExtensionManager {
     // TODO: implement mark binding logic, noop for now
   }
 
-  /**
-   * Reserves command registration until Inkwell exposes a command registry.
-   *
-   * @param addCommands - Provides commands from one extension.
-   */
+  /** Collects commands from one extension into the registry. */
   private bindCommands(addCommands: NonNullable<InkwellExtension["addCommands"]>) {
-    // TODO: implement command binding logic, noop for now
+    const commands = addCommands({ editor: this.editor }) ?? {};
+    Object.assign(this._commands, commands);
   }
 
   /**

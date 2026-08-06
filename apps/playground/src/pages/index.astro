@@ -12,6 +12,8 @@ import "../assets/global.css";
         <title>Inkwell Playground</title>
     </head>
     <body>
+        <button id="runChain">Run Chain</button>
+        <button id="runCommand">Run Command</button>
         <div id="editor-mount"></div>
     </body>
 </html>
@@ -53,5 +55,18 @@ import "../assets/global.css";
         extensions: [TestExtension],
     });
 
+    const runCommandBtn = document.getElementById("runCommand");
+    const runChainBtn = document.getElementById("runChain");
+
+    runCommandBtn?.addEventListener("click", () => {
+        editor.commands.insertContent({ content: "Inserted with command!", from: 0 })
+    });
+
+    runChainBtn?.addEventListener("click", () => {
+        editor.chain().insertContent({ content: "Inserted with chain!", from: 0 }).run();
+    });
+
     console.log(editor);
+    // @ts-expect-error we set the editor on window
+    window.editor = editor
 </script>

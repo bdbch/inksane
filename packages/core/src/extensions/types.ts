@@ -35,7 +35,9 @@ export type InkwellExtension = ExtensionEventHandlers & {
   addMarks?: (ctx: EditorContext) => MarkConfig[];
   // Loose: core can't see InkwellCommands augmentations. Authors can annotate
   // returns as Partial<RawCommands> at the call site for per-command checking.
-  addCommands?: (ctx: EditorContext) => Record<string, Command<unknown>>;
+  // Command<any> (not unknown) because args is contravariant — specific command
+  // types must be assignable to the registry type.
+  addCommands?: (ctx: EditorContext) => Record<string, Command<any>>;
   addCodeMirrorExtensions?: (ctx: EditorContext) => CMExtension[];
   addExtensions?: (ctx: EditorContext) => InkwellExtension[];
 
