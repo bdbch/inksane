@@ -1,4 +1,4 @@
-import type { NamedCommand } from "../types/commands.ts";
+import type { NamedCommand } from "~/types/commands.ts";
 import { insertContent } from "./insertContent.ts";
 
 declare module "@inkwell/core" {

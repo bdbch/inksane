@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
-import { Editor } from "./Editor.ts";
+import { Editor } from "~/Editor.ts";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 

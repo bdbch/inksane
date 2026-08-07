@@ -1,9 +1,9 @@
 import type { Extension as CMExtension } from "@codemirror/state";
 import { type KeyBinding, keymap } from "@codemirror/view";
-import type { Editor } from "./Editor.ts";
-import type { InkwellExtension } from "./types/extensions.ts";
-import type { CommandRegistry } from "./CommandChain.ts";
-import { resolveExtensionsOnEditor } from "./helpers/resolveExtensionsOnEditor.ts";
+import type { Editor } from "~/Editor.ts";
+import type { InkwellExtension } from "~/types/extensions.ts";
+import type { CommandRegistry } from "~/CommandChain.ts";
+import { resolveExtensionsOnEditor } from "~/helpers/resolveExtensionsOnEditor.ts";
 
 /**
  * Manages and resolves extensions so the editor receives one complete CodeMirror setup.

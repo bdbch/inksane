@@ -1,5 +1,5 @@
 import type { EditorState, TransactionSpec } from "@codemirror/state";
-import type { Editor } from "../Editor.ts";
+import type { Editor } from "~/Editor.ts";
 import type { EditorView } from "@codemirror/view";
 
 /**

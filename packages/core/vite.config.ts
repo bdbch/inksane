@@ -1,6 +1,9 @@
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  resolve: {
+    alias: { "~": "/src" },
+  },
   pack: {
     dts: {
       tsgo: true,
