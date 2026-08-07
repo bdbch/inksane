@@ -20,18 +20,23 @@ declare module "@inkwell/core" {
 export const cutContent: NamedCommand<"cutContent"> =
   ({ state, dispatch }) =>
   (fromRange, toRange) => {
-    const slicedContent = state.doc.sliceString(fromRange.from, fromRange.to);
+    try {
+      const slicedContent = state.doc.sliceString(fromRange.from, fromRange.to);
 
-    dispatch({
-      changes: [
-        { from: fromRange.from, to: fromRange.to, insert: "" },
-        {
-          from: toRange.from + slicedContent.length,
-          to: toRange.to + slicedContent.length,
-          insert: slicedContent,
-        },
-      ],
-    });
+      dispatch({
+        changes: [
+          { from: fromRange.from, to: fromRange.to, insert: "" },
+          {
+            from: toRange.from + slicedContent.length,
+            to: toRange.to + slicedContent.length,
+            insert: slicedContent,
+          },
+        ],
+      });
 
-    return true;
+      return true;
+    } catch (error) {
+      console.warn("[inkwell] Failed to cut content", fromRange, toRange, error);
+      return false;
+    }
   };

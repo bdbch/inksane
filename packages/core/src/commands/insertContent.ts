@@ -25,8 +25,13 @@ declare module "@inkwell/core" {
 export const insertContent: NamedCommand<"insertContent"> =
   ({ dispatch }) =>
   ({ content, from, to }) => {
-    dispatch({
-      changes: { from, to, insert: content },
-    });
-    return true;
+    try {
+      dispatch({
+        changes: { from, to, insert: content },
+      });
+      return true;
+    } catch (error) {
+      console.warn("[inkwell] Failed to insert content", content, from, to, error);
+      return false;
+    }
   };
