@@ -1,5 +1,5 @@
-import type { Editor } from "../../editor/Editor.ts";
-import type { InkwellExtension } from "../types.ts";
+import type { Editor } from "../Editor.ts";
+import type { InkwellExtension } from "../types/extensions.ts";
 
 /**
  * Resolves the extensions by resolving child extensions and returning a flat list of all extensions + deduplicating by name.

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vite-plus/test";
-import type { Editor } from "../../editor/Editor.ts";
-import type { InkwellExtension } from "../types.ts";
 import { resolveExtensionsOnEditor } from "./resolveExtensionsOnEditor.ts";
+import type { Editor } from "../Editor.ts";
+import type { InkwellExtension } from "../types/extensions.ts";
 
 describe("resolveExtensionsOnEditor", () => {
   const editor = {} as Editor;

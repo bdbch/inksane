@@ -1,7 +1,7 @@
-import type { NamedCommand } from "./types.ts";
+import type { NamedCommand } from "../types/commands.ts";
 
-declare module "./types.ts" {
-  interface InkwellCommands<ReturnType> {
+declare module "@inkwell/core" {
+  interface Commands<ReturnType> {
     cutContent: {
       /**
        * Cuts content from one range and inserts it at another range

@@ -1,5 +1,5 @@
 import type { EditorState, TransactionSpec } from "@codemirror/state";
-import type { Editor } from "../editor/Editor.ts";
+import type { Editor } from "../Editor.ts";
 import type { EditorView } from "@codemirror/view";
 
 /**
@@ -9,23 +9,14 @@ import type { EditorView } from "@codemirror/view";
  *
  * @example
  * declare module "@inkwell/core" {
- *   interface InkwellCommands<ReturnType> {
+ *   interface Commands<ReturnType> {
  *     myExtension: {
  *       setContent: (args: { content: string }) => ReturnType
  *     }
  *   }
  * }
  */
-export interface InkwellCommands<ReturnType = any> {
-  core: {
-    /**
-     * Sets the content of the document.
-     * @param content The content to set.
-     * @returns A boolean indicating whether the command was executed successfully.
-     */
-    setContent: (content: string) => ReturnType;
-  };
-}
+export interface Commands<ReturnType = any> {}
 
 /** Runtime context handed to a command. State is projected (post prior steps). */
 export interface CommandContext {
@@ -57,7 +48,7 @@ export type KeysWithTypeOf<T, Type> = {
 
 /** Flattens namespaced augmentations into `commandName: (args) => ReturnType`. */
 export type UnionCommands<ReturnType = boolean> = UnionToIntersection<
-  ValuesOf<Pick<InkwellCommands<ReturnType>, KeysWithTypeOf<InkwellCommands<ReturnType>, object>>>
+  ValuesOf<Pick<Commands<ReturnType>, KeysWithTypeOf<Commands<ReturnType>, object>>>
 >;
 
 /** What `addCommands` returns: curried impl keyed by command name. */

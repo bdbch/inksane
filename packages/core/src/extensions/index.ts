@@ -1,2 +1,1 @@
-export * from "./types.ts";
-export * from "./ExtensionManager.ts";
+export * from "./commands.ts";

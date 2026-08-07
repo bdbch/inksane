@@ -1,11 +1,11 @@
 import { EditorState, Text } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { EventEmitter } from "./EventEmitter.ts";
-import type { EditorEvents, EditorOptions } from "./types.ts";
-import { ExtensionManager } from "../extensions/index.ts";
-import { CommandChain } from "../commands/CommandChain.ts";
-import { coreExtensions } from "../commands/coreExtensions.ts";
-import type { ChainedCommands, SingleCommands } from "../commands/types.ts";
+import type { EditorEvents, EditorOptions } from "./types/editor.ts";
+import { ExtensionManager } from "./ExtensionManager.ts";
+import type { ChainedCommands, SingleCommands } from "./types/commands.ts";
+import { CommandChain } from "./CommandChain.ts";
+import { CommandsExtension } from "./extensions/commands.ts";
 
 export class Editor extends EventEmitter<EditorEvents> {
   private _te: TextEncoder = new TextEncoder();
@@ -89,7 +89,7 @@ export class Editor extends EventEmitter<EditorEvents> {
     this.options = options;
     const { element, content } = this.options;
     this._extensionManager = new ExtensionManager(this, [
-      coreExtensions,
+      CommandsExtension,
       ...(this.options?.extensions ?? []),
     ]);
 

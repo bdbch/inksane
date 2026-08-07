@@ -1,7 +1,7 @@
-import type { NamedCommand } from "./types.ts";
+import type { NamedCommand } from "../types/commands.ts";
 
-declare module "./types.ts" {
-  interface InkwellCommands<ReturnType> {
+declare module "@inkwell/core" {
+  interface Commands<ReturnType> {
     /**
      * Inserts content into the document at the specified range.
      * If to is not provided, it will insert at the from position.

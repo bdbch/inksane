@@ -1,8 +1,8 @@
+import type { NamedCommand } from "../types/commands.ts";
 import { insertContent } from "./insertContent.ts";
-import type { NamedCommand } from "./types.ts";
 
-declare module "./types.ts" {
-  interface InkwellCommands<ReturnType> {
+declare module "@inkwell/core" {
+  interface Commands<ReturnType> {
     setContent: {
       setContent: (content: string) => ReturnType;
     };
