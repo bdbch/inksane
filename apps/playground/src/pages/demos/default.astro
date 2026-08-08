@@ -1,0 +1,71 @@
+---
+import Base from "../../layouts/Base.astro";
+---
+
+<Base>
+    <div class="mb-4 flex items-center gap-2 flex-wrap">
+        <button id="runChain">Run Chain</button>
+        <button id="runCommand">Run Command</button>
+    </div>
+    <div id="editor-mount"></div>
+</Base>
+
+<script>
+    import { Editor, type InkwellExtension } from "@inkwell/core";
+
+    const TestExtension: InkwellExtension = {
+        name: "test",
+        priority: 10,
+        addKeybinds() {
+            return [
+                {
+                    key: "Mod-Enter",
+                    run(view) {
+                        const newContent = `Hello World!\n\n**This** is a great text _extension_!`;
+                        // insert "Hello World" at the current cursor position
+                        view.dispatch({
+                            changes: {
+                                from: view.state.selection.main.from,
+                                to: view.state.selection.main.to,
+                                insert: newContent,
+                            },
+                            selection: {
+                                anchor:
+                                    view.state.selection.main.from +
+                                    newContent.length,
+                            },
+                        });
+                        return true;
+                    },
+                },
+            ];
+        },
+    };
+
+    const editor = new Editor({
+        element: document.getElementById("editor-mount")!,
+        content: "# This is the Inkwell playground\n\nFeel free to play around",
+        extensions: [TestExtension],
+    });
+
+    const runCommandBtn = document.getElementById("runCommand");
+    const runChainBtn = document.getElementById("runChain");
+
+    runCommandBtn?.addEventListener("click", () => {
+        editor.commands.insertContent({
+            content: "Inserted with command!",
+            from: 0,
+        });
+    });
+
+    runChainBtn?.addEventListener("click", () => {
+        editor
+            .chain()
+            .insertContent({ content: "Inserted with chain!", from: 0 })
+            .run();
+    });
+
+    console.log(editor);
+    // @ts-expect-error we set the editor on window
+    window.editor = editor;
+</script>

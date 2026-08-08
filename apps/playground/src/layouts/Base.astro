@@ -1,0 +1,78 @@
+---
+import type { $brand } from "astro:schema";
+import "../assets/global.css";
+
+interface NavigationItem {
+    title: string;
+    href: string;
+}
+
+interface NavigationGroup {
+    title?: string;
+    items: NavigationItem[];
+}
+
+interface Navigation {
+    groups: NavigationGroup[];
+}
+
+const navigation: Navigation = {
+    groups: [
+        {
+            title: "Demos",
+            items: [{ title: "Default Editor", href: "/demos/default" }],
+        },
+        {
+            title: "Examples",
+            items: [
+                { title: "Basic Example", href: "/examples/basic" },
+                { title: "Advanced Example", href: "/examples/advanced" },
+            ],
+        },
+    ],
+};
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Inkwell Playground</title>
+    </head>
+    <body>
+        <div class="h-dvh w-dvw flex">
+            <div class="w-56 border-r bg-background flex-none p-6">
+                <a href="/">inkwell</a>
+                {
+                    navigation.groups.map((group) => (
+                        <div class="mt-6">
+                            {group.title && (
+                                <h2 class="mb-2 text-sm font-semibold">
+                                    {group.title}
+                                </h2>
+                            )}
+                            <ul>
+                                {group.items.map((item) => (
+                                    <li>
+                                        <a
+                                            href={item.href}
+                                            class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                                        >
+                                            {item.title}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))
+                }
+            </div>
+            <div class="flex-1 overflow-y p-6 lg:p-16">
+                <slot />
+            </div>
+        </div>
+    </body>
+</html>
