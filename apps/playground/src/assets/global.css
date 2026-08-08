@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme {
   --color-background: var(--background);
@@ -7,6 +8,11 @@
   --color-foreground-muted: var(--foreground-muted);
   --color-border: var(--border);
   --color-border-muted: var(--border-muted);
+
+  --font-sans:
+    "Hanken Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 :root {

@@ -12,6 +12,8 @@ import Base from "../../layouts/Base.astro";
 
 <script>
     import { Editor, type InkwellExtension } from "@inkwell/core";
+    import { EditorView } from "@codemirror/view";
+    import type { $brand } from "astro:schema";
 
     const TestExtension: InkwellExtension = {
         name: "test",
@@ -42,10 +44,19 @@ import Base from "../../layouts/Base.astro";
         },
     };
 
+    const theme = EditorView.theme({
+        ".cm-content": { paddingTop: "24px", paddingBottom: "24px" },
+        ".cm-line": { paddingLeft: "24px", paddingRight: "24px" },
+    });
+
     const editor = new Editor({
         element: document.getElementById("editor-mount")!,
         content: "# This is the Inkwell playground\n\nFeel free to play around",
         extensions: [TestExtension],
+        theme,
+        classNames: {
+            editable: "font-sans prose prose-invert",
+        },
     });
 
     const runCommandBtn = document.getElementById("runCommand");

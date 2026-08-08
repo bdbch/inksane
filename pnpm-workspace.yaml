@@ -17,6 +17,8 @@ catalog:
   "@tailwindcss/vite": ^4.3.3
   tailwindcss: ^4.3.3
   astro: ^7.2.0
+  "@fontsource/hanken-grotesk": ^5.3.0
+  "@tailwindcss/typography": ^0.5.20
 overrides:
   vite: "catalog:"
   vitest: "catalog:"

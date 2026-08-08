@@ -1,4 +1,4 @@
-import type { EditorSelection, Transaction } from "@codemirror/state";
+import type { EditorSelection, Extension, Transaction } from "@codemirror/state";
 import type { InkwellExtension } from "./extensions.ts";
 import type { Editor } from "../Editor.ts";
 
@@ -6,6 +6,11 @@ export type EditorOptions = {
   element: HTMLElement;
   content?: string;
   extensions?: InkwellExtension[];
+  theme?: Extension;
+  classNames?: {
+    editor?: string;
+    editable?: string;
+  };
 };
 
 export type EditorEvents = {

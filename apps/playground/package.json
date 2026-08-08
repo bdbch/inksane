@@ -12,9 +12,13 @@
   "dependencies": {
     "@codemirror/state": "catalog:",
     "@codemirror/view": "catalog:",
+    "@fontsource/hanken-grotesk": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "astro": "catalog:",
     "tailwindcss": "catalog:"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "catalog:"
   },
   "engines": {
     "node": ">=22.12.0"

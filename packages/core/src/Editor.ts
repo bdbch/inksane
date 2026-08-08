@@ -95,15 +95,22 @@ export class Editor extends EventEmitter<EditorEvents> {
 
     this.emit("beforeCreate", { editor: this });
 
+    const editorViewExtensions = [];
+
+    if (this.options.theme) {
+      editorViewExtensions.push(this.options.theme);
+    }
+
     const initialState = EditorState.create({
       doc: content ?? "",
-      extensions: this._extensionManager.cmExtensions,
+      extensions: [...editorViewExtensions, ...this._extensionManager.cmExtensions],
     });
 
     this.view = new EditorView({
       state: initialState,
       parent: element,
     });
+
     this.setupDOM();
 
     this.emit("create", { editor: this });
@@ -117,9 +124,21 @@ export class Editor extends EventEmitter<EditorEvents> {
   private setupDOM(): void {
     this.view.dom.dataset.inkwellEditor = "";
     this.view.dom.classList.add("inkwell-editor");
+    if (this.options.classNames?.editor) {
+      const editorClasses = this.options.classNames.editor.split(" ");
+      for (let i = 0; i < editorClasses.length; i++) {
+        this.view.dom.classList.add(editorClasses[i]);
+      }
+    }
 
     this.view.contentDOM.dataset.inkwellEditorContent = "";
     this.view.contentDOM.classList.add("inkwell-editor--content");
+    if (this.options.classNames?.editable) {
+      const editableClasses = this.options.classNames.editable.split(" ");
+      for (let i = 0; i < editableClasses.length; i++) {
+        this.view.contentDOM.classList.add(editableClasses[i]);
+      }
+    }
 
     // @ts-expect-error we set the editor here so users can access the editor object from the DOM element
     this.options.element["editor"] = this;
