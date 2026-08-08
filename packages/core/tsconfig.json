@@ -17,7 +17,6 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "paths": {
-      "~/*": ["./src/*"],
       "@inkwell/core": ["./src/index.ts"]
     }
   }

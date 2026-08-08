@@ -2,8 +2,8 @@ import { EditorState, StateField } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
 import { describe, expect, it } from "vite-plus/test";
 import { ExtensionManager } from "./ExtensionManager.ts";
-import type { InkwellExtension } from "~/types/extensions.ts";
-import type { Editor } from "~/Editor.ts";
+import type { InkwellExtension } from "./types/extensions.ts";
+import type { Editor } from "./Editor.ts";
 
 describe("ExtensionManager", () => {
   const editor = {} as Editor;

@@ -2,8 +2,7 @@
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "paths": {
-      "@inkwell/core": ["../../packages/core/src/index.ts"],
-      "@inkwell/core/*": ["../../packages/core/src/*"]
+      "@inkwell/*": ["../../packages/*/src"]
     }
   },
   "include": [".astro/types.d.ts", "**/*"],

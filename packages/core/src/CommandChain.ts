@@ -1,6 +1,6 @@
 import type { EditorState, TransactionSpec } from "@codemirror/state";
-import type { ChainedCommands, Command, CommandContext } from "~/types/commands.ts";
-import type { Editor } from "~/Editor.ts";
+import type { ChainedCommands, Command, CommandContext } from "./types/commands.ts";
+import type { Editor } from "./Editor.ts";
 
 /** One collected chain step: a command impl and the args to call it with. */
 type CommandStep = {

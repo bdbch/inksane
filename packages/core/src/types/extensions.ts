@@ -1,6 +1,6 @@
 import type { Extension as CMExtension } from "@codemirror/state";
 import type { KeyBinding } from "@codemirror/view";
-import type { Editor } from "~/Editor.ts";
+import type { Editor } from "../Editor.ts";
 import type { EditorEvents } from "./editor.ts";
 import type { Command } from "./commands.ts";
 
