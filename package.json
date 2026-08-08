@@ -4,8 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "ready": "vp check && vp run -r test && vp run -r build",
+    "ready": "vp check && vp run -r test && vp run build",
     "dev": "vp run playground#dev",
+    "build": "vp run --filter \"!@inkwell/playground\" --filter \"@inkwell/*\" build",
+    "test": "vp test",
     "prepare": "vp config"
   },
   "devDependencies": {
