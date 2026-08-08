@@ -12,7 +12,9 @@
   "dependencies": {
     "@codemirror/state": "catalog:",
     "@codemirror/view": "catalog:",
-    "astro": "^7.1.6"
+    "@tailwindcss/vite": "catalog:",
+    "astro": "catalog:",
+    "tailwindcss": "catalog:"
   },
   "engines": {
     "node": ">=22.12.0"
