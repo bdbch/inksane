@@ -78,7 +78,7 @@ function buildDecorations(
                   Decoration.replace({ widget: type, block: widget.block }).range(from, to),
                 );
               }
-            } else if (widget.onlyWhenHidden !== false || hidden) {
+            } else if (widget.onlyWhenHidden === false || hidden) {
               const pos =
                 typeof widget.position === "function"
                   ? widget.position(node.node, state)
