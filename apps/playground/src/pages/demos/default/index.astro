@@ -1,14 +1,14 @@
 ---
-import Base from "../../layouts/Base.astro";
+import Base from "../../../layouts/Base.astro";
 
-import { rawContent } from '../../../../../README.md'
+import { rawContent } from '../../../../../../README.md'
 const markdown = rawContent()
 ---
 
 <Base>
     <div class="mb-4 flex items-center gap-2 flex-wrap">
-        <button id="runChain">Run Chain</button>
-        <button id="runCommand">Run Command</button>
+        <button data-action="toggleBold">Toggle Bold</button>
+        <button data-action="toggleItalic">Toggle Italic</button>
     </div>
     <div id="editor-mount" data-markdown={markdown}></div>
 </Base>
@@ -16,6 +16,8 @@ const markdown = rawContent()
 <script>
     import { Editor, type InkwellExtension } from "@inkwell/core";
     import { EditorView } from "@codemirror/view";
+
+    const buttons = document.querySelectorAll("button[data-action]");
 
     const TestExtension: InkwellExtension = {
         name: "test",
@@ -65,22 +67,22 @@ const markdown = rawContent()
         },
     });
 
-    const runCommandBtn = document.getElementById("runCommand");
-    const runChainBtn = document.getElementById("runChain");
+    buttons.forEach(btn => {
+      const action = (btn as HTMLButtonElement).dataset.action;
 
-    runCommandBtn?.addEventListener("click", () => {
-        editor.commands.insertContent({
-            content: "Inserted with command!",
-            from: 0,
-        });
-    });
-
-    runChainBtn?.addEventListener("click", () => {
-        editor
-            .chain()
-            .insertContent({ content: "Inserted with chain!", from: 0 })
-            .run();
-    });
+      btn.addEventListener("click", () => {
+        switch(action) {
+          case "toggleBold":
+            editor.chain().toggleBold().focus().run();
+            break;
+          case "toggleItalic":
+            editor.chain().toggleItalic().focus().run();
+            break;
+          default:
+            console.warn(`No action defined for ${action}`);
+        }
+      });
+    })
 
     console.log(editor);
     // @ts-expect-error we set the editor on window
