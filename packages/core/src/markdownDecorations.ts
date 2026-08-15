@@ -1,8 +1,12 @@
 import { syntaxTree } from "@codemirror/language";
 import { type EditorState, type Extension, type Range, StateField } from "@codemirror/state";
-import { Decoration, type DecorationSet, EditorView } from "@codemirror/view";
+import { Decoration, type DecorationSet, EditorView, type WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
-import type { MarkdownDecorationConfig, MarkupRange } from "./types/extensions.ts";
+import type {
+  MarkdownDecorationConfig,
+  MarkupRange,
+  ReplacementWidget,
+} from "./types/extensions.ts";
 
 /**
  * Resolves which parts of a syntax node count as markdown markup.
@@ -28,6 +32,15 @@ function resolveMarkupRanges(
   return ranges;
 }
 
+/** Resolves a widget type from a value or a per-node factory. */
+function resolveWidgetType(
+  type: WidgetType | ((node: SyntaxNode, state: EditorState) => WidgetType),
+  node: SyntaxNode,
+  state: EditorState,
+): WidgetType {
+  return typeof type === "function" ? type(node, state) : type;
+}
+
 function buildDecorations(
   state: EditorState,
   entriesByNodeName: Map<string, { config: MarkdownDecorationConfig; mark: Decoration }[]>,
@@ -46,19 +59,44 @@ function buildDecorations(
       for (const { config, mark } of entries) {
         ranges.push(mark.range(node.from, node.to));
 
-        if (hasHideSyntax && config.hideSyntax && (node.from > selTo || node.to < selFrom)) {
+        const hidden =
+          hasHideSyntax && config.hideSyntax && (node.from > selTo || node.to < selFrom);
+
+        if (hidden) {
+          const replace = config.widgets?.find((w): w is ReplacementWidget => w.kind === "replace");
+
           for (const { from: markupFrom, to: markupTo } of resolveMarkupRanges(
             config,
             node.node,
             state,
           )) {
-            const hide = config.widget
+            const hide = replace
               ? Decoration.replace({
-                  widget: config.widget.type,
-                  block: config.widget.block,
+                  widget: resolveWidgetType(replace.type, node.node, state),
+                  block: replace.block,
                 })
               : Decoration.replace({});
             ranges.push(hide.range(markupFrom, markupTo));
+          }
+        }
+
+        if (config.widgets) {
+          for (const widget of config.widgets) {
+            if (widget.kind !== "attach" || (widget.onlyWhenHidden !== false && !hidden)) continue;
+
+            const pos =
+              typeof widget.position === "function"
+                ? widget.position(node.node, state)
+                : widget.position === "before"
+                  ? node.from
+                  : node.to;
+            const side = widget.position === "before" ? -1 : 1;
+            ranges.push(
+              Decoration.widget({
+                widget: resolveWidgetType(widget.type, node.node, state),
+                side,
+              }).range(pos),
+            );
           }
         }
       }

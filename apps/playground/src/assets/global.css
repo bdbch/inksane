@@ -58,6 +58,20 @@
     @apply underline;
   }
 
+  .inkwell-mark-link-open {
+    display: inline-block;
+    margin-left: 4px;
+    cursor: pointer;
+    vertical-align: middle;
+    color: var(--foreground-muted);
+  }
+
+  .inkwell-mark-link-open svg {
+    display: block;
+    width: 14px;
+    height: 14px;
+  }
+
   .inkwell-mark-heading {
     @apply font-bold;
   }

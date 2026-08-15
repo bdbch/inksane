@@ -16,6 +16,29 @@ export type MarkupRange = {
   to: number;
 };
 
+/** A widget that replaces the hidden markup of a node. */
+export type ReplacementWidget = {
+  kind: "replace";
+  /** The widget to render in place of the markup. */
+  type: WidgetType | ((node: SyntaxNode, state: EditorState) => WidgetType);
+  /** Renders it as a block-level widget spanning the line. */
+  block?: boolean;
+};
+
+/** A widget attached to a position on a node. */
+export type AttachmentWidget = {
+  kind: "attach";
+  /** Where the widget is attached. Defaults to "after". */
+  position?: "before" | "after" | ((node: SyntaxNode, state: EditorState) => number);
+  /** Only renders while the syntax is hidden. Defaults to true. */
+  onlyWhenHidden?: boolean;
+  /** The widget to render. A factory can build it per node. */
+  type: WidgetType | ((node: SyntaxNode, state: EditorState) => WidgetType);
+};
+
+/** A widget rendered for a decorated node. */
+export type MarkdownNodeWidget = ReplacementWidget | AttachmentWidget;
+
 /** Declares how a syntax-tree node is decorated. */
 export type MarkdownDecorationConfig = {
   /** The syntax-tree node name this config applies to. */
@@ -30,11 +53,8 @@ export type MarkdownDecorationConfig = {
   markup?: string[] | ((node: SyntaxNode, state: EditorState) => MarkupRange[]);
   /** Hides the markup while the cursor is outside the node. */
   hideSyntax?: boolean;
-  /**
-   * Widget rendered in place of the markup while `hideSyntax` hides it.
-   * `block` renders it as a block-level widget spanning the line.
-   */
-  widget?: { type: WidgetType; block?: boolean };
+  /** Widgets rendered for the node. */
+  widgets?: MarkdownNodeWidget[];
 };
 
 export type ExtensionEventHandlers = {

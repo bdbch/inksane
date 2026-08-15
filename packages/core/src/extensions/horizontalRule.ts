@@ -49,7 +49,7 @@ export const HorizontalRuleExtension: InkwellExtension = {
         className: "inkwell-mark-horizontal-rule",
         hideSyntax: true,
         markup: (node) => [{ from: node.from, to: node.to }],
-        widget: { type: new HorizontalRuleWidget() },
+        widgets: [{ kind: "replace", type: new HorizontalRuleWidget() }],
       },
     ];
   },
