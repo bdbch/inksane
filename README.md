@@ -45,4 +45,8 @@ Contributions are welcome. Please read and follow the [contributor guidelines](.
 
 ## Contributors
 
-- TBD
+- **Maintainers**
+  - [bdbch](https://github.com/bdbch)
+
+- **Contributors**
+  - _Want to become a contributor to inksane? Go for it - I'm always looking for reoccuring contributors_
