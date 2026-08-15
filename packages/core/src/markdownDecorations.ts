@@ -2,11 +2,7 @@ import { syntaxTree } from "@codemirror/language";
 import { type EditorState, type Extension, type Range, StateField } from "@codemirror/state";
 import { Decoration, type DecorationSet, EditorView, type WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
-import type {
-  MarkdownDecorationConfig,
-  MarkupRange,
-  ReplacementWidget,
-} from "./types/extensions.ts";
+import type { MarkdownDecorationConfig, MarkupRange } from "./types/extensions.ts";
 
 /**
  * Resolves which parts of a syntax node count as markdown markup.
@@ -44,7 +40,6 @@ function resolveWidgetType(
 function buildDecorations(
   state: EditorState,
   entriesByNodeName: Map<string, { config: MarkdownDecorationConfig; mark: Decoration }[]>,
-  hasHideSyntax: boolean,
 ): DecorationSet {
   const ranges: Range<Decoration>[] = [];
   const { from: selFrom, to: selTo } = state.selection.main;
@@ -59,44 +54,41 @@ function buildDecorations(
       for (const { config, mark } of entries) {
         ranges.push(mark.range(node.from, node.to));
 
-        const hidden =
-          hasHideSyntax && config.hideSyntax && (node.from > selTo || node.to < selFrom);
-
-        if (hidden) {
-          const replace = config.widgets?.find((w): w is ReplacementWidget => w.kind === "replace");
-
-          for (const { from: markupFrom, to: markupTo } of resolveMarkupRanges(
-            config,
-            node.node,
-            state,
-          )) {
-            const hide = replace
-              ? Decoration.replace({
-                  widget: resolveWidgetType(replace.type, node.node, state),
-                  block: replace.block,
-                })
-              : Decoration.replace({});
-            ranges.push(hide.range(markupFrom, markupTo));
-          }
-        }
+        const hidden = config.hideSyntax && (node.from > selTo || node.to < selFrom);
+        const markupRanges = resolveMarkupRanges(config, node.node, state);
 
         if (config.widgets) {
           for (const widget of config.widgets) {
-            if (widget.kind !== "attach" || (widget.onlyWhenHidden !== false && !hidden)) continue;
+            if (widget.kind === "replace") {
+              if (!hidden) continue;
 
-            const pos =
-              typeof widget.position === "function"
-                ? widget.position(node.node, state)
-                : widget.position === "before"
-                  ? node.from
-                  : node.to;
-            const side = widget.position === "before" ? -1 : 1;
-            ranges.push(
-              Decoration.widget({
-                widget: resolveWidgetType(widget.type, node.node, state),
-                side,
-              }).range(pos),
-            );
+              const type = resolveWidgetType(widget.type, node.node, state);
+              for (const { from, to } of markupRanges) {
+                ranges.push(
+                  Decoration.replace({ widget: type, block: widget.block }).range(from, to),
+                );
+              }
+            } else if (widget.onlyWhenHidden !== false || hidden) {
+              const pos =
+                typeof widget.position === "function"
+                  ? widget.position(node.node, state)
+                  : widget.position === "before"
+                    ? node.from
+                    : node.to;
+              const side = widget.position === "before" ? -1 : 1;
+              ranges.push(
+                Decoration.widget({
+                  widget: resolveWidgetType(widget.type, node.node, state),
+                  side,
+                }).range(pos),
+              );
+            }
+          }
+        }
+
+        if (hidden && !config.widgets?.some((w) => w.kind === "replace")) {
+          for (const { from, to } of markupRanges) {
+            ranges.push(Decoration.replace({}).range(from, to));
           }
         }
       }
@@ -112,7 +104,9 @@ export function createMarkdownDecorations(configs: readonly MarkdownDecorationCo
     string,
     { config: MarkdownDecorationConfig; mark: Decoration }[]
   >();
-  const hasHideSyntax = configs.some((config) => config.hideSyntax);
+  const hasSelectionDependent = configs.some(
+    (config) => config.hideSyntax || (config.widgets?.length ?? 0) > 0,
+  );
 
   for (const config of configs) {
     const mark = Decoration.mark({ class: config.className });
@@ -122,10 +116,10 @@ export function createMarkdownDecorations(configs: readonly MarkdownDecorationCo
   }
 
   return StateField.define<DecorationSet>({
-    create: (state) => buildDecorations(state, entriesByNodeName, hasHideSyntax),
+    create: (state) => buildDecorations(state, entriesByNodeName),
     update: (value, transaction) => {
-      if (transaction.docChanged || (hasHideSyntax && transaction.selection)) {
-        return buildDecorations(transaction.state, entriesByNodeName, hasHideSyntax);
+      if (transaction.docChanged || (hasSelectionDependent && transaction.selection)) {
+        return buildDecorations(transaction.state, entriesByNodeName);
       }
       return value.map(transaction.changes);
     },

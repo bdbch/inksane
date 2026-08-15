@@ -10,6 +10,7 @@ import {
   CommandsExtension,
   HeadingExtension,
   HorizontalRuleExtension,
+  ImageExtension,
   ItalicExtension,
   LinkExtension,
 } from "./extensions/index.ts";
@@ -102,6 +103,7 @@ export class Editor extends EventEmitter<EditorEvents> {
       LinkExtension,
       HeadingExtension,
       HorizontalRuleExtension,
+      ImageExtension,
       ...(this.options?.extensions ?? []),
     ]);
 

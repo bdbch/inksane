@@ -113,4 +113,18 @@
     margin: 0;
     vertical-align: middle;
   }
+
+  .inkwell-image {
+    display: inline-block;
+    max-width: 100%;
+    max-height: 320px;
+    object-fit: contain;
+    border-radius: 8px;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+
+  .inkwell-mark-image {
+    @apply text-foreground-muted;
+  }
 }
