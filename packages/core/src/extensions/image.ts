@@ -18,17 +18,19 @@ declare module "@inksane/core" {
   }
 }
 
-/** Renders an `<img>` in place of the hidden image syntax. Clicking it places the cursor at the end of the image range. */
+/** Renders an `<img>` next to its image syntax. Clicking it places the cursor at the end of the image range. */
 class ImageWidget extends WidgetType {
   private src: string;
   private alt: string;
   private end: number;
+  private block: boolean;
 
-  constructor(src: string, alt: string, end: number) {
+  constructor(src: string, alt: string, end: number, block: boolean) {
     super();
     this.src = src;
     this.alt = alt;
     this.end = end;
+    this.block = block;
   }
 
   toDOM(view: EditorView) {
@@ -40,7 +42,12 @@ class ImageWidget extends WidgetType {
       event.preventDefault();
       view.dispatch({ selection: { anchor: this.end, head: this.end } });
     });
-    return img;
+    if (!this.block) return img;
+
+    const line = document.createElement("div");
+    line.className = "cm-line";
+    line.append(img);
+    return line;
   }
 
   get estimatedHeight() {
@@ -52,7 +59,8 @@ class ImageWidget extends WidgetType {
       other instanceof ImageWidget &&
       other.src === this.src &&
       other.alt === this.alt &&
-      other.end === this.end
+      other.end === this.end &&
+      other.block === this.block
     );
   }
 }
@@ -96,7 +104,17 @@ export const ImageExtension: Extension = {
             kind: "replace",
             type: (node, state) => {
               const { src, alt } = getImageSource(node, state);
-              return new ImageWidget(src, alt, node.to);
+              return new ImageWidget(src, alt, node.to, false);
+            },
+          },
+          {
+            kind: "attach",
+            onlyWhenVisible: true,
+            block: true,
+            position: (node, state) => state.doc.lineAt(node.to).to,
+            type: (node, state) => {
+              const { src, alt } = getImageSource(node, state);
+              return new ImageWidget(src, alt, node.to, true);
             },
           },
         ],
