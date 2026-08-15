@@ -10,7 +10,7 @@ const markdown = rawContent()
         <button data-action="toggleBold">Toggle Bold</button>
         <button data-action="toggleItalic">Toggle Italic</button>
     </div>
-    <div id="editor-mount" data-markdown={markdown}></div>
+    <div id="editor-mount" class="border" data-markdown={markdown}></div>
 </Base>
 
 <script>
@@ -59,6 +59,7 @@ const markdown = rawContent()
     const editor = new Editor({
         element: document.getElementById("editor-mount")!,
         content: markdown,
+        lineWrapping: true,
 
         extensions: [TestExtension],
         theme,

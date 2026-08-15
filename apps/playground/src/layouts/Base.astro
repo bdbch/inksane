@@ -43,7 +43,7 @@ const navigation: Navigation = {
         <title>inksane Playground</title>
     </head>
     <body>
-        <div class="h-dvh w-dvw flex">
+        <div class="h-dvh w-full max-w-full overflow-hidden flex">
             <div class="w-56 border-r bg-background flex-none p-6">
                 <a href="/">inksane</a>
                 {
@@ -70,8 +70,10 @@ const navigation: Navigation = {
                     ))
                 }
             </div>
-            <div class="flex-1 overflow-y p-6 lg:p-16">
-                <slot />
+            <div class="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-6 lg:p-16">
+                <div class="max-w-4xl mx-auto">
+                    <slot />
+                </div>
             </div>
         </div>
     </body>
