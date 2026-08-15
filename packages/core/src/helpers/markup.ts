@@ -3,14 +3,15 @@ import type { SyntaxNode } from "@lezer/common";
 import type { MarkupRange } from "../types/index.ts";
 
 /**
- * Creates markup ranges for the node's descendants with the given name,
+ * Creates markup ranges for the node's children with the given name,
  * extended to include the whitespace between the marker and the content.
- * e.g. `# `, `> `, `- `.
+ * e.g. `# `, `> `, `- `. With `recursive`, descendants are searched too.
  */
 export function markRangesWithWhitespace(
   node: SyntaxNode,
   state: EditorState,
   name: string,
+  recursive = false,
 ): MarkupRange[] {
   const ranges: MarkupRange[] = [];
 
@@ -20,7 +21,7 @@ export function markRangesWithWhitespace(
         let to = child.to;
         while (to < node.to && /[ \t]/.test(state.doc.sliceString(to, to + 1))) to += 1;
         ranges.push({ from: child.from, to });
-      } else {
+      } else if (recursive) {
         walk(child);
       }
     }

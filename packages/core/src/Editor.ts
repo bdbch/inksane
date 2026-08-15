@@ -15,6 +15,7 @@ import {
   ImageExtension,
   ItalicExtension,
   LinkExtension,
+  ListExtension,
 } from "./extensions/index.ts";
 
 export class Editor extends EventEmitter<EditorEvents> {
@@ -108,6 +109,7 @@ export class Editor extends EventEmitter<EditorEvents> {
       ImageExtension,
       CodeExtension,
       BlockquoteExtension,
+      ListExtension,
       ...(this.options?.extensions ?? []),
     ]);
 

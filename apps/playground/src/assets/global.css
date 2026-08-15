@@ -145,4 +145,16 @@
     padding-left: 8px;
     color: var(--foreground-muted);
   }
+
+  .inkwell-list-marker {
+    display: inline-block;
+    color: var(--foreground-muted);
+    padding-right: 6px;
+    user-select: none;
+  }
+
+  .inkwell-list-marker--ordered {
+    min-width: 1.75em;
+    text-align: right;
+  }
 }

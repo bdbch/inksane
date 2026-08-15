@@ -47,7 +47,7 @@ export const BlockquoteExtension: InkwellExtension = {
         nodeName: "Blockquote",
         className: "inkwell-blockquote",
         hideSyntax: true,
-        markup: (node, state) => markRangesWithWhitespace(node, state, "QuoteMark"),
+        markup: (node, state) => markRangesWithWhitespace(node, state, "QuoteMark", true),
       },
     ];
   },

@@ -7,3 +7,4 @@ export * from "./horizontalRule.ts";
 export * from "./image.ts";
 export * from "./code.ts";
 export * from "./blockquote.ts";
+export * from "./list.ts";
