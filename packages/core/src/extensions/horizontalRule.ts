@@ -62,4 +62,15 @@ export const HorizontalRuleExtension: InkwellExtension = {
       },
     };
   },
+
+  addKeybinds(ctx) {
+    return [
+      {
+        key: "Mod-Shift--",
+        run() {
+          return ctx.editor.commands.insertHorizontalRule();
+        },
+      },
+    ];
+  },
 };

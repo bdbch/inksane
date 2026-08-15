@@ -102,4 +102,15 @@ export const BoldExtension: InkwellExtension = {
       },
     };
   },
+
+  addKeybinds(ctx) {
+    return [
+      {
+        key: "Mod-b",
+        run() {
+          return ctx.editor.commands.toggleBold();
+        },
+      },
+    ];
+  },
 };

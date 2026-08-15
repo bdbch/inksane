@@ -106,4 +106,15 @@ export const ItalicExtension: InkwellExtension = {
       },
     };
   },
+
+  addKeybinds(ctx) {
+    return [
+      {
+        key: "Mod-i",
+        run() {
+          return ctx.editor.commands.toggleItalic();
+        },
+      },
+    ];
+  },
 };

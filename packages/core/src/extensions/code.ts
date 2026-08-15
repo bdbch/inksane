@@ -38,14 +38,14 @@ declare module "@inkwell/core" {
        * @param options An object containing the optional language, and the position or range.
        * @returns A boolean indicating whether the command was executed successfully.
        */
-      setCodeBlock: (options: { lang?: string; pos?: PosOrRange }) => ReturnType;
+      setCodeBlock: (options?: { lang?: string; pos?: PosOrRange }) => ReturnType;
 
       /**
        * Toggles a fenced code block for the specified position or range in the document, otherwise uses the current selection.
        * @param options An object containing the optional language, and the position or range.
        * @returns A boolean indicating whether the command was executed successfully.
        */
-      toggleCodeBlock: (options: { lang?: string; pos?: PosOrRange }) => ReturnType;
+      toggleCodeBlock: (options?: { lang?: string; pos?: PosOrRange }) => ReturnType;
     };
   }
 }
@@ -131,7 +131,7 @@ export const CodeExtension: InkwellExtension = {
       setCodeBlock: (ctx) => (options) => {
         const { from, to } = resolveFromTo(ctx.state, options?.pos);
         const selectedText = ctx.state.sliceDoc(from, to);
-        const fence = fenceFor(options.lang);
+        const fence = fenceFor(options?.lang);
         return insertContent(ctx)({ content: `${fence}\n${selectedText}\n\`\`\``, from, to });
       },
 
@@ -143,10 +143,27 @@ export const CodeExtension: InkwellExtension = {
         if (match) {
           return insertContent(ctx)({ content: match[1], from, to });
         } else {
-          const fence = fenceFor(options.lang);
+          const fence = fenceFor(options?.lang);
           return insertContent(ctx)({ content: `${fence}\n${selectedText}\n\`\`\``, from, to });
         }
       },
     };
+  },
+
+  addKeybinds(ctx) {
+    return [
+      {
+        key: "Mod-.",
+        run() {
+          return ctx.editor.commands.toggleCode();
+        },
+      },
+      {
+        key: "Mod-Shift-.",
+        run() {
+          return ctx.editor.commands.toggleCodeBlock();
+        },
+      },
+    ];
   },
 };

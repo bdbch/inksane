@@ -152,4 +152,15 @@ export const LinkExtension: InkwellExtension = {
       },
     };
   },
+
+  addKeybinds(ctx) {
+    return [
+      {
+        key: "Mod-k",
+        run() {
+          return ctx.editor.commands.toggleLink({ url: "" });
+        },
+      },
+    ];
+  },
 };
