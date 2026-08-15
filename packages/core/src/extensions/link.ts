@@ -41,13 +41,13 @@ declare module "@inkwell/core" {
 
 const isAlreadyLink = (text: string) => /^\[([^\]]*)\]\(([^)]*)\)$/.exec(text);
 
-/** Returns true for URLs using an allowed scheme (http, https, mailto). */
+/** Returns true for URLs with an allowed scheme (http, https, mailto) or no scheme (relative). */
 const isSafeUrl = (url: string): boolean => {
   try {
     const { protocol } = new URL(url);
     return protocol === "http:" || protocol === "https:" || protocol === "mailto:";
   } catch {
-    return false;
+    return !/^[a-z][a-z\d+.-]*:/i.test(url);
   }
 };
 
