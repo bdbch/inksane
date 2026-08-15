@@ -5,7 +5,7 @@ import type { EditorEvents, EditorOptions } from "./types/editor.ts";
 import { ExtensionManager } from "./ExtensionManager.ts";
 import type { ChainedCommands, SingleCommands } from "./types/commands.ts";
 import { CommandChain } from "./CommandChain.ts";
-import { BoldExtension, CommandsExtension } from "./extensions/index.ts";
+import { BoldExtension, CommandsExtension, ItalicExtension } from "./extensions/index.ts";
 
 export class Editor extends EventEmitter<EditorEvents> {
   private _te: TextEncoder = new TextEncoder();
@@ -91,6 +91,7 @@ export class Editor extends EventEmitter<EditorEvents> {
     this._extensionManager = new ExtensionManager(this, [
       CommandsExtension,
       BoldExtension,
+      ItalicExtension,
       ...(this.options?.extensions ?? []),
     ]);
 

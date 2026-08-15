@@ -49,4 +49,8 @@
   .inkwell-mark-bold {
     @apply font-bold;
   }
+
+  .inkwell-mark-italic {
+    @apply italic;
+  }
 }
