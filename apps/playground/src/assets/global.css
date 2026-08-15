@@ -57,4 +57,32 @@
   .inkwell-mark-link {
     @apply underline;
   }
+
+  .inkwell-mark-heading {
+    @apply font-bold;
+  }
+
+  .inkwell-heading-1 {
+    @apply text-3xl;
+  }
+
+  .inkwell-heading-2 {
+    @apply text-2xl;
+  }
+
+  .inkwell-heading-3 {
+    @apply text-xl;
+  }
+
+  .inkwell-heading-4 {
+    @apply text-lg;
+  }
+
+  .inkwell-heading-5 {
+    @apply text-base;
+  }
+
+  .inkwell-heading-6 {
+    @apply text-sm;
+  }
 }

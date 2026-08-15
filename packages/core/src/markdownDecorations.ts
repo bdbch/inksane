@@ -1,5 +1,5 @@
 import { syntaxTree } from "@codemirror/language";
-import type { Extension, Range } from "@codemirror/state";
+import type { EditorState, Extension, Range } from "@codemirror/state";
 import {
   Decoration,
   type DecorationSet,
@@ -14,9 +14,13 @@ import type { MarkdownDecorationConfig, MarkupRange } from "./types/extensions.t
  * Resolves which parts of a syntax node count as markdown markup.
  * Defaults to the node's direct `*Mark` children.
  */
-function resolveMarkupRanges(config: MarkdownDecorationConfig, node: SyntaxNode): MarkupRange[] {
+function resolveMarkupRanges(
+  config: MarkdownDecorationConfig,
+  node: SyntaxNode,
+  state: EditorState,
+): MarkupRange[] {
   if (typeof config.markup === "function") {
-    return config.markup(node);
+    return config.markup(node, state);
   }
 
   const names = config.markup;
@@ -78,6 +82,7 @@ export function createMarkdownDecorations(configs: readonly MarkdownDecorationCo
                   for (const { from: markupFrom, to: markupTo } of resolveMarkupRanges(
                     config,
                     node.node,
+                    view.state,
                   )) {
                     ranges.push(Decoration.replace({}).range(markupFrom, markupTo));
                   }

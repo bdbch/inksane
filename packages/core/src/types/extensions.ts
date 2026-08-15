@@ -1,4 +1,4 @@
-import type { Extension as CMExtension } from "@codemirror/state";
+import type { Extension as CMExtension, EditorState } from "@codemirror/state";
 import type { KeyBinding } from "@codemirror/view";
 import type { MarkdownExtension } from "@lezer/markdown";
 import type { SyntaxNode } from "@lezer/common";
@@ -27,7 +27,7 @@ export type MarkdownDecorationConfig = {
    * Defaults to the node's direct `*Mark` children.
    * Can be a list of node names or a function returning ranges.
    */
-  markup?: string[] | ((node: SyntaxNode) => MarkupRange[]);
+  markup?: string[] | ((node: SyntaxNode, state: EditorState) => MarkupRange[]);
   /** Hides the markup while the cursor is outside the node. */
   hideSyntax?: boolean;
 };

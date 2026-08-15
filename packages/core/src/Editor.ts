@@ -8,6 +8,7 @@ import { CommandChain } from "./CommandChain.ts";
 import {
   BoldExtension,
   CommandsExtension,
+  HeadingExtension,
   ItalicExtension,
   LinkExtension,
 } from "./extensions/index.ts";
@@ -98,6 +99,7 @@ export class Editor extends EventEmitter<EditorEvents> {
       BoldExtension,
       ItalicExtension,
       LinkExtension,
+      HeadingExtension,
       ...(this.options?.extensions ?? []),
     ]);
 
