@@ -1,0 +1,72 @@
+name: Bug report
+description: Report behavior that does not work as expected.
+title: "bug: "
+labels:
+  - "type: bug"
+  - "status: needs triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. A small reproduction helps us investigate it quickly.
+
+  - type: textarea
+    id: bug
+    attributes:
+      label: What bug did you experience?
+      description: Describe what happened and what you expected instead.
+      placeholder: When I ..., the editor ... . I expected ... .
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: How can we reproduce it?
+      description: Give the smallest set of steps, code, or Markdown content that triggers the problem.
+      placeholder: |
+        1. Create an editor with ...
+        2. Enter ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: What version did you use?
+      description: Include the installed `@inksane/core` version.
+      placeholder: "@inksane/core 0.1.1"
+    validations:
+      required: true
+
+  - type: textarea
+    id: extensions
+    attributes:
+      label: Which extensions are you using?
+      description: List any custom or configured extensions. Write "none" if you only use the built-in extensions.
+      placeholder: |
+        - MyExtension
+        - LinkExtension with ...
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Do you have console or error logs?
+      description: Paste relevant browser console output or stack traces. Remove secrets and personal data first.
+      render: shell
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Optionally include browser, operating system, framework, and package manager versions.
+      placeholder: "Chrome 140, macOS 15, React 19, pnpm 11"
+
+  - type: checkboxes
+    id: code-of-conduct
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct.
+          required: true

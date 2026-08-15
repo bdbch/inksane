@@ -1,0 +1,59 @@
+name: Feature request
+description: Suggest a new editor capability or extension.
+title: "feature: "
+labels:
+  - "type: feature"
+  - "status: needs triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement. Describe the problem and the outcome you need rather than only an implementation.
+
+  - type: textarea
+    id: feature
+    attributes:
+      label: What feature do you want?
+      description: Describe the capability or problem you want inksane to address.
+    validations:
+      required: true
+
+  - type: textarea
+    id: behavior
+    attributes:
+      label: How should it work?
+      description: Describe the expected API, editor behavior, and any important edge cases.
+      placeholder: |
+        Given ...
+        When ...
+        Then ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Which use cases will it handle?
+      description: Explain who benefits and provide concrete examples.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: How urgent is it for you?
+      description: This helps us understand impact, not commit to a delivery date.
+      options:
+        - Nice to have
+        - Would improve my workflow
+        - Blocks my adoption or current work
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: code-of-conduct
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct.
+          required: true
