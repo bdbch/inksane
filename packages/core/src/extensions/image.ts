@@ -77,6 +77,9 @@ const getImageSource = (node: SyntaxNode, state: EditorState): { src: string; al
   return { src, alt };
 };
 
+const escapeBrackets = (text: string) => text.replace(/[[\]\\]/g, "\\$&");
+const escapeParens = (text: string) => text.replace(/[()\\]/g, "\\$&");
+
 const resolveFromTo = (state: EditorState, pos?: PosOrRange): { from: number; to: number } => {
   const from = typeof pos === "number" ? pos : (pos?.from ?? state.selection.main.from);
   const to = typeof pos === "number" ? pos : (pos?.to ?? state.selection.main.to);
@@ -112,7 +115,8 @@ export const ImageExtension: InkwellExtension = {
         (ctx) =>
         ({ src, alt, pos }) => {
           const { from, to } = resolveFromTo(ctx.state, pos);
-          return insertContent(ctx)({ content: `![${alt}](${src})`, from, to });
+          const content = `![${escapeBrackets(alt)}](${escapeParens(src)})`;
+          return insertContent(ctx)({ content, from, to });
         },
     };
   },
