@@ -61,7 +61,13 @@ const isAlreadyCode = (text: string) => /^`([^`]*)`$/.exec(text);
 
 const isAlreadyCodeBlock = (text: string) => /^```[^\n]*\n([\s\S]*?)\n```$/.exec(text);
 
-const fenceFor = (lang?: string) => (lang ? `\`\`\`${lang}` : "```");
+const fenceFor = (lang?: string, tickCount = 3) => `${"`".repeat(tickCount)}${lang ?? ""}`;
+
+/** Backtick count for the fence: one more than the longest run inside the text. */
+const fenceTickCount = (text: string) => {
+  const longest = Math.max(0, ...[...text.matchAll(/`+/g)].map((match) => match[0].length));
+  return Math.max(3, longest + 1);
+};
 
 export const CodeExtension: InkwellExtension = {
   name: "code",
@@ -137,8 +143,13 @@ export const CodeExtension: InkwellExtension = {
           return false;
         }
 
-        const fence = fenceFor(options?.lang);
-        return insertContent(ctx)({ content: `${fence}\n${selectedText}\n\`\`\``, from, to });
+        const tickCount = fenceTickCount(selectedText);
+        const fence = fenceFor(options?.lang, tickCount);
+        return insertContent(ctx)({
+          content: `${fence}\n${selectedText}\n${"`".repeat(tickCount)}`,
+          from,
+          to,
+        });
       },
 
       removeCodeBlock: (ctx) => (options) => {
