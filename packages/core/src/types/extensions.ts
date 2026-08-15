@@ -1,5 +1,5 @@
 import type { Extension as CMExtension, EditorState } from "@codemirror/state";
-import type { KeyBinding } from "@codemirror/view";
+import type { KeyBinding, WidgetType } from "@codemirror/view";
 import type { MarkdownExtension } from "@lezer/markdown";
 import type { SyntaxNode } from "@lezer/common";
 import type { Editor } from "../Editor.ts";
@@ -30,6 +30,11 @@ export type MarkdownDecorationConfig = {
   markup?: string[] | ((node: SyntaxNode, state: EditorState) => MarkupRange[]);
   /** Hides the markup while the cursor is outside the node. */
   hideSyntax?: boolean;
+  /**
+   * Widget rendered in place of the markup while `hideSyntax` hides it.
+   * `block` renders it as a block-level widget spanning the line.
+   */
+  widget?: { type: WidgetType; block?: boolean };
 };
 
 export type ExtensionEventHandlers = {

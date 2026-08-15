@@ -85,4 +85,18 @@
   .inkwell-heading-6 {
     @apply text-sm;
   }
+
+  .inkwell-mark-horizontal-rule {
+    @apply w-full border-t border-border-muted my-4;
+  }
+
+  .inkwell-hr {
+    display: inline-block;
+    width: 100%;
+    border: none;
+    border-top: 1px solid var(--border-muted);
+    height: 1px;
+    margin: 0;
+    vertical-align: middle;
+  }
 }

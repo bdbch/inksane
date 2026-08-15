@@ -1,12 +1,6 @@
 import { syntaxTree } from "@codemirror/language";
-import type { EditorState, Extension, Range } from "@codemirror/state";
-import {
-  Decoration,
-  type DecorationSet,
-  EditorView,
-  ViewPlugin,
-  type ViewUpdate,
-} from "@codemirror/view";
+import { type EditorState, type Extension, type Range, StateField } from "@codemirror/state";
+import { Decoration, type DecorationSet, EditorView } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
 import type { MarkdownDecorationConfig, MarkupRange } from "./types/extensions.ts";
 
@@ -34,6 +28,46 @@ function resolveMarkupRanges(
   return ranges;
 }
 
+function buildDecorations(
+  state: EditorState,
+  entriesByNodeName: Map<string, { config: MarkdownDecorationConfig; mark: Decoration }[]>,
+  hasHideSyntax: boolean,
+): DecorationSet {
+  const ranges: Range<Decoration>[] = [];
+  const { from: selFrom, to: selTo } = state.selection.main;
+
+  syntaxTree(state).iterate({
+    from: 0,
+    to: state.doc.length,
+    enter: (node) => {
+      const entries = entriesByNodeName.get(node.name);
+      if (!entries) return;
+
+      for (const { config, mark } of entries) {
+        ranges.push(mark.range(node.from, node.to));
+
+        if (hasHideSyntax && config.hideSyntax && (node.from > selTo || node.to < selFrom)) {
+          for (const { from: markupFrom, to: markupTo } of resolveMarkupRanges(
+            config,
+            node.node,
+            state,
+          )) {
+            const hide = config.widget
+              ? Decoration.replace({
+                  widget: config.widget.type,
+                  block: config.widget.block,
+                })
+              : Decoration.replace({});
+            ranges.push(hide.range(markupFrom, markupTo));
+          }
+        }
+      }
+    },
+  });
+
+  return Decoration.set(ranges, true);
+}
+
 /** Creates decorations from syntax-tree node names declared by extensions. */
 export function createMarkdownDecorations(configs: readonly MarkdownDecorationConfig[]): Extension {
   const entriesByNodeName = new Map<
@@ -49,54 +83,14 @@ export function createMarkdownDecorations(configs: readonly MarkdownDecorationCo
     entriesByNodeName.set(config.nodeName, entries);
   }
 
-  return ViewPlugin.fromClass(
-    class {
-      decorations: DecorationSet;
-
-      constructor(view: EditorView) {
-        this.decorations = this.buildDecorations(view);
+  return StateField.define<DecorationSet>({
+    create: (state) => buildDecorations(state, entriesByNodeName, hasHideSyntax),
+    update: (value, transaction) => {
+      if (transaction.docChanged || (hasHideSyntax && transaction.selection)) {
+        return buildDecorations(transaction.state, entriesByNodeName, hasHideSyntax);
       }
-
-      update(update: ViewUpdate) {
-        if (update.docChanged || update.viewportChanged || (hasHideSyntax && update.selectionSet)) {
-          this.decorations = this.buildDecorations(update.view);
-        }
-      }
-
-      private buildDecorations(view: EditorView): DecorationSet {
-        const ranges: Range<Decoration>[] = [];
-        const { from: selFrom, to: selTo } = view.state.selection.main;
-
-        for (const { from, to } of view.visibleRanges) {
-          syntaxTree(view.state).iterate({
-            from,
-            to,
-            enter: (node) => {
-              const entries = entriesByNodeName.get(node.name);
-              if (!entries) return;
-
-              for (const { config, mark } of entries) {
-                ranges.push(mark.range(node.from, node.to));
-
-                if (config.hideSyntax && (node.from > selTo || node.to < selFrom)) {
-                  for (const { from: markupFrom, to: markupTo } of resolveMarkupRanges(
-                    config,
-                    node.node,
-                    view.state,
-                  )) {
-                    ranges.push(Decoration.replace({}).range(markupFrom, markupTo));
-                  }
-                }
-              }
-            },
-          });
-        }
-
-        return Decoration.set(ranges, true);
-      }
+      return value.map(transaction.changes);
     },
-    {
-      decorations: (value) => value.decorations,
-    },
-  );
+    provide: (field) => EditorView.decorations.from(field),
+  });
 }

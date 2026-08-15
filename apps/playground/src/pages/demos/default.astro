@@ -1,5 +1,8 @@
 ---
 import Base from "../../layouts/Base.astro";
+
+import { rawContent } from '../../../../../README.md'
+const markdown = rawContent()
 ---
 
 <Base>
@@ -7,13 +10,12 @@ import Base from "../../layouts/Base.astro";
         <button id="runChain">Run Chain</button>
         <button id="runCommand">Run Command</button>
     </div>
-    <div id="editor-mount"></div>
+    <div id="editor-mount" data-markdown={markdown}></div>
 </Base>
 
 <script>
     import { Editor, type InkwellExtension } from "@inkwell/core";
     import { EditorView } from "@codemirror/view";
-    import type { $brand } from "astro:schema";
 
     const TestExtension: InkwellExtension = {
         name: "test",
@@ -49,10 +51,12 @@ import Base from "../../layouts/Base.astro";
         ".cm-line": { paddingLeft: "24px", paddingRight: "24px" },
     });
 
+    const el = document.getElementById("editor-mount")!
+    const markdown = el.dataset.markdown || "";
+
     const editor = new Editor({
         element: document.getElementById("editor-mount")!,
-        content:
-            "# This is the Inkwell playground\n\nFeel free to play around with **bold text** and *italic*",
+        content: markdown,
 
         extensions: [TestExtension],
         theme,
