@@ -71,6 +71,12 @@ export const ItalicExtension: InkwellExtension = {
 
         if (isAlreadyItalic(selectedText)) {
           return false;
+        } else if (from === to) {
+          ctx.dispatch({
+            changes: { from, to, insert: "**" },
+            selection: { anchor: from + 1, head: from + 1 },
+          });
+          return true;
         } else {
           return insertContent(ctx)({ content: `*${selectedText}*`, from, to });
         }
@@ -105,16 +111,8 @@ export const ItalicExtension: InkwellExtension = {
     return [
       {
         key: "Mod-i",
-        run(view) {
-          const { from, to } = view.state.selection.main;
-          if (from !== to) {
-            return ctx.editor.commands.toggleItalic();
-          }
-          view.dispatch({
-            changes: { from, to, insert: "**" },
-            selection: { anchor: from + 1, head: from + 1 },
-          });
-          return true;
+        run() {
+          return ctx.editor.commands.toggleItalic();
         },
       },
     ];

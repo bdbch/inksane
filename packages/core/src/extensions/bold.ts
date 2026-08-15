@@ -67,6 +67,12 @@ export const BoldExtension: InkwellExtension = {
 
         if (isAlreadyBold(selectedText)) {
           return false;
+        } else if (from === to) {
+          ctx.dispatch({
+            changes: { from, to, insert: "****" },
+            selection: { anchor: from + 2, head: from + 2 },
+          });
+          return true;
         } else {
           return insertContent(ctx)({ content: `**${selectedText}**`, from, to });
         }
@@ -101,16 +107,8 @@ export const BoldExtension: InkwellExtension = {
     return [
       {
         key: "Mod-b",
-        run(view) {
-          const { from, to } = view.state.selection.main;
-          if (from !== to) {
-            return ctx.editor.commands.toggleBold();
-          }
-          view.dispatch({
-            changes: { from, to, insert: "****" },
-            selection: { anchor: from + 2, head: from + 2 },
-          });
-          return true;
+        run() {
+          return ctx.editor.commands.toggleBold();
         },
       },
     ];
