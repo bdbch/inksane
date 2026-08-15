@@ -3,9 +3,9 @@ import { EditorView, WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
 import { insertContent } from "../commands/index.ts";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
-import type { InkwellExtension, PosOrRange } from "../types/index.ts";
+import type { Extension, PosOrRange } from "../types/index.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands<ReturnType> {
     image: {
       /**
@@ -33,7 +33,7 @@ class ImageWidget extends WidgetType {
 
   toDOM(view: EditorView) {
     const img = document.createElement("img");
-    img.className = "inkwell-image";
+    img.className = "inksane-image";
     img.src = this.src;
     img.alt = this.alt;
     img.addEventListener("mousedown", (event) => {
@@ -81,14 +81,14 @@ const getImageSource = (node: SyntaxNode, state: EditorState): { src: string; al
 const escapeBrackets = (text: string) => text.replace(/[[\]\\]/g, "\\$&");
 const escapeParens = (text: string) => text.replace(/[()\\]/g, "\\$&");
 
-export const ImageExtension: InkwellExtension = {
+export const ImageExtension: Extension = {
   name: "image",
 
   addMarkdownDecorations() {
     return [
       {
         nodeName: "Image",
-        className: "inkwell-mark-image",
+        className: "inksane-mark-image",
         hideSyntax: true,
         markup: (node) => [{ from: node.from, to: node.to }],
         widgets: [

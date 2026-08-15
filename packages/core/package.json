@@ -1,16 +1,16 @@
 {
-  "name": "@inkwell/core",
+  "name": "@inksane/core",
   "version": "0.0.0",
   "description": "Here be ink",
-  "homepage": "https://tangled.org/bdbch.com/inkwell/",
+  "homepage": "https://tangled.org/bdbch.com/inksane/",
   "bugs": {
-    "url": "https://tangled.org/bdbch.com/inkwell/issues"
+    "url": "https://tangled.org/bdbch.com/inksane/issues"
   },
   "license": "MIT",
   "author": "Dominik Biedebach <git@bdbch.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://tangled.org/bdbch.com/inkwell"
+    "url": "git+https://tangled.org/bdbch.com/inksane"
   },
   "files": [
     "dist"

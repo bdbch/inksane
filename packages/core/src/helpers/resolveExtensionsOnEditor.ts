@@ -1,5 +1,5 @@
 import type { Editor } from "../Editor.ts";
-import type { InkwellExtension } from "../types/extensions.ts";
+import type { Extension } from "../types/extensions.ts";
 
 /**
  * Resolves the extensions by resolving child extensions and returning a flat list of all extensions + deduplicating by name.
@@ -8,18 +8,15 @@ import type { InkwellExtension } from "../types/extensions.ts";
  * @param extensions The extensions to resolve.
  * @returns The resolved extensions.
  */
-export function resolveExtensionsOnEditor(
-  editor: Editor,
-  extensions: InkwellExtension[],
-): InkwellExtension[] {
-  const resolved: InkwellExtension[] = [];
-  const resolvedChildren = new Set<InkwellExtension>();
-  const visitedChildren = new Set<InkwellExtension>();
-  const visited = new Set<InkwellExtension>();
+export function resolveExtensionsOnEditor(editor: Editor, extensions: Extension[]): Extension[] {
+  const resolved: Extension[] = [];
+  const resolvedChildren = new Set<Extension>();
+  const visitedChildren = new Set<Extension>();
+  const visited = new Set<Extension>();
   const visitedNames = new Set<string>();
 
   // TODO: add name-guarding / deduping
-  const resolve = (ext: InkwellExtension) => {
+  const resolve = (ext: Extension) => {
     if (resolvedChildren.has(ext)) {
       return;
     }

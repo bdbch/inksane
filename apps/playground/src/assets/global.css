@@ -45,20 +45,20 @@
   @apply bg-background text-foreground;
 }
 
-[data-inkwell-editor-content] {
-  .inkwell-mark-bold {
+[data-inksane-editor-content] {
+  .inksane-mark-bold {
     @apply font-bold;
   }
 
-  .inkwell-mark-italic {
+  .inksane-mark-italic {
     @apply italic;
   }
 
-  .inkwell-mark-link {
+  .inksane-mark-link {
     @apply underline;
   }
 
-  .inkwell-mark-link-open {
+  .inksane-mark-link-open {
     display: inline-block;
     margin-left: 4px;
     cursor: pointer;
@@ -66,45 +66,45 @@
     color: var(--foreground-muted);
   }
 
-  .inkwell-mark-link-open svg {
+  .inksane-mark-link-open svg {
     display: block;
     width: 14px;
     height: 14px;
   }
 
-  .inkwell-mark-heading {
+  .inksane-mark-heading {
     @apply font-bold;
   }
 
-  .inkwell-heading-1 {
+  .inksane-heading-1 {
     @apply text-3xl;
   }
 
-  .inkwell-heading-2 {
+  .inksane-heading-2 {
     @apply text-2xl;
   }
 
-  .inkwell-heading-3 {
+  .inksane-heading-3 {
     @apply text-xl;
   }
 
-  .inkwell-heading-4 {
+  .inksane-heading-4 {
     @apply text-lg;
   }
 
-  .inkwell-heading-5 {
+  .inksane-heading-5 {
     @apply text-base;
   }
 
-  .inkwell-heading-6 {
+  .inksane-heading-6 {
     @apply text-sm;
   }
 
-  .inkwell-mark-horizontal-rule {
+  .inksane-mark-horizontal-rule {
     @apply w-full border-t border-border-muted my-4;
   }
 
-  .inkwell-hr {
+  .inksane-hr {
     display: inline-block;
     width: 100%;
     border: none;
@@ -114,7 +114,7 @@
     vertical-align: middle;
   }
 
-  .inkwell-image {
+  .inksane-image {
     display: inline-block;
     max-width: 100%;
     max-height: 320px;
@@ -124,36 +124,36 @@
     cursor: pointer;
   }
 
-  .inkwell-mark-image {
+  .inksane-mark-image {
     @apply text-foreground-muted;
   }
 
-  .inkwell-mark-inline-code {
+  .inksane-mark-inline-code {
     font-family: monospace;
     background: var(--background-muted);
     padding: 1px 4px;
     border-radius: 4px;
   }
 
-  .inkwell-code-block {
+  .inksane-code-block {
     font-family: monospace;
     background: var(--background-muted);
   }
 
-  .inkwell-blockquote {
+  .inksane-blockquote {
     border-left: 3px solid var(--border-muted);
     padding-left: 8px;
     color: var(--foreground-muted);
   }
 
-  .inkwell-list-marker {
+  .inksane-list-marker {
     display: inline-block;
     color: var(--foreground-muted);
     padding-right: 6px;
     user-select: none;
   }
 
-  .inkwell-list-marker--ordered {
+  .inksane-list-marker--ordered {
     min-width: 1.75em;
     text-align: right;
   }

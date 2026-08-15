@@ -1,12 +1,12 @@
 {
-  "name": "inkwell",
+  "name": "inksane",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "ready": "vp check && vp test && vp run build",
     "dev": "vp run playground#dev",
-    "build": "vp run --filter \"!@inkwell/playground\" --filter \"@inkwell/*\" build",
+    "build": "vp run --filter \"!@inksane/playground\" --filter \"@inksane/*\" build",
     "prepare": "vp config"
   },
   "devDependencies": {

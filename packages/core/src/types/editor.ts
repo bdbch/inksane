@@ -1,12 +1,12 @@
-import type { EditorSelection, Extension, Transaction } from "@codemirror/state";
-import type { InkwellExtension } from "./extensions.ts";
+import type { EditorSelection, Extension as CMExtension, Transaction } from "@codemirror/state";
+import type { Extension } from "./extensions.ts";
 import type { Editor } from "../Editor.ts";
 
 export type EditorOptions = {
   element: HTMLElement;
   content?: string;
-  extensions?: InkwellExtension[];
-  theme?: Extension;
+  extensions?: Extension[];
+  theme?: CMExtension;
   /**
    * The number of spaces Tab and Shift+Tab use when indenting. Defaults to 2.
    */

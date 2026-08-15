@@ -1,7 +1,7 @@
 import type { NamedCommand } from "../types/commands.ts";
 import { deleteContent } from "./deleteContent.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands<ReturnType> {
     clearContent: {
       /**

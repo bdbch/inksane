@@ -1,8 +1,8 @@
 import { insertContent } from "../commands/index.ts";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
-import type { InkwellExtension, PosOrRange } from "../types/index.ts";
+import type { Extension, PosOrRange } from "../types/index.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands<ReturnType> {
     italic: {
       /**
@@ -43,14 +43,14 @@ const isAlreadyItalic = (text: string) => {
   return /^(\*|_)((?:(?!\*|_)[\s\S])*)\1$/.exec(text);
 };
 
-export const ItalicExtension: InkwellExtension = {
+export const ItalicExtension: Extension = {
   name: "italic",
 
   addMarkdownDecorations() {
     return [
       {
         nodeName: "Emphasis",
-        className: "inkwell-mark-italic",
+        className: "inksane-mark-italic",
         hideSyntax: true,
       },
     ];

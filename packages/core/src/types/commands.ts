@@ -8,7 +8,7 @@ import type { EditorView } from "@codemirror/view";
  * `ReturnType` is generic so one declaration projects to all three views.
  *
  * @example
- * declare module "@inkwell/core" {
+ * declare module "@inksane/core" {
  *   interface Commands<ReturnType> {
  *     myExtension: {
  *       setContent: (args: { content: string }) => ReturnType

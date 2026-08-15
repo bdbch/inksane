@@ -1,10 +1,10 @@
 import { indentLines } from "../helpers/indent.ts";
-import type { InkwellExtension } from "../types/index.ts";
+import type { Extension } from "../types/index.ts";
 
 const DEFAULT_TAB_SIZE = 2;
 
 /** Adds Tab/Shift+Tab keybindings that indent and dedent the selected lines. */
-export const KeybindExtension: InkwellExtension = {
+export const KeybindExtension: Extension = {
   name: "keybinds",
 
   addKeybinds(ctx) {

@@ -1,9 +1,9 @@
 import { insertContent } from "../commands/index.ts";
 import { markRangesWithWhitespace } from "../helpers/markup.ts";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
-import type { InkwellExtension, PosOrRange } from "../types/index.ts";
+import type { Extension, PosOrRange } from "../types/index.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands<ReturnType> {
     blockquote: {
       /**
@@ -32,14 +32,14 @@ declare module "@inkwell/core" {
 
 const getQuoteMark = (text: string) => /^>\s?/.exec(text);
 
-export const BlockquoteExtension: InkwellExtension = {
+export const BlockquoteExtension: Extension = {
   name: "blockquote",
 
   addMarkdownDecorations() {
     return [
       {
         nodeName: "Blockquote",
-        className: "inkwell-blockquote",
+        className: "inksane-blockquote",
         hideSyntax: true,
         markup: (node, state) => markRangesWithWhitespace(node, state, "QuoteMark", true),
       },

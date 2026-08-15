@@ -1,6 +1,6 @@
 import type { NamedCommand } from "../types/commands.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands<ReturnType> {
     /**
      * Focuses the editor view.
@@ -28,7 +28,7 @@ export const focus: NamedCommand<"focus"> =
       view.focus();
       return true;
     } catch (error) {
-      console.warn("[inkwell] Failed to focus editor", error);
+      console.warn("[inksane] Failed to focus editor", error);
       return false;
     }
   };

@@ -17,7 +17,7 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "paths": {
-      "@inkwell/core": ["./src/index.ts"]
+      "@inksane/core": ["./src/index.ts"]
     }
   }
 }

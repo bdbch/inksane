@@ -1,9 +1,9 @@
 import { insertContent } from "../commands/index.ts";
 import { markRangesWithWhitespace } from "../helpers/markup.ts";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
-import type { InkwellExtension, PosOrRange } from "../types/index.ts";
+import type { Extension, PosOrRange } from "../types/index.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands<ReturnType> {
     heading: {
       /**
@@ -42,13 +42,13 @@ const getHeadingLevel = (text: string): number | null => {
 
 const stripHeading = (text: string) => text.replace(/^#+\s?/, "");
 
-export const HeadingExtension: InkwellExtension = {
+export const HeadingExtension: Extension = {
   name: "heading",
 
   addMarkdownDecorations() {
     return Array.from({ length: 6 }, (_, i) => ({
       nodeName: `ATXHeading${i + 1}`,
-      className: `inkwell-mark-heading inkwell-heading-${i + 1}`,
+      className: `inksane-mark-heading inksane-heading-${i + 1}`,
       hideSyntax: true,
       markup: (node, state) => markRangesWithWhitespace(node, state, "HeaderMark"),
     }));

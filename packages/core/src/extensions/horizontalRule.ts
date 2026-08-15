@@ -1,8 +1,8 @@
 import { WidgetType } from "@codemirror/view";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
-import type { InkwellExtension, PosOrRange } from "../types/index.ts";
+import type { Extension, PosOrRange } from "../types/index.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands<ReturnType> {
     horizontalRule: {
       /**
@@ -19,7 +19,7 @@ declare module "@inkwell/core" {
 class HorizontalRuleWidget extends WidgetType {
   toDOM() {
     const dom = document.createElement("hr");
-    dom.className = "inkwell-hr";
+    dom.className = "inksane-hr";
     return dom;
   }
 
@@ -32,14 +32,14 @@ class HorizontalRuleWidget extends WidgetType {
   }
 }
 
-export const HorizontalRuleExtension: InkwellExtension = {
+export const HorizontalRuleExtension: Extension = {
   name: "horizontalRule",
 
   addMarkdownDecorations() {
     return [
       {
         nodeName: "HorizontalRule",
-        className: "inkwell-mark-horizontal-rule",
+        className: "inksane-mark-horizontal-rule",
         hideSyntax: true,
         markup: (node) => [{ from: node.from, to: node.to }],
         widgets: [{ kind: "replace", type: new HorizontalRuleWidget() }],

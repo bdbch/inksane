@@ -1,6 +1,6 @@
 import type { NamedCommand } from "../types/commands.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands<ReturnType> {
     cutContent: {
       /**
@@ -36,7 +36,7 @@ export const cutContent: NamedCommand<"cutContent"> =
 
       return true;
     } catch (error) {
-      console.warn("[inkwell] Failed to cut content", fromRange, toRange, error);
+      console.warn("[inksane] Failed to cut content", fromRange, toRange, error);
       return false;
     }
   };

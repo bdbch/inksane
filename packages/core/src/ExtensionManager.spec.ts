@@ -2,15 +2,15 @@ import { EditorState, StateField } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
 import { describe, expect, it } from "vite-plus/test";
 import { ExtensionManager } from "./ExtensionManager.ts";
-import type { InkwellExtension } from "./types/extensions.ts";
+import type { Extension } from "./types/extensions.ts";
 import type { Editor } from "./Editor.ts";
 
 describe("ExtensionManager", () => {
   const editor = {} as Editor;
 
   it("exposes resolved extensions", () => {
-    const child: InkwellExtension = { name: "child" };
-    const parent: InkwellExtension = {
+    const child: Extension = { name: "child" };
+    const parent: Extension = {
       name: "parent",
       addExtensions: () => [child],
     };
@@ -30,14 +30,14 @@ describe("ExtensionManager", () => {
       create: () => 0,
       update: (value) => value,
     });
-    const lowPriorityExtension: InkwellExtension = {
+    const lowPriorityExtension: Extension = {
       name: "low-priority",
       addCodeMirrorExtensions: () => {
         calls.push("low-priority");
         return [lowPriorityField];
       },
     };
-    const highPriorityExtension: InkwellExtension = {
+    const highPriorityExtension: Extension = {
       name: "high-priority",
       priority: 10,
       addCodeMirrorExtensions: () => {
@@ -59,7 +59,7 @@ describe("ExtensionManager", () => {
       key: "Mod-Shift-k",
       run: () => true,
     };
-    const extension: InkwellExtension = {
+    const extension: Extension = {
       name: "keybindings",
       addKeybinds: () => [binding],
     };
