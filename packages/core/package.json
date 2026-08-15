@@ -35,6 +35,7 @@
     "@codemirror/language": "catalog:",
     "@codemirror/state": "catalog:",
     "@codemirror/view": "catalog:",
+    "@lezer/common": "catalog:",
     "@lezer/markdown": "catalog:"
   },
   "devDependencies": {

@@ -53,6 +53,7 @@ export const BoldExtension: InkwellExtension = {
       {
         nodeName: "StrongEmphasis",
         className: "inkwell-mark-bold",
+        hideSyntax: true,
       },
     ];
   },
