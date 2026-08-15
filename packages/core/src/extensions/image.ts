@@ -23,18 +23,17 @@ class ImageWidget extends WidgetType {
   private src: string;
   private alt: string;
   private end: number;
+  private block: boolean;
 
-  constructor(src: string, alt: string, end: number) {
+  constructor(src: string, alt: string, end: number, block: boolean) {
     super();
     this.src = src;
     this.alt = alt;
     this.end = end;
+    this.block = block;
   }
 
   toDOM(view: EditorView) {
-    const line = document.createElement("div");
-    line.className = "cm-line";
-
     const img = document.createElement("img");
     img.className = "inksane-image";
     img.src = this.src;
@@ -43,6 +42,10 @@ class ImageWidget extends WidgetType {
       event.preventDefault();
       view.dispatch({ selection: { anchor: this.end, head: this.end } });
     });
+    if (!this.block) return img;
+
+    const line = document.createElement("div");
+    line.className = "cm-line";
     line.append(img);
     return line;
   }
@@ -56,7 +59,8 @@ class ImageWidget extends WidgetType {
       other instanceof ImageWidget &&
       other.src === this.src &&
       other.alt === this.alt &&
-      other.end === this.end
+      other.end === this.end &&
+      other.block === this.block
     );
   }
 }
@@ -94,17 +98,13 @@ export const ImageExtension: Extension = {
         nodeName: "Image",
         className: "inksane-mark-image",
         hideSyntax: true,
-        markup: (node, state) => {
-          const line = state.doc.lineAt(node.from);
-          return [{ from: line.from, to: line.to }];
-        },
+        markup: (node) => [{ from: node.from, to: node.to }],
         widgets: [
           {
             kind: "replace",
-            block: true,
             type: (node, state) => {
               const { src, alt } = getImageSource(node, state);
-              return new ImageWidget(src, alt, node.to);
+              return new ImageWidget(src, alt, node.to, false);
             },
           },
           {
@@ -114,7 +114,7 @@ export const ImageExtension: Extension = {
             position: (node, state) => state.doc.lineAt(node.to).to,
             type: (node, state) => {
               const { src, alt } = getImageSource(node, state);
-              return new ImageWidget(src, alt, node.to);
+              return new ImageWidget(src, alt, node.to, true);
             },
           },
         ],

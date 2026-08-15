@@ -2,4 +2,4 @@
 "@inksane/core": patch
 ---
 
-Keep image widgets visible while editing their Markdown syntax.
+Show image widgets below active Markdown syntax and inline otherwise.

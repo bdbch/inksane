@@ -22,18 +22,46 @@ describe("image decorations", () => {
 
     expect(editor.view.dom.querySelector(".inksane-image")).not.toBeNull();
     expect(editor.view.dom.textContent).toContain("![alt text](https://example.com/image.png)");
+    expect(editor.view.dom.querySelectorAll(".cm-line")).toHaveLength(4);
   });
 
-  it("renders the image between its syntax line and the next line", () => {
+  it("replaces inactive image syntax inline", () => {
     const image = editor.view.dom.querySelector(".inksane-image");
     const lines = editor.view.dom.querySelectorAll(".cm-line");
-    const afterLine = Array.from(lines).find((line) => line.textContent === "after");
 
     expect(image).not.toBeNull();
     expect(lines).toHaveLength(3);
-    expect(image?.parentElement?.classList.contains("cm-line")).toBe(true);
-    expect(
-      image!.parentElement!.compareDocumentPosition(afterLine!) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    expect(editor.view.dom.textContent).not.toContain("![alt text](https://example.com/image.png)");
+  });
+
+  it("preserves text surrounding an inline image", () => {
+    editor.view.dispatch({
+      changes: { from: 0, to: editor.content.length, insert: "before ![alt](image.png) after" },
+    });
+
+    expect(editor.view.dom.querySelectorAll(".inksane-image")).toHaveLength(1);
+    expect(editor.view.dom.textContent).toContain("before");
+    expect(editor.view.dom.textContent).toContain("after");
+  });
+
+  it("renders an edited inline image below its source line", () => {
+    const content = "before ![alt](image.png) after";
+    editor.view.dispatch({ changes: { from: 0, to: editor.content.length, insert: content } });
+    const imageStart = content.indexOf("![");
+    editor.view.dispatch({ selection: { anchor: imageStart, head: imageStart + 1 } });
+
+    expect(editor.view.dom.querySelectorAll(".inksane-image")).toHaveLength(1);
+    expect(editor.view.dom.querySelectorAll(".cm-line")).toHaveLength(2);
+    expect(editor.view.dom.textContent).toContain(content);
+  });
+
+  it("renders multiple inline images without overlapping replacements", () => {
+    const content = "![first](one.png) and ![second](two.png)";
+    editor.view.dispatch({ changes: { from: 0, to: editor.content.length, insert: content } });
+    const betweenImages = content.indexOf("and");
+    editor.view.dispatch({ selection: { anchor: betweenImages, head: betweenImages } });
+
+    expect(editor.view.dom.querySelectorAll(".inksane-image")).toHaveLength(2);
+    expect(editor.view.dom.textContent).toContain("and");
   });
 });
