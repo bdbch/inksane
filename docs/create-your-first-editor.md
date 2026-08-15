@@ -62,3 +62,4 @@ const editor = new Editor({
 ## Up Next
 
 - [Styling](./styling.md)
+- [Commands](./commands.md)
