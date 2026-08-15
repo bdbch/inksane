@@ -41,6 +41,16 @@ declare module "@inkwell/core" {
 
 const isAlreadyLink = (text: string) => /^\[([^\]]*)\]\(([^)]*)\)$/.exec(text);
 
+/** Returns true for URLs using an allowed scheme (http, https, mailto). */
+const isSafeUrl = (url: string): boolean => {
+  try {
+    const { protocol } = new URL(url);
+    return protocol === "http:" || protocol === "https:" || protocol === "mailto:";
+  } catch {
+    return false;
+  }
+};
+
 /** Renders a clickable external-link icon next to a link. */
 class OpenLinkWidget extends WidgetType {
   private url: string;
@@ -51,6 +61,10 @@ class OpenLinkWidget extends WidgetType {
   }
 
   toDOM() {
+    if (!isSafeUrl(this.url)) {
+      return document.createElement("span");
+    }
+
     const el = document.createElement("a");
     el.className = "inkwell-mark-link-open";
     el.href = this.url;
