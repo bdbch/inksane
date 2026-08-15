@@ -7,7 +7,7 @@ function selectedLines(state: EditorState, from: number, to: number): number[] {
 
   if (from === to) return [startLine.number];
 
-  const first = from === startLine.from ? startLine.number : startLine.number + 1;
+  const first = startLine.number;
   const last = to === endLine.from ? endLine.number - 1 : endLine.number;
 
   const lines: number[] = [];
