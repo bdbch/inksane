@@ -33,6 +33,8 @@ declare module "@inkwell/core" {
 
 const headingMarker = (level: number) => "#".repeat(level);
 
+const isValidHeadingLevel = (level: number) => Number.isInteger(level) && level >= 1 && level <= 6;
+
 const getHeadingLevel = (text: string): number | null => {
   const match = /^(#{1,6})(\s|$)/.exec(text);
   return match ? match[1].length : null;
@@ -62,7 +64,7 @@ export const HeadingExtension: InkwellExtension = {
     return {
       setHeading: (ctx) => (options) => {
         const { level, pos } = options;
-        if (level < 1 || level > 6) return false;
+        if (!isValidHeadingLevel(level)) return false;
 
         const { from } = resolveFromTo(ctx.state, pos);
         const line = ctx.state.doc.lineAt(from);
@@ -85,7 +87,7 @@ export const HeadingExtension: InkwellExtension = {
 
       toggleHeading: (ctx) => (options) => {
         const { level, pos } = options;
-        if (level < 1 || level > 6) return false;
+        if (!isValidHeadingLevel(level)) return false;
 
         const { from } = resolveFromTo(ctx.state, pos);
         const line = ctx.state.doc.lineAt(from);
