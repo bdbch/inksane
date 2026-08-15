@@ -4,6 +4,8 @@
 
 **Warning**: This repo is still very early in development and far from a first release. If you want to help, feel free to contribute.
 
+**Check out the [demo](https://bdbch.github.io/inksane/demos/default/) to see the editor in action.**
+
 ## Documentation
 
 - [Browse the documentation](./docs/README.md)
