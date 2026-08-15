@@ -1,0 +1,52 @@
+name: Support question
+description: Ask for help using inksane.
+title: "question: "
+labels:
+  - "type: question"
+  - "status: needs triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ask support-style questions about using inksane, its API, extensions, or editor behavior.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: What would you like help with?
+      description: Explain what you are trying to do and where you are stuck.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: What have you tried?
+      description: Include relevant code, configuration, expected behavior, and the result you see.
+      placeholder: |
+        I am trying to ...
+
+        ```ts
+        // Relevant code or configuration
+        ```
+
+  - type: input
+    id: version
+    attributes:
+      label: What version are you using?
+      description: Include the installed `@inksane/core` version if relevant.
+      placeholder: "@inksane/core 0.1.1"
+
+  - type: textarea
+    id: extensions
+    attributes:
+      label: Which extensions are involved?
+      description: List any custom or configured extensions, if relevant.
+
+  - type: checkboxes
+    id: code-of-conduct
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct.
+          required: true
