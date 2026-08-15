@@ -1,16 +1,16 @@
 {
   "name": "@inksane/core",
   "version": "0.0.0",
-  "description": "Here be ink",
-  "homepage": "https://tangled.org/bdbch.com/inksane/",
+  "description": "A modular and extensible Markdown editor built with CodeMirror 6.",
+  "homepage": "https://github.com/bdbch/inksane#readme",
   "bugs": {
-    "url": "https://tangled.org/bdbch.com/inksane/issues"
+    "url": "https://github.com/bdbch/inksane/issues"
   },
   "license": "MIT",
-  "author": "Dominik Biedebach <git@bdbch.com>",
+  "author": "bdbch <git@bdbch.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://tangled.org/bdbch.com/inksane"
+    "url": "git+https://github.com/bdbch/inksane"
   },
   "files": [
     "dist"
