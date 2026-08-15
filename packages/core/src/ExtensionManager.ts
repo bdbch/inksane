@@ -1,9 +1,12 @@
 import type { Extension as CMExtension } from "@codemirror/state";
 import { type KeyBinding, keymap } from "@codemirror/view";
+import { markdown } from "@codemirror/lang-markdown";
+import type { MarkdownExtension } from "@lezer/markdown";
 import type { Editor } from "./Editor.ts";
-import type { InkwellExtension } from "./types/extensions.ts";
+import type { InkwellExtension, MarkdownDecorationConfig } from "./types/extensions.ts";
 import type { CommandRegistry } from "./CommandChain.ts";
 import { resolveExtensionsOnEditor } from "./helpers/resolveExtensionsOnEditor.ts";
+import { createMarkdownDecorations } from "./markdownDecorations.ts";
 
 /**
  * Manages and resolves extensions so the editor receives one complete CodeMirror setup.
@@ -20,6 +23,12 @@ export class ExtensionManager {
 
   /** Stores advanced CodeMirror additions from configured extensions. */
   private _addonCMExtensions: CMExtension[] = [];
+
+  /** Stores Markdown parser additions from configured extensions. */
+  private _markdownSyntax: MarkdownExtension[] = [];
+
+  /** Stores syntax-tree decorations declared by configured extensions. */
+  private _markdownDecorations: MarkdownDecorationConfig[] = [];
 
   /** Stores keybindings before they become one CodeMirror keymap. */
   private _keybindings: CMExtension[] = [];
@@ -40,6 +49,8 @@ export class ExtensionManager {
 
     const sortedExtensions = this.sortExtensionsByPrio(this._resolvedExtensions);
     for (const ext of sortedExtensions) {
+      if (ext.addMarkdownSyntax) this.bindMarkdownSyntax(ext.addMarkdownSyntax);
+      if (ext.addMarkdownDecorations) this.bindMarkdownDecorations(ext.addMarkdownDecorations);
       if (ext.addCommands) this.bindCommands(ext.addCommands);
       if (ext.addKeybinds) this.bindKeymaps(ext.addKeybinds);
       if (ext.addCodeMirrorExtensions) this.bindCmExtensions(ext.addCodeMirrorExtensions);
@@ -53,7 +64,12 @@ export class ExtensionManager {
 
   /** Provides CodeMirror extensions ready for the editor state. */
   get cmExtensions(): CMExtension[] {
-    return [...this._keybindings, ...this._addonCMExtensions];
+    return [
+      markdown({ extensions: this._markdownSyntax }),
+      createMarkdownDecorations(this._markdownDecorations),
+      ...this._keybindings,
+      ...this._addonCMExtensions,
+    ];
   }
 
   /** Provides root and child extensions that can contribute to editor setup. */
@@ -89,6 +105,22 @@ export class ExtensionManager {
   private bindCommands(addCommands: NonNullable<InkwellExtension["addCommands"]>) {
     const commands = addCommands({ editor: this.editor }) ?? {};
     Object.assign(this._commands, commands);
+  }
+
+  /** Collects Markdown parser additions for the shared Markdown language setup. */
+  private bindMarkdownSyntax(
+    addMarkdownSyntax: NonNullable<InkwellExtension["addMarkdownSyntax"]>,
+  ) {
+    const syntax = addMarkdownSyntax({ editor: this.editor }) ?? [];
+    this._markdownSyntax.push(...syntax);
+  }
+
+  /** Collects syntax-tree decoration rules for the shared Markdown decoration plugin. */
+  private bindMarkdownDecorations(
+    addMarkdownDecorations: NonNullable<InkwellExtension["addMarkdownDecorations"]>,
+  ) {
+    const decorations = addMarkdownDecorations({ editor: this.editor }) ?? [];
+    this._markdownDecorations.push(...decorations);
   }
 
   /**

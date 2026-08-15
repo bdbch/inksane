@@ -44,3 +44,9 @@
 :root {
   @apply bg-background text-foreground;
 }
+
+[data-inkwell-editor-content] {
+  .inkwell-mark-bold {
+    @apply font-bold;
+  }
+}

@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@codemirror/lang-markdown": "catalog:",
+    "@codemirror/language": "catalog:",
     "@codemirror/state": "catalog:",
     "@codemirror/view": "catalog:",
     "@lezer/markdown": "catalog:"
