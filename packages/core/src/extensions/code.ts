@@ -172,6 +172,12 @@ export const CodeExtension: InkwellExtension = {
           return ctx.editor.commands.toggleCodeBlock();
         },
       },
+      {
+        key: "Mod-Shift->",
+        run() {
+          return ctx.editor.commands.toggleCodeBlock();
+        },
+      },
     ];
   },
 };
