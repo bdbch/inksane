@@ -37,11 +37,11 @@ See [Create your first editor](./docs/create-your-first-editor.md) for the full 
 
 ## License
 
-- TBD
+- inksane is licensed under the [MIT License](./LICENSE).
 
-## Code of Conduct
+## Contributing
 
-- TBD
+Contributions are welcome. Please read and follow the [contributor guidelines](./CONTRIBUTING.md) before opening a pull request.
 
 ## Contributors
 
