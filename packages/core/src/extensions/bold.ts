@@ -17,6 +17,15 @@ declare module "@inkwell/core" {
 export const BoldExtension: InkwellExtension = {
   name: "bold",
 
+  addMarkdownDecorations() {
+    return [
+      {
+        nodeName: "StrongEmphasis",
+        className: "inkwell-mark-bold",
+      },
+    ];
+  },
+
   addCommands() {
     return {
       insertBold:
@@ -29,7 +38,4 @@ export const BoldExtension: InkwellExtension = {
         },
     };
   },
-
-  // TODO: find out how we implement the decorations for inline-syntax like bold, italic, etc.
-  // also need to look into a way to hide syntax when focus is inside inline-syntax, so instead of "**bold**" we only show "bold"
 };
