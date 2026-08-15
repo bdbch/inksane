@@ -3,6 +3,7 @@ import { WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
 import { insertContent } from "../commands/index.ts";
 import { markRangesWithWhitespace } from "../helpers/markup.ts";
+import { resolveFromTo } from "../helpers/resolveFromTo.ts";
 import type { InkwellExtension, PosOrRange } from "../types/index.ts";
 
 declare module "@inkwell/core" {
@@ -93,12 +94,6 @@ const orderedItemNumber = (node: SyntaxNode, state: EditorState): number => {
   }
 
   return number;
-};
-
-const resolveFromTo = (state: EditorState, pos?: PosOrRange): { from: number; to: number } => {
-  const from = typeof pos === "number" ? pos : (pos?.from ?? state.selection.main.from);
-  const to = typeof pos === "number" ? pos : (pos?.to ?? state.selection.main.to);
-  return { from, to };
 };
 
 export const ListExtension: InkwellExtension = {

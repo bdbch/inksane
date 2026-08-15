@@ -1,5 +1,5 @@
-import type { EditorState } from "@codemirror/state";
 import { insertContent } from "../commands/index.ts";
+import { resolveFromTo } from "../helpers/resolveFromTo.ts";
 import type { InkwellExtension, PosOrRange } from "../types/index.ts";
 
 declare module "@inkwell/core" {
@@ -41,6 +41,13 @@ declare module "@inkwell/core" {
       setCodeBlock: (options?: { lang?: string; pos?: PosOrRange }) => ReturnType;
 
       /**
+       * Removes a fenced code block for the specified position or range in the document, otherwise uses the current selection.
+       * @param options An object containing the position or range.
+       * @returns A boolean indicating whether the command was executed successfully.
+       */
+      removeCodeBlock: (options?: { pos?: PosOrRange }) => ReturnType;
+
+      /**
        * Toggles a fenced code block for the specified position or range in the document, otherwise uses the current selection.
        * @param options An object containing the optional language, and the position or range.
        * @returns A boolean indicating whether the command was executed successfully.
@@ -55,12 +62,6 @@ const isAlreadyCode = (text: string) => /^`([^`]*)`$/.exec(text);
 const isAlreadyCodeBlock = (text: string) => /^```[^\n]*\n([\s\S]*?)\n```$/.exec(text);
 
 const fenceFor = (lang?: string) => (lang ? `\`\`\`${lang}` : "```");
-
-const resolveFromTo = (state: EditorState, pos?: PosOrRange): { from: number; to: number } => {
-  const from = typeof pos === "number" ? pos : (pos?.from ?? state.selection.main.from);
-  const to = typeof pos === "number" ? pos : (pos?.to ?? state.selection.main.to);
-  return { from, to };
-};
 
 export const CodeExtension: InkwellExtension = {
   name: "code",
@@ -131,20 +132,35 @@ export const CodeExtension: InkwellExtension = {
       setCodeBlock: (ctx) => (options) => {
         const { from, to } = resolveFromTo(ctx.state, options?.pos);
         const selectedText = ctx.state.sliceDoc(from, to);
+
+        if (isAlreadyCodeBlock(selectedText)) {
+          return false;
+        }
+
         const fence = fenceFor(options?.lang);
         return insertContent(ctx)({ content: `${fence}\n${selectedText}\n\`\`\``, from, to });
+      },
+
+      removeCodeBlock: (ctx) => (options) => {
+        const { from, to } = resolveFromTo(ctx.state, options?.pos);
+        const selectedText = ctx.state.sliceDoc(from, to);
+        const match = isAlreadyCodeBlock(selectedText);
+
+        if (!match) {
+          return false;
+        }
+
+        return insertContent(ctx)({ content: match[1], from, to });
       },
 
       toggleCodeBlock: (ctx) => (options) => {
         const { from, to } = resolveFromTo(ctx.state, options?.pos);
         const selectedText = ctx.state.sliceDoc(from, to);
-        const match = isAlreadyCodeBlock(selectedText);
 
-        if (match) {
-          return insertContent(ctx)({ content: match[1], from, to });
+        if (isAlreadyCodeBlock(selectedText)) {
+          return ctx.editor.commands.removeCodeBlock({ pos: { from, to } });
         } else {
-          const fence = fenceFor(options?.lang);
-          return insertContent(ctx)({ content: `${fence}\n${selectedText}\n\`\`\``, from, to });
+          return ctx.editor.commands.setCodeBlock({ pos: { from, to }, lang: options?.lang });
         }
       },
     };

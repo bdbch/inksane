@@ -1,5 +1,5 @@
-import type { EditorState } from "@codemirror/state";
 import { WidgetType } from "@codemirror/view";
+import { resolveFromTo } from "../helpers/resolveFromTo.ts";
 import type { InkwellExtension, PosOrRange } from "../types/index.ts";
 
 declare module "@inkwell/core" {
@@ -31,12 +31,6 @@ class HorizontalRuleWidget extends WidgetType {
     return other instanceof HorizontalRuleWidget;
   }
 }
-
-const resolveFromTo = (state: EditorState, pos?: PosOrRange): { from: number; to: number } => {
-  const from = typeof pos === "number" ? pos : (pos?.from ?? state.selection.main.from);
-  const to = typeof pos === "number" ? pos : (pos?.to ?? state.selection.main.to);
-  return { from, to };
-};
 
 export const HorizontalRuleExtension: InkwellExtension = {
   name: "horizontalRule",

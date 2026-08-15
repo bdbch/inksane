@@ -1,6 +1,6 @@
-import type { EditorState } from "@codemirror/state";
 import { insertContent } from "../commands/index.ts";
 import { markRangesWithWhitespace } from "../helpers/markup.ts";
+import { resolveFromTo } from "../helpers/resolveFromTo.ts";
 import type { InkwellExtension, PosOrRange } from "../types/index.ts";
 
 declare module "@inkwell/core" {
@@ -41,12 +41,6 @@ const getHeadingLevel = (text: string): number | null => {
 };
 
 const stripHeading = (text: string) => text.replace(/^#+\s?/, "");
-
-const resolveFromTo = (state: EditorState, pos?: PosOrRange): { from: number; to: number } => {
-  const from = typeof pos === "number" ? pos : (pos?.from ?? state.selection.main.from);
-  const to = typeof pos === "number" ? pos : (pos?.to ?? state.selection.main.to);
-  return { from, to };
-};
 
 export const HeadingExtension: InkwellExtension = {
   name: "heading",

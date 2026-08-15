@@ -2,6 +2,7 @@ import type { EditorState } from "@codemirror/state";
 import { WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
 import { insertContent } from "../commands/index.ts";
+import { resolveFromTo } from "../helpers/resolveFromTo.ts";
 import type { InkwellExtension, PosOrRange } from "../types/index.ts";
 
 declare module "@inkwell/core" {
@@ -95,12 +96,6 @@ const getLinkUrl = (node: SyntaxNode, state: EditorState): string => {
   return url ? state.doc.sliceString(url.from, url.to) : "";
 };
 
-const resolveFromTo = (state: EditorState, pos?: PosOrRange): { from: number; to: number } => {
-  const from = typeof pos === "number" ? pos : (pos?.from ?? state.selection.main.from);
-  const to = typeof pos === "number" ? pos : (pos?.to ?? state.selection.main.to);
-  return { from, to };
-};
-
 export const LinkExtension: InkwellExtension = {
   name: "link",
 
@@ -132,8 +127,12 @@ export const LinkExtension: InkwellExtension = {
         },
 
       setLink: (ctx) => (options) => {
-        const { from, to } = resolveFromTo(ctx.state, options?.pos);
+        const { from, to } = resolveFromTo(ctx.state, options.pos);
         const selectedText = ctx.state.sliceDoc(from, to);
+
+        if (!options.url) {
+          return false;
+        }
 
         if (isAlreadyLink(selectedText)) {
           return false;
@@ -155,7 +154,7 @@ export const LinkExtension: InkwellExtension = {
       },
 
       toggleLink: (ctx) => (options) => {
-        const { from, to } = resolveFromTo(ctx.state, options?.pos);
+        const { from, to } = resolveFromTo(ctx.state, options.pos);
         const selectedText = ctx.state.sliceDoc(from, to);
 
         if (isAlreadyLink(selectedText)) {
@@ -171,8 +170,12 @@ export const LinkExtension: InkwellExtension = {
     return [
       {
         key: "Mod-k",
-        run() {
-          return ctx.editor.commands.toggleLink({ url: "" });
+        run(view) {
+          const { from, to } = view.state.selection.main;
+          if (isAlreadyLink(view.state.sliceDoc(from, to))) {
+            return ctx.editor.commands.removeLink();
+          }
+          return ctx.editor.commands.setLink({ url: "" });
         },
       },
     ];
