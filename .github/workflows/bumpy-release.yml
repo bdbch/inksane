@@ -29,6 +29,9 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.workflow_run.head_sha }}
 
+      # workflow_run SHA checkouts are detached; Bumpy uses the current branch as the PR base.
+      - run: git checkout -B main ${{ github.event.workflow_run.head_sha }}
+
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
@@ -57,6 +60,9 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.workflow_run.head_sha }}
+
+      # workflow_run SHA checkouts are detached; Bumpy uses the current branch as the PR base.
+      - run: git checkout -B main ${{ github.event.workflow_run.head_sha }}
 
       - uses: pnpm/action-setup@v4
         with:
@@ -87,6 +93,9 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.workflow_run.head_sha }}
+
+      # workflow_run SHA checkouts are detached; Bumpy uses the current branch as the PR base.
+      - run: git checkout -B main ${{ github.event.workflow_run.head_sha }}
 
       - uses: pnpm/action-setup@v4
         with:
