@@ -68,7 +68,7 @@ export const ItalicExtension: InkwellExtension = {
         (ctx) =>
         ({ content, pos }) => {
           const { from, to } = resolveFromTo(ctx.state, pos);
-          return insertContent(ctx)({ content: `_${content}_`, from, to });
+          return insertContent(ctx)({ content: `*${content}*`, from, to });
         },
 
       setItalic: (ctx) => (options) => {
@@ -78,7 +78,7 @@ export const ItalicExtension: InkwellExtension = {
         if (isAlreadyItalic(selectedText)) {
           return false;
         } else {
-          return insertContent(ctx)({ content: `_${selectedText}_`, from, to });
+          return insertContent(ctx)({ content: `*${selectedText}*`, from, to });
         }
       },
 
