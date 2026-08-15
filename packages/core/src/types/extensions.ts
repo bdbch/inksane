@@ -63,7 +63,7 @@ export type ExtensionEventHandlers = {
   [K in keyof EditorEvents]?: (ctx: EditorContext, payload: EditorEvents[K]) => void;
 };
 
-export type InkwellExtension = ExtensionEventHandlers & {
+export type Extension = ExtensionEventHandlers & {
   name: string;
 
   /**
@@ -76,7 +76,7 @@ export type InkwellExtension = ExtensionEventHandlers & {
   addMarkdownDecorations?: (ctx: EditorContext) => MarkdownDecorationConfig[];
   addCommands?: (ctx: EditorContext) => Partial<RawCommands>;
   addCodeMirrorExtensions?: (ctx: EditorContext) => CMExtension[];
-  addExtensions?: (ctx: EditorContext) => InkwellExtension[];
+  addExtensions?: (ctx: EditorContext) => Extension[];
 
   // TODO: define addKeybinds correctly
   addKeybinds?: (ctx: EditorContext) => readonly KeyBinding[] | undefined;

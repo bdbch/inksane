@@ -41,7 +41,7 @@ describe("Editor", () => {
     const mount = document.createElement("div");
     const editor = new Editor({ element: mount, content: "**bold**" });
 
-    expect(editor.view.dom.querySelector(".inkwell-mark-bold")?.textContent).toBe("**bold**");
+    expect(editor.view.dom.querySelector(".inksane-mark-bold")?.textContent).toBe("**bold**");
 
     editor.destroy();
   });

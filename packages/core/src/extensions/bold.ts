@@ -1,8 +1,8 @@
 import { insertContent } from "../commands/index.ts";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
-import type { InkwellExtension, PosOrRange } from "../types/index.ts";
+import type { Extension, PosOrRange } from "../types/index.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands<ReturnType> {
     bold: {
       /**
@@ -39,14 +39,14 @@ declare module "@inkwell/core" {
 
 const isAlreadyBold = (text: string) => /^(\*\*|__)((?:(?!\*\*|__)[\s\S])*)\1$/.exec(text);
 
-export const BoldExtension: InkwellExtension = {
+export const BoldExtension: Extension = {
   name: "bold",
 
   addMarkdownDecorations() {
     return [
       {
         nodeName: "StrongEmphasis",
-        className: "inkwell-mark-bold",
+        className: "inksane-mark-bold",
         hideSyntax: true,
       },
     ];

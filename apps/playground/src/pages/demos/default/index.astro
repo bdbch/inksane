@@ -14,12 +14,12 @@ const markdown = rawContent()
 </Base>
 
 <script>
-    import { Editor, type InkwellExtension } from "@inkwell/core";
+    import { Editor, type Extension } from "@inksane/core";
     import { EditorView } from "@codemirror/view";
 
     const buttons = document.querySelectorAll("button[data-action]");
 
-    const TestExtension: InkwellExtension = {
+    const TestExtension: Extension = {
         name: "test",
         priority: 10,
         addKeybinds() {

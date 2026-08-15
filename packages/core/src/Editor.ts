@@ -144,8 +144,8 @@ export class Editor extends EventEmitter<EditorEvents> {
   }
 
   private setupDOM(): void {
-    this.view.dom.dataset.inkwellEditor = "";
-    this.view.dom.classList.add("inkwell-editor");
+    this.view.dom.dataset.inksaneEditor = "";
+    this.view.dom.classList.add("inksane-editor");
     if (this.options.classNames?.editor) {
       const editorClasses = this.options.classNames.editor.split(" ");
       for (let i = 0; i < editorClasses.length; i++) {
@@ -153,8 +153,8 @@ export class Editor extends EventEmitter<EditorEvents> {
       }
     }
 
-    this.view.contentDOM.dataset.inkwellEditorContent = "";
-    this.view.contentDOM.classList.add("inkwell-editor--content");
+    this.view.contentDOM.dataset.inksaneEditorContent = "";
+    this.view.contentDOM.classList.add("inksane-editor--content");
     if (this.options.classNames?.editable) {
       const editableClasses = this.options.classNames.editable.split(" ");
       for (let i = 0; i < editableClasses.length; i++) {

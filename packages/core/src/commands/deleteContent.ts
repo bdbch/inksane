@@ -1,6 +1,6 @@
 import type { NamedCommand } from "../types/commands.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands {
     deleteContent: {
       /**
@@ -24,7 +24,7 @@ export const deleteContent: NamedCommand<"deleteContent"> =
 
       return true;
     } catch (error) {
-      console.warn("[inkwell] Failed to delete content", from, to, error);
+      console.warn("[inksane] Failed to delete content", from, to, error);
       return false;
     }
   };

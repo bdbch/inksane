@@ -3,7 +3,7 @@ import { type KeyBinding, keymap } from "@codemirror/view";
 import { markdown } from "@codemirror/lang-markdown";
 import type { MarkdownExtension } from "@lezer/markdown";
 import type { Editor } from "./Editor.ts";
-import type { InkwellExtension, MarkdownDecorationConfig } from "./types/extensions.ts";
+import type { Extension, MarkdownDecorationConfig } from "./types/extensions.ts";
 import type { CommandRegistry } from "./CommandChain.ts";
 import { resolveExtensionsOnEditor } from "./helpers/resolveExtensionsOnEditor.ts";
 import { createMarkdownDecorations } from "./markdownDecorations.ts";
@@ -16,10 +16,10 @@ export class ExtensionManager {
   private editor: Editor;
 
   /** Stores extensions passed directly to the editor. */
-  private _extensions: InkwellExtension[] = [];
+  private _extensions: Extension[] = [];
 
   /** Stores root and child extensions that can contribute to editor setup. */
-  private _resolvedExtensions: InkwellExtension[] = [];
+  private _resolvedExtensions: Extension[] = [];
 
   /** Stores advanced CodeMirror additions from configured extensions. */
   private _addonCMExtensions: CMExtension[] = [];
@@ -42,7 +42,7 @@ export class ExtensionManager {
    * @param editor - Owns this extension lifecycle.
    * @param extensions - Define the features available when the editor starts.
    */
-  constructor(editor: Editor, extensions: InkwellExtension[]) {
+  constructor(editor: Editor, extensions: Extension[]) {
     this.editor = editor;
     this._extensions = extensions;
     this._resolvedExtensions = this.resolveExtensions();
@@ -58,7 +58,7 @@ export class ExtensionManager {
   }
 
   /** Provides the root extensions before child extensions are resolved. */
-  get extensions(): InkwellExtension[] {
+  get extensions(): Extension[] {
     return [...this._extensions];
   }
 
@@ -73,7 +73,7 @@ export class ExtensionManager {
   }
 
   /** Provides root and child extensions that can contribute to editor setup. */
-  get resolvedExtensions(): InkwellExtension[] {
+  get resolvedExtensions(): Extension[] {
     return [...this._resolvedExtensions];
   }
 
@@ -87,7 +87,7 @@ export class ExtensionManager {
    *
    * @returns The complete extension list, including child extensions.
    */
-  resolveExtensions(): InkwellExtension[] {
+  resolveExtensions(): Extension[] {
     return resolveExtensionsOnEditor(this.editor, this._extensions);
   }
 
@@ -97,27 +97,25 @@ export class ExtensionManager {
    * @param extensions - The extensions that need a predictable contribution order.
    * @returns A new array with higher-priority extensions first.
    */
-  public sortExtensionsByPrio(extensions: InkwellExtension[]): InkwellExtension[] {
+  public sortExtensionsByPrio(extensions: Extension[]): Extension[] {
     return [...extensions].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
   }
 
   /** Collects commands from one extension into the registry. */
-  private bindCommands(addCommands: NonNullable<InkwellExtension["addCommands"]>) {
+  private bindCommands(addCommands: NonNullable<Extension["addCommands"]>) {
     const commands = addCommands({ editor: this.editor }) ?? {};
     Object.assign(this._commands, commands);
   }
 
   /** Collects Markdown parser additions for the shared Markdown language setup. */
-  private bindMarkdownSyntax(
-    addMarkdownSyntax: NonNullable<InkwellExtension["addMarkdownSyntax"]>,
-  ) {
+  private bindMarkdownSyntax(addMarkdownSyntax: NonNullable<Extension["addMarkdownSyntax"]>) {
     const syntax = addMarkdownSyntax({ editor: this.editor }) ?? [];
     this._markdownSyntax.push(...syntax);
   }
 
   /** Collects syntax-tree decoration rules for the shared Markdown decoration plugin. */
   private bindMarkdownDecorations(
-    addMarkdownDecorations: NonNullable<InkwellExtension["addMarkdownDecorations"]>,
+    addMarkdownDecorations: NonNullable<Extension["addMarkdownDecorations"]>,
   ) {
     const decorations = addMarkdownDecorations({ editor: this.editor }) ?? [];
     this._markdownDecorations.push(...decorations);
@@ -128,7 +126,7 @@ export class ExtensionManager {
    *
    * @param addKeybinds - Provides keybindings from one extension.
    */
-  private bindKeymaps(addKeybinds: NonNullable<InkwellExtension["addKeybinds"]>) {
+  private bindKeymaps(addKeybinds: NonNullable<Extension["addKeybinds"]>) {
     const keyBinds =
       addKeybinds({ editor: this.editor })?.filter((kb): kb is KeyBinding => kb !== undefined) ??
       [];
@@ -141,7 +139,7 @@ export class ExtensionManager {
    * @param addCodeMirrorExtensions - Provides CodeMirror additions from one extension.
    */
   private bindCmExtensions(
-    addCodeMirrorExtensions: NonNullable<InkwellExtension["addCodeMirrorExtensions"]>,
+    addCodeMirrorExtensions: NonNullable<Extension["addCodeMirrorExtensions"]>,
   ) {
     const cmExtensions: CMExtension[] = addCodeMirrorExtensions({ editor: this.editor }) ?? [];
     this._addonCMExtensions.push(...cmExtensions);

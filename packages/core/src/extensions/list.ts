@@ -4,9 +4,9 @@ import type { SyntaxNode } from "@lezer/common";
 import { insertContent } from "../commands/index.ts";
 import { markRangesWithWhitespace } from "../helpers/markup.ts";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
-import type { InkwellExtension, PosOrRange } from "../types/index.ts";
+import type { Extension, PosOrRange } from "../types/index.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands<ReturnType> {
     list: {
       /**
@@ -45,8 +45,8 @@ class ListMarkerWidget extends WidgetType {
 
   toDOM() {
     const el = document.createElement("span");
-    el.className = `inkwell-list-marker ${
-      this.ordered ? "inkwell-list-marker--ordered" : "inkwell-list-marker--bullet"
+    el.className = `inksane-list-marker ${
+      this.ordered ? "inksane-list-marker--ordered" : "inksane-list-marker--bullet"
     }`;
     el.textContent = this.label;
     return el;
@@ -96,7 +96,7 @@ const orderedItemNumber = (node: SyntaxNode, state: EditorState): number => {
   return number;
 };
 
-export const ListExtension: InkwellExtension = {
+export const ListExtension: Extension = {
   name: "list",
 
   addMarkdownDecorations() {

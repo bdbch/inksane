@@ -3,9 +3,9 @@ import { WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
 import { insertContent } from "../commands/index.ts";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
-import type { InkwellExtension, PosOrRange } from "../types/index.ts";
+import type { Extension, PosOrRange } from "../types/index.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands<ReturnType> {
     link: {
       /**
@@ -67,7 +67,7 @@ class OpenLinkWidget extends WidgetType {
     }
 
     const el = document.createElement("a");
-    el.className = "inkwell-mark-link-open";
+    el.className = "inksane-mark-link-open";
     el.href = this.url;
     el.target = "_blank";
     el.rel = "noopener noreferrer";
@@ -96,14 +96,14 @@ const getLinkUrl = (node: SyntaxNode, state: EditorState): string => {
   return url ? state.doc.sliceString(url.from, url.to) : "";
 };
 
-export const LinkExtension: InkwellExtension = {
+export const LinkExtension: Extension = {
   name: "link",
 
   addMarkdownDecorations() {
     return [
       {
         nodeName: "Link",
-        className: "inkwell-mark-link",
+        className: "inksane-mark-link",
         markup: ["LinkMark", "URL"],
         hideSyntax: true,
         widgets: [

@@ -1,6 +1,6 @@
 import type { NamedCommand } from "../types/commands.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands<ReturnType> {
     /**
      * Inserts content into the document at the specified range.
@@ -31,7 +31,7 @@ export const insertContent: NamedCommand<"insertContent"> =
       });
       return true;
     } catch (error) {
-      console.warn("[inkwell] Failed to insert content", content, from, to, error);
+      console.warn("[inksane] Failed to insert content", content, from, to, error);
       return false;
     }
   };

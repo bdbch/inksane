@@ -1,8 +1,8 @@
 import { insertContent } from "../commands/index.ts";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
-import type { InkwellExtension, PosOrRange } from "../types/index.ts";
+import type { Extension, PosOrRange } from "../types/index.ts";
 
-declare module "@inkwell/core" {
+declare module "@inksane/core" {
   interface Commands<ReturnType> {
     code: {
       /**
@@ -69,25 +69,25 @@ const fenceTickCount = (text: string) => {
   return Math.max(3, longest + 1);
 };
 
-export const CodeExtension: InkwellExtension = {
+export const CodeExtension: Extension = {
   name: "code",
 
   addMarkdownDecorations() {
     return [
       {
         nodeName: "InlineCode",
-        className: "inkwell-mark-inline-code",
+        className: "inksane-mark-inline-code",
         hideSyntax: true,
       },
       {
         nodeName: "FencedCode",
-        lineClass: "inkwell-code-block",
+        lineClass: "inksane-code-block",
         hideSyntax: true,
         markup: ["CodeMark", "CodeInfo"],
       },
       {
         nodeName: "CodeBlock",
-        lineClass: "inkwell-code-block",
+        lineClass: "inksane-code-block",
       },
     ];
   },

@@ -1,4 +1,4 @@
-# inkwell
+# inksane
 
 > a extendable markdown rich-text like editor inspired by [Obsidian](https://obsidian.md/)
 
