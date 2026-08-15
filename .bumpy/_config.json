@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@varlock/bumpy/config-schema.json",
   "baseBranch": "main",
   "changelog": "default",
-  "include": ["@inkwell/*"],
+  "include": ["@inksane/*"],
   "publish": {
     "provenance": true
   },
