@@ -59,7 +59,6 @@ const markdown = rawContent()
     const editor = new Editor({
         element: document.getElementById("editor-mount")!,
         content: markdown,
-        lineWrapping: true,
 
         extensions: [TestExtension],
         theme,
