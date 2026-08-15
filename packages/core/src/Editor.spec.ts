@@ -37,6 +37,24 @@ describe("Editor", () => {
     expect(editor.view.state).toBe(editor.state);
   });
 
+  it("wraps long lines by default", () => {
+    const mount = document.createElement("div");
+    const editor = new Editor({ element: mount });
+
+    expect(editor.view.contentDOM.classList.contains("cm-lineWrapping")).toBe(true);
+
+    editor.destroy();
+  });
+
+  it("does not wrap long lines when lineWrapping is disabled", () => {
+    const mount = document.createElement("div");
+    const editor = new Editor({ element: mount, lineWrapping: false });
+
+    expect(editor.view.contentDOM.classList.contains("cm-lineWrapping")).toBe(false);
+
+    editor.destroy();
+  });
+
   it("decorates Markdown bold syntax", () => {
     const mount = document.createElement("div");
     const editor = new Editor({ element: mount, content: "**bold**" });

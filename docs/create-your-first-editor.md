@@ -59,6 +59,17 @@ const editor = new Editor({
 });
 ```
 
+## Line Wrapping
+
+Long lines wrap inside the editor by default. Set `lineWrapping` to `false` to allow horizontal overflow instead:
+
+```js
+const editor = new Editor({
+  element: mount,
+  lineWrapping: false,
+});
+```
+
 ## Up Next
 
 - [Styling](./styling.md)

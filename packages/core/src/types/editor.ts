@@ -7,6 +7,8 @@ export type EditorOptions = {
   content?: string;
   extensions?: Extension[];
   theme?: CMExtension;
+  /** Wrap long lines instead of allowing horizontal overflow. Defaults to true. */
+  lineWrapping?: boolean;
   /**
    * The number of spaces Tab and Shift+Tab use when indenting. Defaults to 2.
    */

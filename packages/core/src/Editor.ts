@@ -123,6 +123,10 @@ export class Editor extends EventEmitter<EditorEvents> {
       editorViewExtensions.push(this.options.theme);
     }
 
+    if (this.options.lineWrapping !== false) {
+      editorViewExtensions.push(EditorView.lineWrapping);
+    }
+
     const initialState = EditorState.create({
       doc: content ?? "",
       extensions: [...editorViewExtensions, ...this._extensionManager.cmExtensions],
