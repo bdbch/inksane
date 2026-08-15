@@ -1,0 +1,62 @@
+name: Deploy Playground
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/playground/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - .github/workflows/playground-pages.yml
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: 24
+  PNPM_VERSION: 11.18.0
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: playground-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+        id: pages
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build playground
+        run: pnpm --filter @inksane/playground exec astro build --base "${{ steps.pages.outputs.base_path }}"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/playground/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
