@@ -6,6 +6,7 @@ import { ExtensionManager } from "./ExtensionManager.ts";
 import type { ChainedCommands, SingleCommands } from "./types/commands.ts";
 import { CommandChain } from "./CommandChain.ts";
 import {
+  BlockquoteExtension,
   BoldExtension,
   CodeExtension,
   CommandsExtension,
@@ -106,6 +107,7 @@ export class Editor extends EventEmitter<EditorEvents> {
       HorizontalRuleExtension,
       ImageExtension,
       CodeExtension,
+      BlockquoteExtension,
       ...(this.options?.extensions ?? []),
     ]);
 

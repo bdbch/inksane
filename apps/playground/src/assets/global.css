@@ -139,4 +139,10 @@
     font-family: monospace;
     background: var(--background-muted);
   }
+
+  .inkwell-blockquote {
+    border-left: 3px solid var(--border-muted);
+    padding-left: 8px;
+    color: var(--foreground-muted);
+  }
 }

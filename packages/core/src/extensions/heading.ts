@@ -1,7 +1,7 @@
 import type { EditorState } from "@codemirror/state";
-import type { SyntaxNode } from "@lezer/common";
 import { insertContent } from "../commands/index.ts";
-import type { InkwellExtension, MarkupRange, PosOrRange } from "../types/index.ts";
+import { markRangesWithWhitespace } from "../helpers/markup.ts";
+import type { InkwellExtension, PosOrRange } from "../types/index.ts";
 
 declare module "@inkwell/core" {
   interface Commands<ReturnType> {
@@ -40,17 +40,6 @@ const getHeadingLevel = (text: string): number | null => {
 
 const stripHeading = (text: string) => text.replace(/^#+\s?/, "");
 
-/** Hides the `#` markers and the whitespace between them and the heading content. */
-const hideHeadingMarkup = (node: SyntaxNode, state: EditorState): MarkupRange[] => {
-  const mark = node.getChild("HeaderMark");
-  if (!mark) return [];
-
-  let to = mark.to;
-  while (to < node.to && /[ \t]/.test(state.doc.sliceString(to, to + 1))) to += 1;
-
-  return [{ from: mark.from, to }];
-};
-
 const resolveFromTo = (state: EditorState, pos?: PosOrRange): { from: number; to: number } => {
   const from = typeof pos === "number" ? pos : (pos?.from ?? state.selection.main.from);
   const to = typeof pos === "number" ? pos : (pos?.to ?? state.selection.main.to);
@@ -65,7 +54,7 @@ export const HeadingExtension: InkwellExtension = {
       nodeName: `ATXHeading${i + 1}`,
       className: `inkwell-mark-heading inkwell-heading-${i + 1}`,
       hideSyntax: true,
-      markup: hideHeadingMarkup,
+      markup: (node, state) => markRangesWithWhitespace(node, state, "HeaderMark"),
     }));
   },
 
