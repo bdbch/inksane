@@ -18,7 +18,7 @@ declare module "@inksane/core" {
   }
 }
 
-/** Renders an `<img>` in place of the hidden image syntax. Clicking it places the cursor at the end of the image range. */
+/** Renders an `<img>` next to its image syntax. Clicking it places the cursor at the end of the image range. */
 class ImageWidget extends WidgetType {
   private src: string;
   private alt: string;
@@ -32,6 +32,9 @@ class ImageWidget extends WidgetType {
   }
 
   toDOM(view: EditorView) {
+    const line = document.createElement("div");
+    line.className = "cm-line";
+
     const img = document.createElement("img");
     img.className = "inksane-image";
     img.src = this.src;
@@ -40,7 +43,8 @@ class ImageWidget extends WidgetType {
       event.preventDefault();
       view.dispatch({ selection: { anchor: this.end, head: this.end } });
     });
-    return img;
+    line.append(img);
+    return line;
   }
 
   get estimatedHeight() {
@@ -90,10 +94,24 @@ export const ImageExtension: Extension = {
         nodeName: "Image",
         className: "inksane-mark-image",
         hideSyntax: true,
-        markup: (node) => [{ from: node.from, to: node.to }],
+        markup: (node, state) => {
+          const line = state.doc.lineAt(node.from);
+          return [{ from: line.from, to: line.to }];
+        },
         widgets: [
           {
             kind: "replace",
+            block: true,
+            type: (node, state) => {
+              const { src, alt } = getImageSource(node, state);
+              return new ImageWidget(src, alt, node.to);
+            },
+          },
+          {
+            kind: "attach",
+            onlyWhenVisible: true,
+            block: true,
+            position: (node, state) => state.doc.lineAt(node.to).to,
             type: (node, state) => {
               const { src, alt } = getImageSource(node, state);
               return new ImageWidget(src, alt, node.to);

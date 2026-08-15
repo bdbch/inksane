@@ -30,8 +30,12 @@ export type AttachmentWidget = {
   kind: "attach";
   /** Where the widget is attached. Defaults to "after". */
   position?: "before" | "after" | ((node: SyntaxNode, state: EditorState) => number);
+  /** Renders it as a block-level widget between lines. */
+  block?: boolean;
   /** Only renders while the syntax is hidden. Defaults to true. */
   onlyWhenHidden?: boolean;
+  /** Only renders while the syntax is visible. Defaults to false. */
+  onlyWhenVisible?: boolean;
   /** The widget to render. A factory can build it per node. */
   type: WidgetType | ((node: SyntaxNode, state: EditorState) => WidgetType);
 };
