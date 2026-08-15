@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+env:
+  NODE_VERSION: 24
+  PNPM_VERSION: 11.18.0
+
 permissions:
   contents: read
 
@@ -23,11 +27,11 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 11.18.0
+          version: ${{ env.PNPM_VERSION }}
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -51,11 +55,11 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 11.18.0
+          version: ${{ env.PNPM_VERSION }}
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -80,11 +84,11 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 11.18.0
+          version: ${{ env.PNPM_VERSION }}
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
