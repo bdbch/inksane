@@ -40,8 +40,6 @@ export class ExtensionManager {
 
     const sortedExtensions = this.sortExtensionsByPrio(this._resolvedExtensions);
     for (const ext of sortedExtensions) {
-      if (ext.addNodes) this.bindNodes(ext.addNodes);
-      if (ext.addMarks) this.bindMarks(ext.addMarks);
       if (ext.addCommands) this.bindCommands(ext.addCommands);
       if (ext.addKeybinds) this.bindKeymaps(ext.addKeybinds);
       if (ext.addCodeMirrorExtensions) this.bindCmExtensions(ext.addCodeMirrorExtensions);
@@ -85,24 +83,6 @@ export class ExtensionManager {
    */
   public sortExtensionsByPrio(extensions: InkwellExtension[]): InkwellExtension[] {
     return [...extensions].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
-  }
-
-  /**
-   * Reserves the node registration step until Inkwell has a document model.
-   *
-   * @param addNodes - Provides nodes from one extension.
-   */
-  private bindNodes(addNodes: NonNullable<InkwellExtension["addNodes"]>) {
-    // TODO: implement node binding logic, noop for now
-  }
-
-  /**
-   * Reserves the mark registration step until Inkwell has a document model.
-   *
-   * @param addMarks - Provides marks from one extension.
-   */
-  private bindMarks(addMarks: NonNullable<InkwellExtension["addMarks"]>) {
-    // TODO: implement mark binding logic, noop for now
   }
 
   /** Collects commands from one extension into the registry. */
