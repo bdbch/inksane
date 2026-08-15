@@ -13,7 +13,7 @@ declare module "@inkwell/core" {
 }
 
 /**
- * Inserts content into the document at the specified range.
+ * Scrolls the editor into view and focuses it.
  * @param ctx The command context.
  * @returns A boolean indicating whether the command was executed successfully.
  */
