@@ -56,13 +56,43 @@ class ListMarkerWidget extends WidgetType {
   }
 }
 
-/** Counts the list item's position within its list, starting at 1. */
-const listItemNumber = (node: SyntaxNode): number => {
-  let count = 1;
-  for (let sibling = node.prevSibling; sibling; sibling = sibling.prevSibling) {
-    count += 1;
+/** Returns true when two sibling nodes are separated by a blank line. */
+const isBlankLineSeparated = (a: SyntaxNode, b: SyntaxNode, state: EditorState): boolean => {
+  return /\n[^\S\n]*\n/.test(state.doc.sliceString(a.to, b.from));
+};
+
+/**
+ * Computes the effective number of an ordered list item.
+ * Starts from the first item's ListMark, continues by offset within a block,
+ * and restarts at the item's own marker after a blank-line separated block.
+ */
+const orderedItemNumber = (node: SyntaxNode, state: EditorState): number => {
+  let number = 1;
+  let prev: SyntaxNode | null = null;
+  let index = 0;
+  const nodeFrom = node.from;
+  const nodeTo = node.to;
+
+  for (let sibling = node.parent?.firstChild; sibling; sibling = sibling.nextSibling) {
+    const mark = sibling.getChild("ListMark");
+    const raw = mark ? /^(\d+)/.exec(state.doc.sliceString(mark.from, mark.to))?.[1] : undefined;
+    const marker = raw ? Number(raw) : number + 1;
+
+    if (index === 0) {
+      number = marker;
+    } else if (prev && isBlankLineSeparated(prev, sibling, state)) {
+      number = marker;
+    } else {
+      number += 1;
+    }
+
+    if (sibling.from === nodeFrom && sibling.to === nodeTo) return number;
+
+    prev = sibling;
+    index += 1;
   }
-  return count;
+
+  return number;
 };
 
 const resolveFromTo = (state: EditorState, pos?: PosOrRange): { from: number; to: number } => {
@@ -83,9 +113,9 @@ export const ListExtension: InkwellExtension = {
         widgets: [
           {
             kind: "replace",
-            type: (node) => {
+            type: (node, state) => {
               const ordered = node.parent?.name === "OrderedList";
-              const label = ordered ? `${listItemNumber(node)}.` : "•";
+              const label = ordered ? `${orderedItemNumber(node, state)}.` : "•";
               return new ListMarkerWidget(label, ordered);
             },
           },
