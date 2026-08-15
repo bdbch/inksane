@@ -2,7 +2,7 @@ import type { Extension as CMExtension } from "@codemirror/state";
 import type { KeyBinding } from "@codemirror/view";
 import type { Editor } from "../Editor.ts";
 import type { EditorEvents } from "./editor.ts";
-import type { Command } from "./commands.ts";
+import type { RawCommands } from "./commands.ts";
 
 export interface EditorContext {
   editor: Editor;
@@ -33,7 +33,7 @@ export type InkwellExtension = ExtensionEventHandlers & {
 
   addNodes?: (ctx: EditorContext) => NodeConfig[];
   addMarks?: (ctx: EditorContext) => MarkConfig[];
-  addCommands?: (ctx: EditorContext) => Record<string, Command<any>>;
+  addCommands?: (ctx: EditorContext) => Partial<RawCommands>;
   addCodeMirrorExtensions?: (ctx: EditorContext) => CMExtension[];
   addExtensions?: (ctx: EditorContext) => InkwellExtension[];
 
