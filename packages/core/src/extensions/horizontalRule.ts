@@ -1,6 +1,5 @@
 import type { EditorState } from "@codemirror/state";
 import { WidgetType } from "@codemirror/view";
-import { insertContent } from "../commands/index.ts";
 import type { InkwellExtension, PosOrRange } from "../types/index.ts";
 
 declare module "@inkwell/core" {
@@ -58,7 +57,13 @@ export const HorizontalRuleExtension: InkwellExtension = {
     return {
       insertHorizontalRule: (ctx) => (options) => {
         const { from, to } = resolveFromTo(ctx.state, options?.pos);
-        return insertContent(ctx)({ content: "\n\n---\n", from, to });
+        const line = ctx.state.doc.lineAt(from);
+        const content = line.text.trim() ? "\n\n---\n\n" : "\n---\n\n";
+        ctx.dispatch({
+          changes: { from, to, insert: content },
+          selection: { anchor: from + content.length, head: from + content.length },
+        });
+        return true;
       },
     };
   },
