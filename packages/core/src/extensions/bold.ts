@@ -107,8 +107,16 @@ export const BoldExtension: InkwellExtension = {
     return [
       {
         key: "Mod-b",
-        run() {
-          return ctx.editor.commands.toggleBold();
+        run(view) {
+          const { from, to } = view.state.selection.main;
+          if (from !== to) {
+            return ctx.editor.commands.toggleBold();
+          }
+          view.dispatch({
+            changes: { from, to, insert: "****" },
+            selection: { anchor: from + 2, head: from + 2 },
+          });
+          return true;
         },
       },
     ];

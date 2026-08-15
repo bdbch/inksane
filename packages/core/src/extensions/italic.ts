@@ -111,8 +111,16 @@ export const ItalicExtension: InkwellExtension = {
     return [
       {
         key: "Mod-i",
-        run() {
-          return ctx.editor.commands.toggleItalic();
+        run(view) {
+          const { from, to } = view.state.selection.main;
+          if (from !== to) {
+            return ctx.editor.commands.toggleItalic();
+          }
+          view.dispatch({
+            changes: { from, to, insert: "**" },
+            selection: { anchor: from + 1, head: from + 1 },
+          });
+          return true;
         },
       },
     ];
