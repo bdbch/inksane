@@ -39,7 +39,7 @@ function resolveWidgetType(
 
 function buildDecorations(
   state: EditorState,
-  entriesByNodeName: Map<string, { config: MarkdownDecorationConfig; mark: Decoration }[]>,
+  entriesByNodeName: Map<string, { config: MarkdownDecorationConfig; mark: Decoration | null }[]>,
 ): DecorationSet {
   const ranges: Range<Decoration>[] = [];
   const { from: selFrom, to: selTo } = state.selection.main;
@@ -52,7 +52,17 @@ function buildDecorations(
       if (!entries) return;
 
       for (const { config, mark } of entries) {
-        ranges.push(mark.range(node.from, node.to));
+        if (mark) ranges.push(mark.range(node.from, node.to));
+
+        if (config.lineClass) {
+          const start = state.doc.lineAt(node.from).number;
+          const end = state.doc.lineAt(node.to).number;
+          for (let number = start; number <= end; number++) {
+            ranges.push(
+              Decoration.line({ class: config.lineClass }).range(state.doc.line(number).from),
+            );
+          }
+        }
 
         const hidden = config.hideSyntax && (node.from > selTo || node.to < selFrom);
         const markupRanges = resolveMarkupRanges(config, node.node, state);
@@ -102,14 +112,14 @@ function buildDecorations(
 export function createMarkdownDecorations(configs: readonly MarkdownDecorationConfig[]): Extension {
   const entriesByNodeName = new Map<
     string,
-    { config: MarkdownDecorationConfig; mark: Decoration }[]
+    { config: MarkdownDecorationConfig; mark: Decoration | null }[]
   >();
   const hasSelectionDependent = configs.some(
     (config) => config.hideSyntax || (config.widgets?.length ?? 0) > 0,
   );
 
   for (const config of configs) {
-    const mark = Decoration.mark({ class: config.className });
+    const mark = config.className ? Decoration.mark({ class: config.className }) : null;
     const entries = entriesByNodeName.get(config.nodeName) ?? [];
     entries.push({ config, mark });
     entriesByNodeName.set(config.nodeName, entries);

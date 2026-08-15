@@ -7,6 +7,7 @@ import type { ChainedCommands, SingleCommands } from "./types/commands.ts";
 import { CommandChain } from "./CommandChain.ts";
 import {
   BoldExtension,
+  CodeExtension,
   CommandsExtension,
   HeadingExtension,
   HorizontalRuleExtension,
@@ -104,6 +105,7 @@ export class Editor extends EventEmitter<EditorEvents> {
       HeadingExtension,
       HorizontalRuleExtension,
       ImageExtension,
+      CodeExtension,
       ...(this.options?.extensions ?? []),
     ]);
 

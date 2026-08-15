@@ -127,4 +127,16 @@
   .inkwell-mark-image {
     @apply text-foreground-muted;
   }
+
+  .inkwell-mark-inline-code {
+    font-family: monospace;
+    background: var(--background-muted);
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+
+  .inkwell-code-block {
+    font-family: monospace;
+    background: var(--background-muted);
+  }
 }
