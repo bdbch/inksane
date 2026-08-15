@@ -7,6 +7,10 @@ export type EditorOptions = {
   content?: string;
   extensions?: InkwellExtension[];
   theme?: Extension;
+  /**
+   * The number of spaces Tab and Shift+Tab use when indenting. Defaults to 2.
+   */
+  tabSize?: number;
   classNames?: {
     editor?: string;
     editable?: string;

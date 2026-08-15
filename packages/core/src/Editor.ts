@@ -13,6 +13,7 @@ import {
   HeadingExtension,
   HorizontalRuleExtension,
   ImageExtension,
+  KeybindExtension,
   ItalicExtension,
   LinkExtension,
   ListExtension,
@@ -110,6 +111,7 @@ export class Editor extends EventEmitter<EditorEvents> {
       CodeExtension,
       BlockquoteExtension,
       ListExtension,
+      KeybindExtension,
       ...(this.options?.extensions ?? []),
     ]);
 
