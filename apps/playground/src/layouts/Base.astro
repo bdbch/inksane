@@ -18,18 +18,17 @@ interface Navigation {
 
 const base = import.meta.env.BASE_URL;
 
+const wrapWithBase = (href: string) => `${base ? `${base}/` : ''}${href}`;
+
 const navigation: Navigation = {
     groups: [
         {
             title: "Demos",
-            items: [{ title: "Default Editor", href: `${base}/demos/default` }],
+            items: [{ title: "Basic Editor", href: wrapWithBase('demos/default') }],
         },
         {
             title: "Examples",
-            items: [
-                { title: "Basic Example", href: `${base}/examples/basic` },
-                { title: "Advanced Example", href: `${base}/examples/advanced` },
-            ],
+            items: [],
         },
     ],
 };
