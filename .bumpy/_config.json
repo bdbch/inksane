@@ -3,6 +3,9 @@
   "baseBranch": "main",
   "changelog": "default",
   "include": ["@inkwell/*"],
+  "publish": {
+    "provenance": true
+  },
   "channels": {
     "alpha": {
       "branch": "alpha",
