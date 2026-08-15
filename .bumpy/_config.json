@@ -1,0 +1,13 @@
+{
+  "$schema": "../node_modules/@varlock/bumpy/config-schema.json",
+  "baseBranch": "main",
+  "changelog": "default",
+  "include": ["@inkwell/*"],
+  "channels": {
+    "alpha": {
+      "branch": "alpha",
+      "preid": "alpha",
+      "tag": "alpha"
+    }
+  }
+}

@@ -7,9 +7,13 @@
     "ready": "vp check && vp test && vp run build",
     "dev": "vp run playground#dev",
     "build": "vp run --filter \"!@inksane/playground\" --filter \"@inksane/*\" build",
-    "prepare": "vp config"
+    "prepare": "vp config",
+    "release:add": "bumpy add",
+    "release:check": "bumpy check --strict",
+    "release:status": "bumpy status"
   },
   "devDependencies": {
+    "@varlock/bumpy": "^1.18.1",
     "jsdom": "catalog:",
     "vite-plus": "catalog:"
   },
