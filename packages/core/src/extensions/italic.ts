@@ -37,10 +37,10 @@ declare module "@inkwell/core" {
   }
 }
 
-const isBoldSyntax = (text: string) => /^(\*\*|__)([\s\S]*)\1$/.test(text);
+const isBoldSyntax = (text: string) => /^(\*\*|__)((?:(?!\*\*|__)[\s\S])*)\1$/.test(text);
 const isAlreadyItalic = (text: string) => {
   if (isBoldSyntax(text)) return null;
-  return /^(\*|_)([\s\S]*)\1$/.exec(text);
+  return /^(\*|_)((?:(?!\*|_)[\s\S])*)\1$/.exec(text);
 };
 
 const resolveFromTo = (state: EditorState, pos?: PosOrRange): { from: number; to: number } => {

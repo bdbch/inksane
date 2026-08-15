@@ -37,7 +37,7 @@ declare module "@inkwell/core" {
   }
 }
 
-const isAlreadyBold = (text: string) => /^(\*\*|__)([\s\S]*)\1$/.exec(text);
+const isAlreadyBold = (text: string) => /^(\*\*|__)((?:(?!\*\*|__)[\s\S])*)\1$/.exec(text);
 
 const resolveFromTo = (state: EditorState, pos?: PosOrRange): { from: number; to: number } => {
   const from = typeof pos === "number" ? pos : (pos?.from ?? state.selection.main.from);
