@@ -37,7 +37,7 @@ declare module "@inkwell/core" {
   }
 }
 
-const isAlreadyBold = (text: string) => text.startsWith("**") && text.endsWith("**");
+const isAlreadyBold = (text: string) => /^(\*\*|__)([\s\S]*)\1$/.exec(text);
 
 const resolveFromTo = (state: EditorState, pos?: PosOrRange): { from: number; to: number } => {
   const from = typeof pos === "number" ? pos : (pos?.from ?? state.selection.main.from);
@@ -81,12 +81,12 @@ export const BoldExtension: InkwellExtension = {
       removeBold: (ctx) => (options) => {
         const { from, to } = resolveFromTo(ctx.state, options?.pos);
         const selectedText = ctx.state.sliceDoc(from, to);
+        const match = isAlreadyBold(selectedText);
 
-        if (!isAlreadyBold(selectedText)) {
+        if (!match) {
           return false;
         } else {
-          const unboldedText = selectedText.slice(2, -2); // Remove the leading and trailing "**"
-          return insertContent(ctx)({ content: unboldedText, from, to });
+          return insertContent(ctx)({ content: match[2], from, to });
         }
       },
 

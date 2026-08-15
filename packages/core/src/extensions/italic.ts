@@ -37,7 +37,11 @@ declare module "@inkwell/core" {
   }
 }
 
-const isAlreadyItalic = (text: string) => text.startsWith("_") && text.endsWith("_");
+const isBoldSyntax = (text: string) => /^(\*\*|__)([\s\S]*)\1$/.test(text);
+const isAlreadyItalic = (text: string) => {
+  if (isBoldSyntax(text)) return null;
+  return /^(\*|_)([\s\S]*)\1$/.exec(text);
+};
 
 const resolveFromTo = (state: EditorState, pos?: PosOrRange): { from: number; to: number } => {
   const from = typeof pos === "number" ? pos : (pos?.from ?? state.selection.main.from);
@@ -81,12 +85,12 @@ export const ItalicExtension: InkwellExtension = {
       removeItalic: (ctx) => (options) => {
         const { from, to } = resolveFromTo(ctx.state, options?.pos);
         const selectedText = ctx.state.sliceDoc(from, to);
+        const match = isAlreadyItalic(selectedText);
 
-        if (!isAlreadyItalic(selectedText)) {
+        if (!match) {
           return false;
         } else {
-          const unitalicizedText = selectedText.slice(1, -1); // Remove the leading and trailing "_"
-          return insertContent(ctx)({ content: unitalicizedText, from, to });
+          return insertContent(ctx)({ content: match[2], from, to });
         }
       },
 
