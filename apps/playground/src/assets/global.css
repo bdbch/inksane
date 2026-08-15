@@ -53,4 +53,8 @@
   .inkwell-mark-italic {
     @apply italic;
   }
+
+  .inkwell-mark-link {
+    @apply underline;
+  }
 }
