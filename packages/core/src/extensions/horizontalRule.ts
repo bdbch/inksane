@@ -58,7 +58,7 @@ export const HorizontalRuleExtension: InkwellExtension = {
     return {
       insertHorizontalRule: (ctx) => (options) => {
         const { from, to } = resolveFromTo(ctx.state, options?.pos);
-        return insertContent(ctx)({ content: "---", from, to });
+        return insertContent(ctx)({ content: "\n\n---\n", from, to });
       },
     };
   },
