@@ -45,13 +45,15 @@ import Base from "../../layouts/Base.astro";
     };
 
     const theme = EditorView.theme({
-        ".cm-content": { paddingTop: "24px", paddingBottom: "24px" },
+        ".cm-content": { paddingTop: "24px", paddingBottom: "24px", caretColor: "white" },
         ".cm-line": { paddingLeft: "24px", paddingRight: "24px" },
     });
 
     const editor = new Editor({
         element: document.getElementById("editor-mount")!,
-        content: "# This is the Inkwell playground\n\nFeel free to play around",
+        content:
+            "# This is the Inkwell playground\n\nFeel free to play around with **bold text** and *italic*",
+
         extensions: [TestExtension],
         theme,
         classNames: {
