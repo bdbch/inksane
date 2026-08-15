@@ -51,6 +51,8 @@ export const HorizontalRuleExtension: InkwellExtension = {
     return {
       insertHorizontalRule: (ctx) => (options) => {
         const { from, to } = resolveFromTo(ctx.state, options?.pos);
+        if (from < 0 || from > to || to > ctx.state.doc.length) return false;
+
         const line = ctx.state.doc.lineAt(from);
         const content = line.text.trim() ? "\n\n---\n\n" : "\n---\n\n";
         ctx.dispatch({
