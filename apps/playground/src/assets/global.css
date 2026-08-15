@@ -44,3 +44,117 @@
 :root {
   @apply bg-background text-foreground;
 }
+
+[data-inkwell-editor-content] {
+  .inkwell-mark-bold {
+    @apply font-bold;
+  }
+
+  .inkwell-mark-italic {
+    @apply italic;
+  }
+
+  .inkwell-mark-link {
+    @apply underline;
+  }
+
+  .inkwell-mark-link-open {
+    display: inline-block;
+    margin-left: 4px;
+    cursor: pointer;
+    vertical-align: middle;
+    color: var(--foreground-muted);
+  }
+
+  .inkwell-mark-link-open svg {
+    display: block;
+    width: 14px;
+    height: 14px;
+  }
+
+  .inkwell-mark-heading {
+    @apply font-bold;
+  }
+
+  .inkwell-heading-1 {
+    @apply text-3xl;
+  }
+
+  .inkwell-heading-2 {
+    @apply text-2xl;
+  }
+
+  .inkwell-heading-3 {
+    @apply text-xl;
+  }
+
+  .inkwell-heading-4 {
+    @apply text-lg;
+  }
+
+  .inkwell-heading-5 {
+    @apply text-base;
+  }
+
+  .inkwell-heading-6 {
+    @apply text-sm;
+  }
+
+  .inkwell-mark-horizontal-rule {
+    @apply w-full border-t border-border-muted my-4;
+  }
+
+  .inkwell-hr {
+    display: inline-block;
+    width: 100%;
+    border: none;
+    border-top: 1px solid var(--border-muted);
+    height: 1px;
+    margin: 0;
+    vertical-align: middle;
+  }
+
+  .inkwell-image {
+    display: inline-block;
+    max-width: 100%;
+    max-height: 320px;
+    object-fit: contain;
+    border-radius: 8px;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+
+  .inkwell-mark-image {
+    @apply text-foreground-muted;
+  }
+
+  .inkwell-mark-inline-code {
+    font-family: monospace;
+    background: var(--background-muted);
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+
+  .inkwell-code-block {
+    font-family: monospace;
+    background: var(--background-muted);
+  }
+
+  .inkwell-blockquote {
+    border-left: 3px solid var(--border-muted);
+    padding-left: 8px;
+    color: var(--foreground-muted);
+  }
+
+  .inkwell-list-marker {
+    display: inline-block;
+    color: var(--foreground-muted);
+    padding-right: 6px;
+    user-select: none;
+  }
+
+  .inkwell-list-marker--ordered {
+    min-width: 1.75em;
+    text-align: right;
+  }
+}

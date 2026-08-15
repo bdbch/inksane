@@ -16,6 +16,7 @@ import type { EditorView } from "@codemirror/view";
  *   }
  * }
  */
+// oxlint-disable-next-line - the ReturnType is never used, which is what is expected here
 export interface Commands<ReturnType = any> {}
 
 /** Runtime context handed to a command. State is projected (post prior steps). */

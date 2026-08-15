@@ -31,8 +31,12 @@
     "prepublishOnly": "vp run build"
   },
   "dependencies": {
+    "@codemirror/lang-markdown": "catalog:",
+    "@codemirror/language": "catalog:",
     "@codemirror/state": "catalog:",
-    "@codemirror/view": "catalog:"
+    "@codemirror/view": "catalog:",
+    "@lezer/common": "catalog:",
+    "@lezer/markdown": "catalog:"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

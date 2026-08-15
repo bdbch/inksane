@@ -1,19 +1,23 @@
 ---
-import Base from "../../layouts/Base.astro";
+import Base from "../../../layouts/Base.astro";
+
+import { rawContent } from '../../../../../../README.md'
+const markdown = rawContent()
 ---
 
 <Base>
     <div class="mb-4 flex items-center gap-2 flex-wrap">
-        <button id="runChain">Run Chain</button>
-        <button id="runCommand">Run Command</button>
+        <button data-action="toggleBold">Toggle Bold</button>
+        <button data-action="toggleItalic">Toggle Italic</button>
     </div>
-    <div id="editor-mount"></div>
+    <div id="editor-mount" data-markdown={markdown}></div>
 </Base>
 
 <script>
     import { Editor, type InkwellExtension } from "@inkwell/core";
     import { EditorView } from "@codemirror/view";
-    import type { $brand } from "astro:schema";
+
+    const buttons = document.querySelectorAll("button[data-action]");
 
     const TestExtension: InkwellExtension = {
         name: "test",
@@ -45,36 +49,40 @@ import Base from "../../layouts/Base.astro";
     };
 
     const theme = EditorView.theme({
-        ".cm-content": { paddingTop: "24px", paddingBottom: "24px" },
+        ".cm-content": { paddingTop: "24px", paddingBottom: "24px", caretColor: "white" },
         ".cm-line": { paddingLeft: "24px", paddingRight: "24px" },
     });
 
+    const el = document.getElementById("editor-mount")!
+    const markdown = el.dataset.markdown || "";
+
     const editor = new Editor({
         element: document.getElementById("editor-mount")!,
-        content: "# This is the Inkwell playground\n\nFeel free to play around",
+        content: markdown,
+
         extensions: [TestExtension],
         theme,
         classNames: {
-            editable: "font-sans prose prose-invert",
+            editable: "font-sans",
         },
     });
 
-    const runCommandBtn = document.getElementById("runCommand");
-    const runChainBtn = document.getElementById("runChain");
+    buttons.forEach(btn => {
+      const action = (btn as HTMLButtonElement).dataset.action;
 
-    runCommandBtn?.addEventListener("click", () => {
-        editor.commands.insertContent({
-            content: "Inserted with command!",
-            from: 0,
-        });
-    });
-
-    runChainBtn?.addEventListener("click", () => {
-        editor
-            .chain()
-            .insertContent({ content: "Inserted with chain!", from: 0 })
-            .run();
-    });
+      btn.addEventListener("click", () => {
+        switch(action) {
+          case "toggleBold":
+            editor.chain().toggleBold().focus().run();
+            break;
+          case "toggleItalic":
+            editor.chain().toggleItalic().focus().run();
+            break;
+          default:
+            console.warn(`No action defined for ${action}`);
+        }
+      });
+    })
 
     console.log(editor);
     // @ts-expect-error we set the editor on window

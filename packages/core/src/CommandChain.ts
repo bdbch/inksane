@@ -98,6 +98,6 @@ export class CommandChain {
   /** Dispatches all collected specs to the view in one call. */
   private dispatchAll(specs: TransactionSpec[]): void {
     if (specs.length === 0) return;
-    this.editor.view.dispatch(...specs);
+    this.editor.view.dispatch(...specs.map((spec) => ({ ...spec, sequential: true })));
   }
 }

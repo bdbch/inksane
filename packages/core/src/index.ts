@@ -1,4 +1,5 @@
 export * from "./commands/index.ts";
+export * from "./helpers/resolveFromTo.ts";
 export * from "./types/index.ts";
 
 export * from "./CommandChain.ts";
