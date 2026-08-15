@@ -5,7 +5,7 @@ import type { MarkupRange } from "../types/index.ts";
 /**
  * Creates markup ranges for the node's children with the given name,
  * extended to include the whitespace between the marker and the content.
- * e.g. `# `, `> `, `- `. With `recursive`, descendants are searched too.
+ * e.g. `# `, `> `, `- `. With `recursive`, child nodes are searched too.
  */
 export function markRangesWithWhitespace(
   node: SyntaxNode,
