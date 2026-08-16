@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+<sub>2026-08-16</sub>
+
+- _(patch)_ Add URL safety validation for image URLs
+
 ## 0.2.0
 
 <sub>2026-08-15</sub>
