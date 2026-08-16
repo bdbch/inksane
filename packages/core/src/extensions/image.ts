@@ -3,6 +3,7 @@ import { EditorView, WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
 import { insertContent } from "../commands/index.ts";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
+import { isSafeUrl } from "../helpers/isSafeUrl.ts";
 import type { Extension, PosOrRange } from "../types/index.ts";
 
 declare module "@inksane/core" {
@@ -34,6 +35,10 @@ class ImageWidget extends WidgetType {
   }
 
   toDOM(view: EditorView) {
+    if (!isSafeUrl(this.src)) {
+      return document.createElement("span");
+    }
+
     const img = document.createElement("img");
     img.className = "inksane-image";
     img.src = this.src;
@@ -127,6 +132,9 @@ export const ImageExtension: Extension = {
       insertImage:
         (ctx) =>
         ({ src, alt, pos }) => {
+          if (!isSafeUrl(src)) {
+            return false;
+          }
           const { from, to } = resolveFromTo(ctx.state, pos);
           const content = `![${escapeBrackets(alt)}](${escapeParens(src)})`;
           return insertContent(ctx)({ content, from, to });

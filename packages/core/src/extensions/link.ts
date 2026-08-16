@@ -3,6 +3,7 @@ import { WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
 import { insertContent } from "../commands/index.ts";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
+import { isSafeUrl } from "../helpers/isSafeUrl.ts";
 import type { Extension, PosOrRange } from "../types/index.ts";
 
 declare module "@inksane/core" {
@@ -41,16 +42,6 @@ declare module "@inksane/core" {
 }
 
 const isAlreadyLink = (text: string) => /^\[([^\]]*)\]\(([^)]*)\)$/.exec(text);
-
-/** Returns true for URLs with an allowed scheme (http, https, mailto) or no scheme (relative). */
-const isSafeUrl = (url: string): boolean => {
-  try {
-    const { protocol } = new URL(url);
-    return protocol === "http:" || protocol === "https:" || protocol === "mailto:";
-  } catch {
-    return !/^[a-z][a-z\d+.-]*:/i.test(url);
-  }
-};
 
 /** Renders a clickable external-link icon next to a link. */
 class OpenLinkWidget extends WidgetType {
