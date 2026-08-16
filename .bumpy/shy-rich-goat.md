@@ -2,4 +2,4 @@
 "@inksane/core": patch
 ---
 
-extract isSafeUrl to shared helper and apply to image extension
+Add URL safety validation for image URLs
