@@ -2,6 +2,7 @@ import type { Extension as CMExtension } from "@codemirror/state";
 import { type KeyBinding, keymap } from "@codemirror/view";
 import { markdown } from "@codemirror/lang-markdown";
 import type { MarkdownExtension } from "@lezer/markdown";
+import { editorFocusExtension } from "./editorFocus.ts";
 import type { Editor } from "./Editor.ts";
 import type { Extension, MarkdownDecorationConfig } from "./types/extensions.ts";
 import type { CommandRegistry } from "./CommandChain.ts";
@@ -65,6 +66,7 @@ export class ExtensionManager {
   /** Provides CodeMirror extensions ready for the editor state. */
   get cmExtensions(): CMExtension[] {
     return [
+      editorFocusExtension,
       markdown({ extensions: this._markdownSyntax }),
       createMarkdownDecorations(this._markdownDecorations),
       ...this._keybindings,

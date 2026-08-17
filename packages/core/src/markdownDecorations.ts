@@ -9,6 +9,7 @@ import type {
   MarkupRange,
   ReplacementWidget,
 } from "./types/extensions.ts";
+import { editorFocusField } from "./editorFocus.ts";
 
 /**
  * Resolves which parts of a syntax node count as markdown markup.
@@ -128,6 +129,7 @@ function buildDecorations(
 ): DecorationSet {
   const ranges: Range<Decoration>[] = [];
   const { from: selFrom, to: selTo } = state.selection.main;
+  const isFocused = state.field(editorFocusField);
 
   syntaxTree(state).iterate({
     from: 0,
@@ -141,7 +143,8 @@ function buildDecorations(
 
         if (config.lineClass) addLineClassDecorations(ranges, state, node.node, config.lineClass);
 
-        const hidden = config.hideSyntax === true && (node.from > selTo || node.to < selFrom);
+        const hidden =
+          config.hideSyntax === true && (!isFocused || node.from > selTo || node.to < selFrom);
         const markupRanges = resolveMarkupRanges(config, node.node, state);
         addWidgetDecorations(ranges, config.widgets, node.node, state, markupRanges, hidden);
 
@@ -177,7 +180,14 @@ export function createMarkdownDecorations(configs: readonly MarkdownDecorationCo
   return StateField.define<DecorationSet>({
     create: (state) => buildDecorations(state, entriesByNodeName),
     update: (value, transaction) => {
-      if (transaction.docChanged || (hasSelectionDependent && transaction.selection)) {
+      const focusChanged =
+        transaction.startState.field(editorFocusField) !==
+        transaction.state.field(editorFocusField);
+      if (
+        transaction.docChanged ||
+        focusChanged ||
+        (hasSelectionDependent && transaction.selection)
+      ) {
         return buildDecorations(transaction.state, entriesByNodeName);
       }
       return value.map(transaction.changes);

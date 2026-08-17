@@ -1,5 +1,6 @@
 import { EditorState, Text } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
+import { editorFocusField } from "./editorFocus.ts";
 import { EventEmitter } from "./EventEmitter.ts";
 import type { EditorEvents, EditorOptions } from "./types/editor.ts";
 import { ExtensionManager } from "./ExtensionManager.ts";
@@ -29,6 +30,11 @@ export class Editor extends EventEmitter<EditorEvents> {
 
   get state(): EditorState {
     return this.view.state;
+  }
+
+  /** Whether the editor currently has DOM focus. */
+  get focused(): boolean {
+    return this.state.field(editorFocusField);
   }
 
   /** Starts a command chain. State is snapshotted at run(), not here. */
