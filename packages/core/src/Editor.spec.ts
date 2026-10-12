@@ -57,10 +57,13 @@ describe("Editor", () => {
 
   it("decorates Markdown bold syntax", () => {
     const mount = document.createElement("div");
+    document.body.append(mount);
     const editor = new Editor({ element: mount, content: "**bold**" });
+    editor.view.focus();
 
     expect(editor.view.dom.querySelector(".inksane-mark-bold")?.textContent).toBe("**bold**");
 
     editor.destroy();
+    mount.remove();
   });
 });

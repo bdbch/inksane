@@ -5,8 +5,10 @@ describe("image decorations", () => {
   let editor: Editor;
 
   beforeEach(() => {
+    const element = document.createElement("div");
+    document.body.append(element);
     editor = new Editor({
-      element: document.createElement("div"),
+      element,
       content: "before\n![alt text](https://example.com/image.png)\nafter",
     });
   });
@@ -18,6 +20,7 @@ describe("image decorations", () => {
 
   it("keeps the image visible while its syntax is selected", () => {
     const imageStart = editor.content.indexOf("![");
+    editor.view.focus();
     editor.view.dispatch({ selection: { anchor: imageStart, head: imageStart + 1 } });
 
     expect(editor.view.dom.querySelector(".inksane-image")).not.toBeNull();
@@ -48,11 +51,28 @@ describe("image decorations", () => {
     const content = "before ![alt](image.png) after";
     editor.view.dispatch({ changes: { from: 0, to: editor.content.length, insert: content } });
     const imageStart = content.indexOf("![");
+    editor.view.focus();
     editor.view.dispatch({ selection: { anchor: imageStart, head: imageStart + 1 } });
 
     expect(editor.view.dom.querySelectorAll(".inksane-image")).toHaveLength(1);
     expect(editor.view.dom.querySelectorAll(".cm-line")).toHaveLength(2);
     expect(editor.view.dom.textContent).toContain(content);
+  });
+
+  it("hides selected image syntax when the editor is blurred", () => {
+    const imageStart = editor.content.indexOf("![");
+    editor.view.focus();
+    editor.view.dispatch({ selection: { anchor: imageStart, head: imageStart + 1 } });
+
+    expect(editor.focused).toBe(true);
+    expect(editor.view.dom.textContent).toContain("![alt text](https://example.com/image.png)");
+
+    editor.view.contentDOM.blur();
+
+    expect(editor.focused).toBe(false);
+    expect(editor.view.dom.textContent).not.toContain("![alt text](https://example.com/image.png)");
+    expect(editor.view.dom.querySelector(".inksane-image")).not.toBeNull();
+    expect(editor.view.dom.querySelectorAll(".cm-line")).toHaveLength(3);
   });
 
   it("renders multiple inline images without overlapping replacements", () => {

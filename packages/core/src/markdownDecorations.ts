@@ -21,6 +21,7 @@ import type {
   MarkupRange,
   ReplacementWidget,
 } from "./types/extensions.ts";
+import { editorFocusField } from "./editorFocus.ts";
 
 /**
  * Resolves which parts of a syntax node count as markdown markup.
@@ -178,6 +179,7 @@ function buildDecorations(
   const ranges: Range<Decoration>[] = [];
   const revealed = new Set<number>();
   const { from: selFrom, to: selTo } = state.selection.main;
+  const isFocused = state.field(editorFocusField);
 
   syntaxTree(state).iterate({
     from: 0,
@@ -198,7 +200,7 @@ function buildDecorations(
           // the layout, which would otherwise push the selection back outside
           // and flip the block on every mouse move.
           const keepRevealed = pointerDown && previouslyRevealed.has(node.from);
-          hidden = !overlaps && !keepRevealed;
+          hidden = !isFocused || (!overlaps && !keepRevealed);
           if (!hidden) revealed.add(node.from);
         }
 
@@ -237,9 +239,13 @@ export function createMarkdownDecorations(configs: readonly MarkdownDecorationCo
   const field = StateField.define<DecorationState>({
     create: (state) => buildDecorations(state, entriesByNodeName, new Set()),
     update: (value, transaction) => {
+      const focusChanged =
+        transaction.startState.field(editorFocusField) !==
+        transaction.state.field(editorFocusField);
       const revealReset = transaction.effects.some((effect) => effect.is(resetReveal));
       if (
         transaction.docChanged ||
+        focusChanged ||
         (hasSelectionDependent && transaction.selection) ||
         revealReset
       ) {

@@ -5,10 +5,13 @@ describe("html decorations", () => {
   let editor: Editor;
 
   beforeEach(() => {
+    const element = document.createElement("div");
+    document.body.append(element);
     editor = new Editor({
-      element: document.createElement("div"),
+      element,
       content: '<div class="callout">Hello <strong>HTML</strong></div>\n\nafter',
     });
+    editor.view.focus();
   });
 
   afterEach(() => {
