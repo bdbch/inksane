@@ -56,6 +56,15 @@ export const ItalicExtension: Extension = {
     ];
   },
 
+  addHtmlConverters() {
+    return [
+      {
+        match: (element) => ["em", "i"].includes(element.tagName.toLowerCase()),
+        toMarkdown: (element, { renderChildren }) => `*${renderChildren(element).trim()}*`,
+      },
+    ];
+  },
+
   addCommands() {
     return {
       insertItalic:

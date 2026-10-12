@@ -35,6 +35,16 @@ export const HorizontalRuleExtension: Extension = {
     ];
   },
 
+  addHtmlConverters() {
+    return [
+      {
+        block: true,
+        match: (element) => element.tagName.toLowerCase() === "hr",
+        toMarkdown: () => "---",
+      },
+    ];
+  },
+
   addCommands() {
     return {
       insertHorizontalRule: (ctx) => (options) => {

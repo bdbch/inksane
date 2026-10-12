@@ -42,6 +42,10 @@ export const MyExtension: Extension = {
     return [];
   },
 
+  addHtmlConverters({ editor }) {
+    return [];
+  },
+
   addCommands({ editor }) {
     return {};
   },
@@ -243,6 +247,25 @@ For block widgets, put spacing on the wrapper as padding, not as margin. CodeMir
 The built-in image, link, list, and horizontal rule extensions render through this helper.
 
 The editor also ships an `HtmlExtension` that renders block-level HTML from the document, such as `<div>`, `<details>`, or `<table>`, and hides HTML comments. Clicking a rendered block moves the cursor into its source so it can be edited, and the up and down arrow keys move into an adjacent block. Document HTML is not trusted, so it is cleaned with `sanitizeHtml` first. That helper drops scripts, event handlers, and unsafe URLs, and unwraps unknown elements. Inline HTML at the top level of a paragraph is not rendered yet.
+
+### Pasting HTML
+
+Pasting copied HTML converts it to Markdown before it is inserted at the cursor or over the selection. The editor handles structure such as paragraphs, spacing, and escaping. Syntax such as bold, links, or lists comes from the extensions, so each extension teaches the editor how its own HTML becomes Markdown.
+
+`addHtmlConverters(ctx)` returns `HtmlConverter` values. Each converter has a `match` predicate that claims an element and a `toMarkdown` function that serializes it. `toMarkdown` receives a context with `renderChildren(element)`, which converts the children and applies the converters again. Set `block: true` for block-level elements so they get blank lines around them.
+
+```ts
+addHtmlConverters() {
+  return [
+    {
+      match: (element) => element.tagName.toLowerCase() === "mark",
+      toMarkdown: (element, { renderChildren }) => `==${renderChildren(element).trim()}==`,
+    },
+  ];
+}
+```
+
+Elements no converter claims keep their text, so an extension only covers the HTML for its own syntax. The input is cleaned with `sanitizeHtml` before any converter runs.
 
 ## Events
 

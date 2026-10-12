@@ -52,6 +52,15 @@ export const BoldExtension: Extension = {
     ];
   },
 
+  addHtmlConverters() {
+    return [
+      {
+        match: (element) => ["strong", "b"].includes(element.tagName.toLowerCase()),
+        toMarkdown: (element, { renderChildren }) => `**${renderChildren(element).trim()}**`,
+      },
+    ];
+  },
+
   addCommands() {
     return {
       insertBold:

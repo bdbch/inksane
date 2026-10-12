@@ -95,6 +95,20 @@ export const LinkExtension: Extension = {
     ];
   },
 
+  addHtmlConverters() {
+    return [
+      {
+        match: (element) => element.tagName.toLowerCase() === "a",
+        toMarkdown: (element, { renderChildren }) => {
+          const text = renderChildren(element).trim();
+          const href = (element.getAttribute("href") ?? "").trim();
+          if (!href || !isSafeUrl(href)) return text;
+          return `[${text || href}](${href})`;
+        },
+      },
+    ];
+  },
+
   addCommands() {
     return {
       insertLink:

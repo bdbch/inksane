@@ -46,6 +46,21 @@ export const BlockquoteExtension: Extension = {
     ];
   },
 
+  addHtmlConverters() {
+    return [
+      {
+        block: true,
+        match: (element) => element.tagName.toLowerCase() === "blockquote",
+        toMarkdown: (element, { renderChildren }) =>
+          renderChildren(element)
+            .trim()
+            .split("\n")
+            .map((line) => (line.length ? `> ${line}` : ">"))
+            .join("\n"),
+      },
+    ];
+  },
+
   addCommands() {
     return {
       setBlockquote: (ctx) => (options) => {

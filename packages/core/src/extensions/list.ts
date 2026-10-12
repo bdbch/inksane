@@ -36,6 +36,15 @@ const stripOrderedMarker = (text: string) => text.replace(/^\d+[.)]\s?/, "");
 const listMarkerClass = (ordered: boolean) =>
   `inksane-list-marker ${ordered ? "inksane-list-marker--ordered" : "inksane-list-marker--bullet"}`;
 
+const isListTag = (tag: string) => tag === "ul" || tag === "ol";
+
+/** Prefixes the first line with a list marker and indents continuation lines. */
+const indentListItem = (content: string, marker: string): string => {
+  const [first = "", ...rest] = content.split("\n");
+  const pad = " ".repeat(marker.length);
+  return [marker + first, ...rest.map((line) => (line.length ? pad + line : ""))].join("\n");
+};
+
 /** Returns true when two sibling nodes are separated by a blank line. */
 const isBlankLineSeparated = (a: SyntaxNode, b: SyntaxNode, state: EditorState): boolean => {
   return /\n[^\S\n]*\n/.test(state.doc.sliceString(a.to, b.from));
@@ -94,6 +103,29 @@ export const ListExtension: Extension = {
             },
           },
         ],
+      },
+    ];
+  },
+
+  addHtmlConverters() {
+    return [
+      {
+        block: true,
+        match: (element) => isListTag(element.tagName.toLowerCase()),
+        toMarkdown: (element, { renderChildren }) => {
+          const ordered = element.tagName.toLowerCase() === "ol";
+          const start = Number.parseInt(element.getAttribute("start") ?? "1", 10);
+          let index = Number.isNaN(start) ? 1 : start;
+          const items: string[] = [];
+
+          for (const child of Array.from(element.children)) {
+            if (child.tagName.toLowerCase() !== "li") continue;
+            const marker = ordered ? `${index++}. ` : "- ";
+            items.push(indentListItem(renderChildren(child).trim(), marker));
+          }
+
+          return items.join("\n");
+        },
       },
     ];
   },

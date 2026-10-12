@@ -102,6 +102,20 @@ export const ImageExtension: Extension = {
     ];
   },
 
+  addHtmlConverters() {
+    return [
+      {
+        match: (element) => element.tagName.toLowerCase() === "img",
+        toMarkdown: (element) => {
+          const src = (element.getAttribute("src") ?? "").trim();
+          if (!src || !isSafeUrl(src)) return "";
+          const alt = escapeBrackets(element.getAttribute("alt") ?? "");
+          return `![${alt}](${escapeParens(src)})`;
+        },
+      },
+    ];
+  },
+
   addCommands() {
     return {
       insertImage:
