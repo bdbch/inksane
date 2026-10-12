@@ -1,9 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "paths": {
-      "@inksane/react": ["./src/index.ts"],
-      "@inksane/core": ["../core/dist/index.d.mts"]
-    }
+    // Core source resolution is only for `vp check` and tests. The pack build
+    // resolves `@inksane/core` from its published types instead, so it does not
+    // emit stray declarations next to core's source files.
+    "paths": {}
   }
 }
