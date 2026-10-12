@@ -1,8 +1,10 @@
-export { EditorContent } from "./EditorContent.tsx";
-export type { EditorContentProps } from "./EditorContent.tsx";
-export { EditorContext } from "./EditorContext.ts";
-export { EditorProvider } from "./EditorProvider.tsx";
-export type { EditorProviderProps } from "./EditorProvider.tsx";
-export { useCurrentEditor } from "./useCurrentEditor.ts";
-export { useEditor } from "./useEditor.ts";
-export type { UseEditorOptions } from "./types.ts";
+export { Inksane } from "./Inksane.tsx";
+export type { InksaneProps } from "./Inksane.tsx";
+export { InksaneContext } from "./InksaneContext.ts";
+export { InksaneProvider } from "./InksaneProvider.tsx";
+export type { InksaneProviderProps } from "./InksaneProvider.tsx";
+export { useInksane } from "./useInksane.ts";
+export { useInksaneContext } from "./useInksaneContext.ts";
+export { useInksaneSelection } from "./useInksaneSelection.ts";
+export type { InksaneSelection } from "./useInksaneSelection.ts";
+export type { UseInksaneOptions } from "./types.ts";

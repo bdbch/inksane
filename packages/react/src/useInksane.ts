@@ -1,13 +1,13 @@
 import { Editor } from "@inksane/core";
 import { useEffect, useRef, useState } from "react";
-import type { UseEditorOptions } from "./types.ts";
+import type { UseInksaneOptions } from "./types.ts";
 
 /**
  * Creates an inksane editor for the component lifetime.
  *
  * The editor is created after the first render, so this returns null on that
- * render. Pass it to EditorContent to mount it, or provide it to the tree with
- * EditorProvider and read it with useCurrentEditor.
+ * render. Pass it to Inksane to mount it, or provide it to the tree with
+ * InksaneProvider and read it with useInksaneContext.
  *
  * Options are read once at creation. `content` stays in sync with later
  * changes. Other options are not updated after mount.
@@ -15,7 +15,7 @@ import type { UseEditorOptions } from "./types.ts";
  * @param options - Editor options without `element`. The binding owns the element.
  * @returns The editor, or null before it exists.
  */
-export function useEditor(options: UseEditorOptions = {}): Editor | null {
+export function useInksane(options: UseInksaneOptions = {}): Editor | null {
   const [editor, setEditor] = useState<Editor | null>(null);
   const initialOptions = useRef(options);
 

@@ -161,6 +161,20 @@ export class Editor extends EventEmitter<EditorEvents> {
       editorViewExtensions.push(EditorView.lineWrapping);
     }
 
+    editorViewExtensions.push(
+      EditorView.updateListener.of((update) => {
+        const transaction = update.transactions.at(-1);
+
+        if (update.docChanged && transaction) {
+          this.emit("update", { editor: this, transaction });
+        }
+
+        if (update.selectionSet) {
+          this.emit("selectionUpdate", { editor: this, selection: update.state.selection });
+        }
+      }),
+    );
+
     this._state = EditorState.create({
       doc: content ?? "",
       extensions: [...editorViewExtensions, ...this._extensionManager.cmExtensions],

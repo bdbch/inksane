@@ -1,9 +1,9 @@
 import type { Editor } from "@inksane/core";
 import { useContext, useEffect, useRef } from "react";
-import { EditorContext } from "./EditorContext.ts";
+import { InksaneContext } from "./InksaneContext.ts";
 
-/** Props for EditorContent. */
-export type EditorContentProps = {
+/** Props for Inksane. */
+export type InksaneProps = {
   /** Editor to mount. Defaults to the nearest editor from context. */
   editor?: Editor | null;
   /** Class name applied to the mount element. */
@@ -12,10 +12,10 @@ export type EditorContentProps = {
 
 /**
  * Renders the element the editor mounts into. Give it the editor directly, or
- * place it under an EditorProvider and read the editor from context.
+ * place it under an InksaneProvider and read the editor from context.
  */
-export function EditorContent({ editor: editorProp, className }: EditorContentProps) {
-  const contextEditor = useContext(EditorContext);
+export function Inksane({ editor: editorProp, className }: InksaneProps) {
+  const contextEditor = useContext(InksaneContext);
   const editor = editorProp ?? contextEditor;
   const ref = useRef<HTMLDivElement>(null);
 

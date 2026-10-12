@@ -127,4 +127,34 @@ describe("Editor", () => {
 
     expect(editor.isMounted).toBe(false);
   });
+
+  it("emits update when the document changes", () => {
+    const editor = new Editor({ element: document.createElement("div") });
+    let updates = 0;
+
+    editor.on("update", () => {
+      updates += 1;
+    });
+
+    editor.view.dispatch({ changes: { from: 0, insert: "hi" } });
+
+    expect(updates).toBe(1);
+
+    editor.destroy();
+  });
+
+  it("emits selectionUpdate when the selection changes", () => {
+    const editor = new Editor({ element: document.createElement("div"), content: "hello" });
+    const ranges: Array<{ from: number; to: number }> = [];
+
+    editor.on("selectionUpdate", ({ selection }) => {
+      ranges.push({ from: selection.main.from, to: selection.main.to });
+    });
+
+    editor.view.dispatch({ selection: { anchor: 1, head: 4 } });
+
+    expect(ranges).toEqual([{ from: 1, to: 4 }]);
+
+    editor.destroy();
+  });
 });

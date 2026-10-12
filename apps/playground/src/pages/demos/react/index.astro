@@ -1,0 +1,17 @@
+---
+import Base from "../../../layouts/Base.astro";
+import ReactDemo from "../../../components/ReactDemo.tsx";
+---
+
+<Base>
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold">React</h1>
+        <p class="text-foreground-muted">
+            The <code>@inksane/react</code> bindings. An <code>InksaneProvider</code> creates
+            one editor and shares it with the tree through context.
+        </p>
+    </div>
+    <div class="max-w-2xl">
+        <ReactDemo client:only="react" />
+    </div>
+</Base>
