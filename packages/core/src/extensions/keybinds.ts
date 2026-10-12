@@ -12,6 +12,14 @@ export const KeybindExtension: Extension = {
 
     return [
       {
+        key: "Mod-a",
+        run(view) {
+          const { doc } = view.state;
+          view.dispatch({ selection: { anchor: 0, head: doc.length } });
+          return true;
+        },
+      },
+      {
         key: "Tab",
         run(view) {
           const transaction = indentLines(view.state, 1, unit);
