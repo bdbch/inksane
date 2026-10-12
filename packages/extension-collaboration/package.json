@@ -1,6 +1,6 @@
 {
   "name": "@inksane/extension-collaboration",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Yjs collaboration and remote cursors for the inksane editor.",
   "keywords": [
     "codemirror",
