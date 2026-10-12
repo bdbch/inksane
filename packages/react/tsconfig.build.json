@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@inksane/react": ["./src/index.ts"],
+      "@inksane/core": ["../core/dist/index.d.mts"]
+    }
+  }
+}

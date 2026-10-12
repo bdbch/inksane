@@ -3,7 +3,12 @@ import type { Extension } from "./extensions.ts";
 import type { Editor } from "../Editor.ts";
 
 export type EditorOptions = {
-  element: HTMLElement;
+  /**
+   * The element the editor mounts into. Optional when the editor is created
+   * before its mount node exists, as framework bindings do. Call
+   * {@link Editor.mount} to attach it once the node is available.
+   */
+  element?: HTMLElement;
   content?: string;
   extensions?: Extension[];
   theme?: CMExtension;

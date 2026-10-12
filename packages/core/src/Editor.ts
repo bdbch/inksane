@@ -26,11 +26,32 @@ export class Editor extends EventEmitter<EditorEvents> {
   private _td: TextDecoder = new TextDecoder();
   private _extensionManager: ExtensionManager;
 
+  /** Holds the editor state until the view is created on mount. */
+  private _state: EditorState;
+
+  /** Holds the CodeMirror view once mounted, or null while detached. */
+  private _view: EditorView | null = null;
+
   options: EditorOptions;
-  view: EditorView;
+
+  /**
+   * The CodeMirror view.
+   * @throws When the editor is not mounted yet. Check {@link isMounted} first.
+   */
+  get view(): EditorView {
+    if (!this._view) {
+      throw new Error("Editor is not mounted. Call mount(element) first.");
+    }
+    return this._view;
+  }
+
+  /** Whether the editor is attached to a DOM element. */
+  get isMounted(): boolean {
+    return this._view !== null;
+  }
 
   get state(): EditorState {
-    return this.view.state;
+    return this._view?.state ?? this._state;
   }
 
   /** Whether the editor currently has DOM focus. */
@@ -72,12 +93,10 @@ export class Editor extends EventEmitter<EditorEvents> {
   }
 
   public set content(newContent: string) {
-    this.view.dispatch({
-      changes: {
-        from: 0,
-        to: this.view.state.doc.length,
-        insert: newContent,
-      },
+    this.applyChanges({
+      from: 0,
+      to: this.state.doc.length,
+      insert: newContent,
     });
   }
 
@@ -86,12 +105,10 @@ export class Editor extends EventEmitter<EditorEvents> {
   }
 
   public set json(newContent: string[]) {
-    this.view.dispatch({
-      changes: {
-        from: 0,
-        to: this.view.state.doc.length,
-        insert: Text.of(newContent),
-      },
+    this.applyChanges({
+      from: 0,
+      to: this.state.doc.length,
+      insert: Text.of(newContent),
     });
   }
 
@@ -101,6 +118,15 @@ export class Editor extends EventEmitter<EditorEvents> {
 
   public set binary(newContent: Uint8Array<ArrayBuffer>) {
     this.content = this._td.decode(newContent);
+  }
+
+  /** Applies document changes to the view, or to the pending state before mount. */
+  private applyChanges(changes: { from: number; to: number; insert: string | Text }): void {
+    if (this._view) {
+      this._view.dispatch({ changes });
+    } else {
+      this._state = this._state.update({ changes }).state;
+    }
   }
 
   constructor(options: EditorOptions) {
@@ -135,24 +161,45 @@ export class Editor extends EventEmitter<EditorEvents> {
       editorViewExtensions.push(EditorView.lineWrapping);
     }
 
-    const initialState = EditorState.create({
+    this._state = EditorState.create({
       doc: content ?? "",
       extensions: [...editorViewExtensions, ...this._extensionManager.cmExtensions],
     });
 
-    this.view = new EditorView({
-      state: initialState,
-      parent: element,
-    });
-
-    this.setupDOM();
+    if (element) {
+      this.mount(element);
+    }
 
     this.emit("create", { editor: this });
   }
 
+  /**
+   * Attaches the editor to a DOM element and creates the CodeMirror view.
+   * Call this when no element was passed to the constructor, as framework
+   * bindings do once their mount node exists. Later calls are ignored.
+   */
+  public mount(element: HTMLElement): void {
+    if (this._view) return;
+
+    this.options.element = element;
+    this._view = new EditorView({
+      state: this._state,
+      parent: element,
+    });
+    this.setupDOM();
+
+    this.emit("mount", { editor: this });
+  }
+
   // TODO: extend destruction of editor instance here
   public destroy(): void {
-    this.view.destroy();
+    if (this._view) {
+      this.emit("unmount", { editor: this });
+      this._view.destroy();
+      this._view = null;
+    }
+
+    this.emit("destroy", { editor: this });
   }
 
   private setupDOM(): void {

@@ -5,6 +5,9 @@ export default defineConfig({
   pack: {
     dts: {
       tsgo: true,
+      // The build must not resolve core from source. Doing so emits .d.ts files
+      // next to core's sources, which leaves the tree dirty and blocks publish.
+      tsconfig: "./tsconfig.build.json",
     },
     exports: true,
   },

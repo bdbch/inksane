@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["es2023", "DOM", "DOM.Iterable"],
+    "moduleDetection": "force",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "resolveJsonModule": true,
+    "types": ["node"],
+    "strict": true,
+    "noUnusedLocals": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@inksane/react": ["./src/index.ts"],
+      "@inksane/core": ["../core/src/index.ts"]
+    }
+  }
+}
