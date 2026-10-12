@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+
+<sub>2026-10-12</sub>
+
+- _(minor)_
+  Add HTML paste support that converts pasted HTML into Markdown. Extensions teach the editor how their own HTML becomes Markdown through the new `addHtmlConverters` hook.
+- _(patch)_ Fixed a bug where an unfocused editor still showed replacement decorations for Markdown syntax.
+
 ## 0.3.0
 
 <sub>2026-10-12</sub>
