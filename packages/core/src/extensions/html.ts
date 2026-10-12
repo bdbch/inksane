@@ -71,7 +71,7 @@ export const HtmlExtension: Extension = {
               const from = node.from;
               return htmlWidget(sanitizeHtml(state.sliceDoc(node.from, node.to)), {
                 block: true,
-                className: "inksane-html-block",
+                className: "inksane-html-block cm-line",
                 onRender: (element, view) => {
                   element.addEventListener("mousedown", (event) => {
                     event.preventDefault();

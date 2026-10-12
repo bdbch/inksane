@@ -1,0 +1,97 @@
+---
+import Base from "../../../layouts/Base.astro";
+
+const seed = `# Collaboration
+
+Both editors share one Yjs document.
+
+Type in either one and watch the other update. Select some text and the other
+editor shows your cursor with your name.
+
+- Alice edits the left editor
+- Bob edits the right editor
+`;
+---
+
+<Base>
+    <p class="mb-4 text-sm text-muted-foreground">
+        Two editors, one shared document. Edits and cursors sync live.
+    </p>
+    <div class="grid gap-4 md:grid-cols-2">
+        <div>
+            <div class="mb-2 text-sm font-semibold">Alice</div>
+            <div
+                id="editor-alice"
+                class="border rounded-md overflow-hidden"
+                data-markdown={seed}
+            ></div>
+        </div>
+        <div>
+            <div class="mb-2 text-sm font-semibold">Bob</div>
+            <div
+                id="editor-bob"
+                class="border rounded-md overflow-hidden"
+                data-markdown={seed}
+            ></div>
+        </div>
+    </div>
+</Base>
+
+<script>
+    import { Editor } from "@inksane/core";
+    import { CollaborationExtension } from "@inksane/extension-collaboration";
+    import { EditorView } from "@codemirror/view";
+    import * as Y from "yjs";
+    import {
+        Awareness,
+        applyAwarenessUpdate,
+        encodeAwarenessUpdate,
+    } from "y-protocols/awareness";
+
+    // Two documents standing in for two clients. A provider (y-websocket,
+    // y-webrtc, ...) would move these updates over the network.
+    const docAlice = new Y.Doc();
+    const docBob = new Y.Doc();
+
+    docAlice.on("update", (update, origin) => {
+        if (origin !== docAlice) Y.applyUpdate(docBob, update, docAlice);
+    });
+    docBob.on("update", (update, origin) => {
+        if (origin !== docBob) Y.applyUpdate(docAlice, update, docBob);
+    });
+
+    const FIELD = "content";
+    const seed = document.getElementById("editor-alice")!.dataset.markdown || "";
+    docAlice.getText(FIELD).insert(0, seed);
+
+    const awarenessAlice = new Awareness(docAlice);
+    const awarenessBob = new Awareness(docBob);
+
+    const relayAwareness = (from: Awareness, to: Awareness) => {
+        from.on("update", (_changes, origin) => {
+            if (origin === "remote") return;
+            const clients = [...from.getStates().keys()];
+            applyAwarenessUpdate(to, encodeAwarenessUpdate(from, clients), "remote");
+        });
+    };
+    relayAwareness(awarenessAlice, awarenessBob);
+    relayAwareness(awarenessBob, awarenessAlice);
+
+    const theme = EditorView.theme({
+        ".cm-content": { paddingTop: "16px", paddingBottom: "16px" },
+        ".cm-line": { paddingLeft: "16px", paddingRight: "16px" },
+    });
+
+    const createEditor = (id: string, ydoc: Y.Doc, awareness: Awareness, name: string, color: string) => {
+        const element = document.getElementById(id)!;
+        return new Editor({
+            element,
+            content: ydoc.getText(FIELD).toJSON(),
+            theme,
+            extensions: [CollaborationExtension({ ydoc, awareness, user: { name, color } })],
+        });
+    };
+
+    createEditor("editor-alice", docAlice, awarenessAlice, "Alice", "#30bced");
+    createEditor("editor-bob", docBob, awarenessBob, "Bob", "#ee6352");
+</script>

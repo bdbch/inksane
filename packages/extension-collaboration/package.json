@@ -1,0 +1,58 @@
+{
+  "name": "@inksane/extension-collaboration",
+  "version": "0.1.0",
+  "description": "Yjs collaboration and remote cursors for the inksane editor.",
+  "keywords": [
+    "codemirror",
+    "collaboration",
+    "crdt",
+    "cursor",
+    "inksane",
+    "markdown",
+    "yjs"
+  ],
+  "homepage": "https://github.com/bdbch/inksane#readme",
+  "bugs": {
+    "url": "https://github.com/bdbch/inksane/issues"
+  },
+  "license": "MIT",
+  "author": "bdbch <git@bdbch.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bdbch/inksane"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "test": "vp test",
+    "check": "vp check",
+    "prepublishOnly": "vp run build"
+  },
+  "dependencies": {
+    "@codemirror/state": "catalog:",
+    "@codemirror/view": "catalog:",
+    "@inksane/core": "workspace:*",
+    "y-codemirror.next": "catalog:",
+    "y-protocols": "catalog:",
+    "yjs": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "jsdom": "catalog:",
+    "typescript": "^7.0.2",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  }
+}

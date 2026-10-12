@@ -21,6 +21,7 @@ describe("html decorations", () => {
     const block = editor.view.dom.querySelector(".inksane-html-block");
 
     expect(block).not.toBeNull();
+    expect(block?.classList.contains("cm-line")).toBe(true);
     expect(block?.textContent).toContain("Hello");
     expect(editor.view.dom.textContent).not.toContain("<div class");
   });
