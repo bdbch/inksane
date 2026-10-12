@@ -1,6 +1,18 @@
 import { syntaxTree } from "@codemirror/language";
-import { type EditorState, type Extension, type Range, StateField } from "@codemirror/state";
-import { Decoration, type DecorationSet, EditorView, type WidgetType } from "@codemirror/view";
+import {
+  type EditorState,
+  type Extension,
+  type Range,
+  StateEffect,
+  StateField,
+} from "@codemirror/state";
+import {
+  Decoration,
+  type DecorationSet,
+  EditorView,
+  ViewPlugin,
+  type WidgetType,
+} from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
 import type {
   AttachmentWidget,
@@ -123,11 +135,49 @@ function addWidgetDecorations(
   }
 }
 
+/** Decorations plus the node starts that are currently revealed. */
+type DecorationState = {
+  decorations: DecorationSet;
+  revealed: Set<number>;
+};
+
+/** True while a mouse button is held, so a reveal can latch during a drag. */
+let pointerDown = false;
+
+/** Re-evaluates reveals after a drag ends. */
+const resetReveal = StateEffect.define<null>();
+
+/** Watches pointer state so reveals can latch while dragging. */
+const pointerWatcher = ViewPlugin.define((view) => {
+  const onDown = () => {
+    pointerDown = true;
+  };
+  const onUp = () => {
+    if (!pointerDown) return;
+    pointerDown = false;
+    view.dispatch({ effects: resetReveal.of(null) });
+  };
+  const win = view.dom.ownerDocument.defaultView;
+
+  view.contentDOM.addEventListener("mousedown", onDown);
+  win?.addEventListener("mouseup", onUp);
+
+  return {
+    destroy() {
+      pointerDown = false;
+      view.contentDOM.removeEventListener("mousedown", onDown);
+      win?.removeEventListener("mouseup", onUp);
+    },
+  };
+});
+
 function buildDecorations(
   state: EditorState,
   entriesByNodeName: Map<string, { config: MarkdownDecorationConfig; mark: Decoration | null }[]>,
-): DecorationSet {
+  previouslyRevealed: Set<number>,
+): DecorationState {
   const ranges: Range<Decoration>[] = [];
+  const revealed = new Set<number>();
   const { from: selFrom, to: selTo } = state.selection.main;
   const isFocused = state.field(editorFocusField);
 
@@ -143,8 +193,17 @@ function buildDecorations(
 
         if (config.lineClass) addLineClassDecorations(ranges, state, node.node, config.lineClass);
 
-        const hidden =
-          config.hideSyntax === true && (!isFocused || node.from > selTo || node.to < selFrom);
+        let hidden = false;
+        if (config.hideSyntax === true) {
+          const overlaps = node.from <= selTo && node.to >= selFrom;
+          // Keep a block revealed for the rest of the drag. Revealing changes
+          // the layout, which would otherwise push the selection back outside
+          // and flip the block on every mouse move.
+          const keepRevealed = pointerDown && previouslyRevealed.has(node.from);
+          hidden = !isFocused || (!overlaps && !keepRevealed);
+          if (!hidden) revealed.add(node.from);
+        }
+
         const markupRanges = resolveMarkupRanges(config, node.node, state);
         addWidgetDecorations(ranges, config.widgets, node.node, state, markupRanges, hidden);
 
@@ -157,7 +216,7 @@ function buildDecorations(
     },
   });
 
-  return Decoration.set(ranges, true);
+  return { decorations: Decoration.set(ranges, true), revealed };
 }
 
 /** Creates decorations from syntax-tree node names declared by extensions. */
@@ -177,21 +236,28 @@ export function createMarkdownDecorations(configs: readonly MarkdownDecorationCo
     entriesByNodeName.set(config.nodeName, entries);
   }
 
-  return StateField.define<DecorationSet>({
-    create: (state) => buildDecorations(state, entriesByNodeName),
+  const field = StateField.define<DecorationState>({
+    create: (state) => buildDecorations(state, entriesByNodeName, new Set()),
     update: (value, transaction) => {
       const focusChanged =
         transaction.startState.field(editorFocusField) !==
         transaction.state.field(editorFocusField);
+      const revealReset = transaction.effects.some((effect) => effect.is(resetReveal));
       if (
         transaction.docChanged ||
         focusChanged ||
-        (hasSelectionDependent && transaction.selection)
+        (hasSelectionDependent && transaction.selection) ||
+        revealReset
       ) {
-        return buildDecorations(transaction.state, entriesByNodeName);
+        return buildDecorations(transaction.state, entriesByNodeName, value.revealed);
       }
-      return value.map(transaction.changes);
+      return {
+        decorations: value.decorations.map(transaction.changes),
+        revealed: value.revealed,
+      };
     },
-    provide: (field) => EditorView.decorations.from(field),
+    provide: (self) => EditorView.decorations.from(self, (value) => value.decorations),
   });
+
+  return [field, pointerWatcher];
 }

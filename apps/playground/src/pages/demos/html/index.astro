@@ -1,0 +1,67 @@
+---
+import Base from "../../../layouts/Base.astro";
+---
+
+<Base>
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold">HTML in the editor</h1>
+        <p class="text-foreground-muted">
+            Block-level HTML in the document is parsed and rendered. Click inside a block to edit
+            its source.
+        </p>
+    </div>
+    <div id="editor-mount" class="border rounded-md"></div>
+</Base>
+
+<script>
+    import { Editor } from "@inksane/core";
+    import { EditorView } from "@codemirror/view";
+
+    const content = `<div class="callout">
+  <h3>HTML callout</h3>
+  <p>
+    You can write <strong>HTML</strong> directly in the document. Press
+    <kbd>Ctrl</kbd> + <kbd>C</kbd> like in any other page.
+  </p>
+</div>
+
+<details>
+  <summary>Show more</summary>
+  <p>Hidden until you open it.</p>
+</details>
+
+## Markdown still works
+
+Mix HTML blocks with regular **Markdown**. Only scripts and other unsafe parts are removed.
+
+<table>
+  <thead>
+    <tr><th>Feature</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Block HTML</td><td>Rendered</td></tr>
+    <tr><td>HTML comments</td><td>Hidden</td></tr>
+  </tbody>
+</table>
+
+<!-- This comment stays in the source, but is hidden in the editor. -->
+`;
+
+    const theme = EditorView.theme({
+        ".cm-content": { paddingTop: "24px", paddingBottom: "24px" },
+        ".cm-line": { paddingLeft: "24px", paddingRight: "24px" },
+    });
+
+    const editor = new Editor({
+        element: document.getElementById("editor-mount")!,
+        content,
+        theme,
+        classNames: { editable: "font-sans" },
+    });
+
+    // Start at the end so every block is rendered on load.
+    editor.view.dispatch({ selection: { anchor: editor.content.length } });
+
+    // @ts-expect-error expose the editor for the browser console
+    window.editor = editor;
+</script>

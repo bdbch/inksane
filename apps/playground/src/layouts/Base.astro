@@ -16,15 +16,22 @@ interface Navigation {
     groups: NavigationGroup[];
 }
 
-const base = import.meta.env.BASE_URL;
+// BASE_URL is "/" or "/repo" depending on the build base, so normalize the trailing slash once.
+const base = import.meta.env.BASE_URL.endsWith("/")
+    ? import.meta.env.BASE_URL
+    : `${import.meta.env.BASE_URL}/`;
 
-const wrapWithBase = (href: string) => `${base ? `${base}/` : ''}${href}`;
+const withBase = (path: string) => `${base}${path}`;
 
 const navigation: Navigation = {
     groups: [
         {
             title: "Demos",
-            items: [{ title: "Basic Editor", href: wrapWithBase('demos/default') }],
+            items: [
+                { title: "Basic Editor", href: withBase("demos/default") },
+                { title: "HTML Content", href: withBase("demos/html") },
+                { title: "Collaboration", href: withBase("demos/collaboration") },
+            ],
         },
         {
             title: "Examples",
@@ -37,8 +44,8 @@ const navigation: Navigation = {
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
-        <link rel="icon" href={`${base}favicon.ico`} />
+        <link rel="icon" type="image/svg+xml" href={withBase("favicon.svg")} />
+        <link rel="icon" href={withBase("favicon.ico")} />
         <meta name="viewport" content="width=device-width" />
         <meta name="generator" content={Astro.generator} />
         <title>inksane Playground</title>

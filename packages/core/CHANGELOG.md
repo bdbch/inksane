@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+<sub>2026-10-12</sub>
+
+- _(minor)_ Add an HTML extension that renders block-level HTML from the document
+- _(patch)_ Add URL safety validation for image URLs
+
 ## 0.2.0
 
 <sub>2026-08-15</sub>

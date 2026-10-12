@@ -12,9 +12,13 @@
     "@codemirror/state": "catalog:",
     "@codemirror/view": "catalog:",
     "@fontsource/hanken-grotesk": "catalog:",
+    "@inksane/core": "workspace:*",
+    "@inksane/extension-collaboration": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "astro": "catalog:",
-    "tailwindcss": "catalog:"
+    "tailwindcss": "catalog:",
+    "y-protocols": "catalog:",
+    "yjs": "catalog:"
   },
   "devDependencies": {
     "@tailwindcss/typography": "catalog:"

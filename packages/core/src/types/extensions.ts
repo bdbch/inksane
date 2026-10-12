@@ -43,6 +43,22 @@ export type AttachmentWidget = {
 /** A widget rendered for a decorated node. */
 export type MarkdownNodeWidget = ReplacementWidget | AttachmentWidget;
 
+/** Context passed to an {@link HtmlConverter} while it serializes an element. */
+export type HtmlConverterContext = {
+  /** Converts an element's children to Markdown, applying the converters again. */
+  renderChildren: (element: Element) => string;
+};
+
+/** Converts one kind of HTML element into Markdown for an extension. */
+export type HtmlConverter = {
+  /** Returns true when this converter should handle the element. */
+  match: (element: Element) => boolean;
+  /** Serializes the matched element to Markdown. */
+  toMarkdown: (element: Element, context: HtmlConverterContext) => string;
+  /** Renders the element as a block, adding blank lines around it. Defaults to false. */
+  block?: boolean;
+};
+
 /** Declares how a syntax-tree node is decorated. */
 export type MarkdownDecorationConfig = {
   /** The syntax-tree node name this config applies to. */
@@ -57,7 +73,10 @@ export type MarkdownDecorationConfig = {
    * Can be a list of node names or a function returning ranges.
    */
   markup?: string[] | ((node: SyntaxNode, state: EditorState) => MarkupRange[]);
-  /** Hides the markup while the cursor is outside the node. */
+  /**
+   * Hides the markup while the selection is outside the node. During a drag,
+   * a node the selection touches stays revealed until the pointer is released.
+   */
   hideSyntax?: boolean;
   /** Widgets rendered for the node. */
   widgets?: MarkdownNodeWidget[];
@@ -78,6 +97,7 @@ export type Extension = ExtensionEventHandlers & {
 
   addMarkdownSyntax?: (ctx: EditorContext) => MarkdownExtension[];
   addMarkdownDecorations?: (ctx: EditorContext) => MarkdownDecorationConfig[];
+  addHtmlConverters?: (ctx: EditorContext) => HtmlConverter[];
   addCommands?: (ctx: EditorContext) => Partial<RawCommands>;
   addCodeMirrorExtensions?: (ctx: EditorContext) => CMExtension[];
   addExtensions?: (ctx: EditorContext) => Extension[];

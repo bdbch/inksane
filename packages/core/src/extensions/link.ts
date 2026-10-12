@@ -1,9 +1,10 @@
 import type { EditorState } from "@codemirror/state";
-import { WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
 import { insertContent } from "../commands/index.ts";
-import { resolveFromTo } from "../helpers/resolveFromTo.ts";
+import { escapeHtml } from "../helpers/escapeHtml.ts";
+import { htmlWidget } from "../helpers/htmlWidget.ts";
 import { isSafeUrl } from "../helpers/isSafeUrl.ts";
+import { resolveFromTo } from "../helpers/resolveFromTo.ts";
 import type { Extension, PosOrRange } from "../types/index.ts";
 
 declare module "@inksane/core" {
@@ -43,43 +44,29 @@ declare module "@inksane/core" {
 
 const isAlreadyLink = (text: string) => /^\[([^\]]*)\]\(([^)]*)\)$/.exec(text);
 
-/** Renders a clickable external-link icon next to a link. */
-class OpenLinkWidget extends WidgetType {
-  private url: string;
+const OPEN_LINK_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
 
-  constructor(url: string) {
-    super();
-    this.url = url;
+/** Builds a clickable external-link icon next to a link. */
+const createOpenLinkWidget = (url: string) => {
+  if (!isSafeUrl(url)) {
+    return htmlWidget("");
   }
 
-  toDOM() {
-    if (!isSafeUrl(this.url)) {
-      return document.createElement("span");
-    }
-
-    const el = document.createElement("a");
-    el.className = "inksane-mark-link-open";
-    el.href = this.url;
-    el.target = "_blank";
-    el.rel = "noopener noreferrer";
-    el.setAttribute("aria-label", "Open link in new tab");
-    el.addEventListener("mousedown", (event) => event.preventDefault());
-    el.addEventListener("click", (event) => {
-      event.preventDefault();
-      window.open(this.url, "_blank", "noopener");
-    });
-    el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
-    return el;
-  }
-
-  ignoreEvent() {
-    return true;
-  }
-
-  eq(other: WidgetType) {
-    return other instanceof OpenLinkWidget && other.url === this.url;
-  }
-}
+  return htmlWidget(
+    `<a class="inksane-mark-link-open" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" aria-label="Open link in new tab">${OPEN_LINK_ICON}</a>`,
+    {
+      onRender: (element) => {
+        const anchor = element.querySelector("a");
+        if (!anchor) return;
+        anchor.addEventListener("mousedown", (event) => event.preventDefault());
+        anchor.addEventListener("click", (event) => {
+          event.preventDefault();
+          window.open(url, "_blank", "noopener");
+        });
+      },
+    },
+  );
+};
 
 /** Finds the URL of a `Link` syntax node. */
 const getLinkUrl = (node: SyntaxNode, state: EditorState): string => {
@@ -101,9 +88,23 @@ export const LinkExtension: Extension = {
           {
             kind: "attach",
             position: "after",
-            type: (node, state) => new OpenLinkWidget(getLinkUrl(node, state)),
+            type: (node, state) => createOpenLinkWidget(getLinkUrl(node, state)),
           },
         ],
+      },
+    ];
+  },
+
+  addHtmlConverters() {
+    return [
+      {
+        match: (element) => element.tagName.toLowerCase() === "a",
+        toMarkdown: (element, { renderChildren }) => {
+          const text = renderChildren(element).trim();
+          const href = (element.getAttribute("href") ?? "").trim();
+          if (!href || !isSafeUrl(href)) return text;
+          return `[${text || href}](${href})`;
+        },
       },
     ];
   },

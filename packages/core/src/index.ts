@@ -1,5 +1,8 @@
 export * from "./commands/index.ts";
+export * from "./helpers/escapeHtml.ts";
+export * from "./helpers/htmlWidget.ts";
 export * from "./helpers/resolveFromTo.ts";
+export * from "./helpers/sanitizeHtml.ts";
 export * from "./types/index.ts";
 
 export * from "./CommandChain.ts";

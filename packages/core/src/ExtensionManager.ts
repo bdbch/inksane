@@ -4,8 +4,9 @@ import { markdown } from "@codemirror/lang-markdown";
 import type { MarkdownExtension } from "@lezer/markdown";
 import { editorFocusExtension } from "./editorFocus.ts";
 import type { Editor } from "./Editor.ts";
-import type { Extension, MarkdownDecorationConfig } from "./types/extensions.ts";
+import type { Extension, HtmlConverter, MarkdownDecorationConfig } from "./types/extensions.ts";
 import type { CommandRegistry } from "./CommandChain.ts";
+import { htmlPasteHandler } from "./helpers/htmlPasteHandler.ts";
 import { resolveExtensionsOnEditor } from "./helpers/resolveExtensionsOnEditor.ts";
 import { createMarkdownDecorations } from "./markdownDecorations.ts";
 
@@ -31,6 +32,9 @@ export class ExtensionManager {
   /** Stores syntax-tree decorations declared by configured extensions. */
   private _markdownDecorations: MarkdownDecorationConfig[] = [];
 
+  /** Stores HTML to Markdown converters declared by configured extensions. */
+  private _htmlConverters: HtmlConverter[] = [];
+
   /** Stores keybindings before they become one CodeMirror keymap. */
   private _keybindings: CMExtension[] = [];
 
@@ -52,6 +56,7 @@ export class ExtensionManager {
     for (const ext of sortedExtensions) {
       if (ext.addMarkdownSyntax) this.bindMarkdownSyntax(ext.addMarkdownSyntax);
       if (ext.addMarkdownDecorations) this.bindMarkdownDecorations(ext.addMarkdownDecorations);
+      if (ext.addHtmlConverters) this.bindHtmlConverters(ext.addHtmlConverters);
       if (ext.addCommands) this.bindCommands(ext.addCommands);
       if (ext.addKeybinds) this.bindKeymaps(ext.addKeybinds);
       if (ext.addCodeMirrorExtensions) this.bindCmExtensions(ext.addCodeMirrorExtensions);
@@ -69,6 +74,7 @@ export class ExtensionManager {
       editorFocusExtension,
       markdown({ extensions: this._markdownSyntax }),
       createMarkdownDecorations(this._markdownDecorations),
+      htmlPasteHandler(this._htmlConverters),
       ...this._keybindings,
       ...this._addonCMExtensions,
     ];
@@ -121,6 +127,16 @@ export class ExtensionManager {
   ) {
     const decorations = addMarkdownDecorations({ editor: this.editor }) ?? [];
     this._markdownDecorations.push(...decorations);
+  }
+
+  /**
+   * Collects HTML to Markdown converters so pasted HTML follows extension syntax.
+   *
+   * @param addHtmlConverters - Provides converters from one extension.
+   */
+  private bindHtmlConverters(addHtmlConverters: NonNullable<Extension["addHtmlConverters"]>) {
+    const converters = addHtmlConverters({ editor: this.editor }) ?? [];
+    this._htmlConverters.push(...converters);
   }
 
   /**

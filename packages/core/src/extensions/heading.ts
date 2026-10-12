@@ -54,6 +54,20 @@ export const HeadingExtension: Extension = {
     }));
   },
 
+  addHtmlConverters() {
+    return [
+      {
+        block: true,
+        match: (element) => /^h[1-6]$/.test(element.tagName.toLowerCase()),
+        toMarkdown: (element, { renderChildren }) => {
+          const level = Number.parseInt(element.tagName[1], 10);
+          const content = renderChildren(element).trim().replace(/\n+/g, " ");
+          return `${headingMarker(level)} ${content}`;
+        },
+      },
+    ];
+  },
+
   addCommands() {
     return {
       setHeading: (ctx) => (options) => {

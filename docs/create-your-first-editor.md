@@ -59,6 +59,12 @@ const editor = new Editor({
 });
 ```
 
+## Pasting HTML
+
+When you copy content from a web page or another editor, the clipboard usually holds HTML. Paste it into inksane and the HTML is converted to Markdown before it is inserted at your cursor or over your selection.
+
+Headings, paragraphs, emphasis, links, images, lists, blockquotes, and code are converted. The HTML is cleaned first, so scripts and unsafe URLs are dropped. Plain text that looks like an HTML fragment is converted too. Other plain text keeps the default editor behavior.
+
 ## Line Wrapping
 
 Long lines wrap inside the editor by default. Set `lineWrapping` to `false` to allow horizontal overflow instead:

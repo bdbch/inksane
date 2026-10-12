@@ -63,10 +63,20 @@ const isAlreadyCodeBlock = (text: string) => /^```[^\n]*\n([\s\S]*?)\n```$/.exec
 
 const fenceFor = (lang?: string, tickCount = 3) => `${"`".repeat(tickCount)}${lang ?? ""}`;
 
-/** Backtick count for the fence: one more than the longest run inside the text. */
-const fenceTickCount = (text: string) => {
-  const longest = Math.max(0, ...[...text.matchAll(/`+/g)].map((match) => match[0].length));
-  return Math.max(3, longest + 1);
+/** Length of the longest run of backticks in the text. */
+const longestBacktickRun = (text: string) =>
+  Math.max(0, ...[...text.matchAll(/`+/g)].map((match) => match[0].length));
+
+/** Backtick count for a fenced code block: at least three, one more than the longest run. */
+const fenceTickCount = (text: string) => Math.max(3, longestBacktickRun(text) + 1);
+
+/** Backtick count for inline code: one more than the longest run inside. */
+const inlineTickCount = (text: string) => longestBacktickRun(text) + 1;
+
+/** Reads the language hint from a `language-*` or `lang-*` class. */
+const languageFromClass = (element: Element): string => {
+  const match = /(?:language|lang)-([\w-]+)/.exec(element.getAttribute("class") ?? "");
+  return match ? match[1] : "";
 };
 
 export const CodeExtension: Extension = {
@@ -88,6 +98,31 @@ export const CodeExtension: Extension = {
       {
         nodeName: "CodeBlock",
         lineClass: "inksane-code-block",
+      },
+    ];
+  },
+
+  addHtmlConverters() {
+    return [
+      {
+        block: true,
+        match: (element) => element.tagName.toLowerCase() === "pre",
+        toMarkdown: (element) => {
+          const code = element.querySelector("code");
+          const body = ((code ?? element).textContent ?? "").replace(/\n$/, "");
+          const tickCount = fenceTickCount(body);
+          const fence = fenceFor(code ? languageFromClass(code) : "", tickCount);
+          return `${fence}\n${body}\n${"`".repeat(tickCount)}`;
+        },
+      },
+      {
+        match: (element) => element.tagName.toLowerCase() === "code",
+        toMarkdown: (element) => {
+          const content = element.textContent ?? "";
+          const fence = "`".repeat(inlineTickCount(content));
+          const pad = content.startsWith("`") || content.endsWith("`") ? " " : "";
+          return `${fence}${pad}${content}${pad}${fence}`;
+        },
       },
     ];
   },
