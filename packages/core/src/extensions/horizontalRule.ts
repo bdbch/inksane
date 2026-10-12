@@ -1,4 +1,4 @@
-import { WidgetType } from "@codemirror/view";
+import { htmlWidget } from "../helpers/htmlWidget.ts";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
 import type { Extension, PosOrRange } from "../types/index.ts";
 
@@ -15,23 +15,6 @@ declare module "@inksane/core" {
   }
 }
 
-/** Renders an actual `<hr>` in place of the hidden `---` syntax. */
-class HorizontalRuleWidget extends WidgetType {
-  toDOM() {
-    const dom = document.createElement("hr");
-    dom.className = "inksane-hr";
-    return dom;
-  }
-
-  get estimatedHeight() {
-    return 17;
-  }
-
-  eq(other: WidgetType) {
-    return other instanceof HorizontalRuleWidget;
-  }
-}
-
 export const HorizontalRuleExtension: Extension = {
   name: "horizontalRule",
 
@@ -42,7 +25,12 @@ export const HorizontalRuleExtension: Extension = {
         className: "inksane-mark-horizontal-rule",
         hideSyntax: true,
         markup: (node) => [{ from: node.from, to: node.to }],
-        widgets: [{ kind: "replace", type: new HorizontalRuleWidget() }],
+        widgets: [
+          {
+            kind: "replace",
+            type: () => htmlWidget('<hr class="inksane-hr">', { estimatedHeight: 17 }),
+          },
+        ],
       },
     ];
   },

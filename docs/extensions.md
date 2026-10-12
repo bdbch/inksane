@@ -175,7 +175,7 @@ Each decoration entry supports these options:
 - `className` applies a CSS class to the complete node range.
 - `lineClass` applies a CSS class to every line that intersects the node.
 - `markup` selects the ranges treated as Markdown syntax. By default, these are the node's direct children whose names end in `Mark`. Pass child-node names, such as `["LinkMark", "URL"]`, or a function returning `{ from, to }` document ranges.
-- `hideSyntax` hides the markup ranges while the selection is outside the node.
+- `hideSyntax` hides the markup while the selection is outside the node. During a drag, a node the selection touches stays revealed until the pointer is released, so revealing cannot flicker.
 - `widgets` adds replacement or attached CodeMirror widgets.
 
 Widgets use CodeMirror's `WidgetType`. A `replace` widget replaces every markup range while syntax is hidden. Its `type` can be a widget instance or a function receiving the syntax node and editor state; set `block: true` for a block widget.
@@ -198,6 +198,51 @@ An `attach` widget is placed before or after the node, or at a position returned
   onlyWhenHidden: false,
 }
 ```
+
+## HTML
+
+Extensions can render HTML without building DOM by hand. `htmlWidget` returns a widget that the editor renders for you, so a decoration only passes a string.
+
+```ts
+import { escapeHtml, htmlWidget, type Extension } from "@inksane/core";
+
+export const CalloutExtension: Extension = {
+  name: "callout",
+
+  addMarkdownDecorations() {
+    return [
+      {
+        nodeName: "Callout",
+        hideSyntax: true,
+        markup: (node) => [{ from: node.from, to: node.to }],
+        widgets: [
+          {
+            kind: "replace",
+            block: true,
+            type: (node, state) =>
+              htmlWidget(
+                `<div class="callout">${escapeHtml(state.sliceDoc(node.from, node.to))}</div>`,
+                { block: true, className: "my-callout" },
+              ),
+          },
+        ],
+      },
+    ];
+  },
+};
+```
+
+The markup is trusted because the extension writes it, so it is inserted as-is. The document is not trusted. Escape any document text you interpolate with `escapeHtml`, and validate URLs before you put them into attributes.
+
+`htmlWidget(html, options)` renders inline by default and wraps the markup in a `span`. Set `block: true` to wrap it in a `div`. The wrapper always gets the `inksane-html` class, and `className` adds one more.
+
+Use `onRender` to run code after the markup is mounted, such as attaching a click listener. The wrapper element is passed, so reach into the markup with `element.querySelector(...)`. Use `estimatedHeight` to hint the rendered height for off-screen layout.
+
+For block widgets, put spacing on the wrapper as padding, not as margin. CodeMirror measures the widget's border box, so margins are invisible to its height map and selection coordinates drift. The wrapper already gets `display: flow-root` to keep margins of the rendered markup inside the measured box.
+
+The built-in image, link, list, and horizontal rule extensions render through this helper.
+
+The editor also ships an `HtmlExtension` that renders block-level HTML from the document, such as `<div>`, `<details>`, or `<table>`, and hides HTML comments. Clicking a rendered block moves the cursor into its source so it can be edited. Document HTML is not trusted, so it is cleaned with `sanitizeHtml` first. That helper drops scripts, event handlers, and unsafe URLs, and unwraps unknown elements. Inline HTML at the top level of a paragraph is not rendered yet.
 
 ## Events
 

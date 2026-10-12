@@ -157,4 +157,50 @@
     min-width: 1.75em;
     text-align: right;
   }
+
+  .inksane-html-block {
+    @apply py-4;
+  }
+
+  .inksane-html-block .callout {
+    @apply rounded-md border border-border-muted px-4 py-3;
+    border-left: 3px solid var(--foreground-muted);
+    background: var(--background-muted);
+  }
+
+  .inksane-html-block .callout h3 {
+    @apply mb-1 font-semibold;
+  }
+
+  .inksane-html-block kbd {
+    @apply rounded border border-border px-1.5 py-0.5 font-mono text-xs;
+  }
+
+  .inksane-html-block details {
+    @apply rounded-md border border-border-muted px-4 py-3;
+  }
+
+  .inksane-html-block summary {
+    @apply cursor-pointer font-medium;
+  }
+
+  .inksane-html-block table {
+    @apply w-full border-collapse text-sm;
+  }
+
+  .inksane-html-block th,
+  .inksane-html-block td {
+    @apply border border-border-muted px-3 py-1.5 text-left;
+  }
+}
+
+[data-inksane-editor-content]::selection,
+[data-inksane-editor-content] ::selection {
+  background: rgb(59 130 246 / 0.35);
+}
+
+/* CodeMirror's base theme picks the caret color from its dark facet, which the
+   demos do not set. Follow the text color instead so it stays visible. */
+.cm-editor .cm-content[data-inksane-editor-content] {
+  caret-color: currentColor;
 }

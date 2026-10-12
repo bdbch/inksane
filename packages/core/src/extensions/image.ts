@@ -1,9 +1,10 @@
 import type { EditorState } from "@codemirror/state";
-import { EditorView, WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
 import { insertContent } from "../commands/index.ts";
-import { resolveFromTo } from "../helpers/resolveFromTo.ts";
+import { escapeHtml } from "../helpers/escapeHtml.ts";
+import { htmlWidget } from "../helpers/htmlWidget.ts";
 import { isSafeUrl } from "../helpers/isSafeUrl.ts";
+import { resolveFromTo } from "../helpers/resolveFromTo.ts";
 import type { Extension, PosOrRange } from "../types/index.ts";
 
 declare module "@inksane/core" {
@@ -19,56 +20,30 @@ declare module "@inksane/core" {
   }
 }
 
-/** Renders an `<img>` next to its image syntax. Clicking it places the cursor at the end of the image range. */
-class ImageWidget extends WidgetType {
-  private src: string;
-  private alt: string;
-  private end: number;
-  private block: boolean;
-
-  constructor(src: string, alt: string, end: number, block: boolean) {
-    super();
-    this.src = src;
-    this.alt = alt;
-    this.end = end;
-    this.block = block;
+/**
+ * Builds an image widget. Clicking it places the cursor at the end of the image range.
+ * The block variant renders below the source line inside its own `cm-line`.
+ */
+const createImageWidget = (src: string, alt: string, end: number, block: boolean) => {
+  if (!isSafeUrl(src)) {
+    return htmlWidget("");
   }
 
-  toDOM(view: EditorView) {
-    if (!isSafeUrl(this.src)) {
-      return document.createElement("span");
-    }
-
-    const img = document.createElement("img");
-    img.className = "inksane-image";
-    img.src = this.src;
-    img.alt = this.alt;
-    img.addEventListener("mousedown", (event) => {
-      event.preventDefault();
-      view.dispatch({ selection: { anchor: this.end, head: this.end } });
-    });
-    if (!this.block) return img;
-
-    const line = document.createElement("div");
-    line.className = "cm-line";
-    line.append(img);
-    return line;
-  }
-
-  get estimatedHeight() {
-    return 100;
-  }
-
-  eq(other: WidgetType) {
-    return (
-      other instanceof ImageWidget &&
-      other.src === this.src &&
-      other.alt === this.alt &&
-      other.end === this.end &&
-      other.block === this.block
-    );
-  }
-}
+  return htmlWidget(
+    `<img class="inksane-image" src="${escapeHtml(src)}" alt="${escapeHtml(alt)}">`,
+    {
+      block,
+      className: block ? "cm-line" : undefined,
+      estimatedHeight: 100,
+      onRender: (element, view) => {
+        element.addEventListener("mousedown", (event) => {
+          event.preventDefault();
+          view.dispatch({ selection: { anchor: end, head: end } });
+        });
+      },
+    },
+  );
+};
 
 /** Extracts the src and alt text of an `Image` syntax node. */
 const getImageSource = (node: SyntaxNode, state: EditorState): { src: string; alt: string } => {
@@ -109,7 +84,7 @@ export const ImageExtension: Extension = {
             kind: "replace",
             type: (node, state) => {
               const { src, alt } = getImageSource(node, state);
-              return new ImageWidget(src, alt, node.to, false);
+              return createImageWidget(src, alt, node.to, false);
             },
           },
           {
@@ -119,7 +94,7 @@ export const ImageExtension: Extension = {
             position: (node, state) => state.doc.lineAt(node.to).to,
             type: (node, state) => {
               const { src, alt } = getImageSource(node, state);
-              return new ImageWidget(src, alt, node.to, true);
+              return createImageWidget(src, alt, node.to, true);
             },
           },
         ],

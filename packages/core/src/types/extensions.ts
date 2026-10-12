@@ -57,7 +57,10 @@ export type MarkdownDecorationConfig = {
    * Can be a list of node names or a function returning ranges.
    */
   markup?: string[] | ((node: SyntaxNode, state: EditorState) => MarkupRange[]);
-  /** Hides the markup while the cursor is outside the node. */
+  /**
+   * Hides the markup while the selection is outside the node. During a drag,
+   * a node the selection touches stays revealed until the pointer is released.
+   */
   hideSyntax?: boolean;
   /** Widgets rendered for the node. */
   widgets?: MarkdownNodeWidget[];

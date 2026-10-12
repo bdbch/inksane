@@ -1,7 +1,8 @@
 import type { EditorState } from "@codemirror/state";
-import { WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
 import { insertContent } from "../commands/index.ts";
+import { escapeHtml } from "../helpers/escapeHtml.ts";
+import { htmlWidget } from "../helpers/htmlWidget.ts";
 import { markRangesWithWhitespace } from "../helpers/markup.ts";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
 import type { Extension, PosOrRange } from "../types/index.ts";
@@ -32,30 +33,8 @@ const orderedMarker = /^\d+[.)]/;
 const stripBulletMarker = (text: string) => text.replace(/^[-*+]\s?/, "");
 const stripOrderedMarker = (text: string) => text.replace(/^\d+[.)]\s?/, "");
 
-/** Renders a bullet or number in place of a hidden list marker. */
-class ListMarkerWidget extends WidgetType {
-  private label: string;
-  private ordered: boolean;
-
-  constructor(label: string, ordered: boolean) {
-    super();
-    this.label = label;
-    this.ordered = ordered;
-  }
-
-  toDOM() {
-    const el = document.createElement("span");
-    el.className = `inksane-list-marker ${
-      this.ordered ? "inksane-list-marker--ordered" : "inksane-list-marker--bullet"
-    }`;
-    el.textContent = this.label;
-    return el;
-  }
-
-  eq(other: WidgetType) {
-    return other instanceof ListMarkerWidget && other.label === this.label;
-  }
-}
+const listMarkerClass = (ordered: boolean) =>
+  `inksane-list-marker ${ordered ? "inksane-list-marker--ordered" : "inksane-list-marker--bullet"}`;
 
 /** Returns true when two sibling nodes are separated by a blank line. */
 const isBlankLineSeparated = (a: SyntaxNode, b: SyntaxNode, state: EditorState): boolean => {
@@ -111,7 +90,7 @@ export const ListExtension: Extension = {
             type: (node, state) => {
               const ordered = node.parent?.name === "OrderedList";
               const label = ordered ? `${orderedItemNumber(node, state)}.` : "•";
-              return new ListMarkerWidget(label, ordered);
+              return htmlWidget(escapeHtml(label), { className: listMarkerClass(ordered) });
             },
           },
         ],
