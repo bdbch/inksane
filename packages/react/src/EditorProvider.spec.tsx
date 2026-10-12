@@ -72,7 +72,7 @@ describe("EditorContent", () => {
     );
 
     await waitFor(() => {
-      expect(container.textContent).toContain("# Hi");
+      expect(container.querySelector(".inksane-heading-1")?.textContent).toBe("Hi");
     });
   });
 
