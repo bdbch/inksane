@@ -242,7 +242,7 @@ For block widgets, put spacing on the wrapper as padding, not as margin. CodeMir
 
 The built-in image, link, list, and horizontal rule extensions render through this helper.
 
-The editor also ships an `HtmlExtension` that renders block-level HTML from the document, such as `<div>`, `<details>`, or `<table>`, and hides HTML comments. Clicking a rendered block moves the cursor into its source so it can be edited. Document HTML is not trusted, so it is cleaned with `sanitizeHtml` first. That helper drops scripts, event handlers, and unsafe URLs, and unwraps unknown elements. Inline HTML at the top level of a paragraph is not rendered yet.
+The editor also ships an `HtmlExtension` that renders block-level HTML from the document, such as `<div>`, `<details>`, or `<table>`, and hides HTML comments. Clicking a rendered block moves the cursor into its source so it can be edited, and the up and down arrow keys move into an adjacent block. Document HTML is not trusted, so it is cleaned with `sanitizeHtml` first. That helper drops scripts, event handlers, and unsafe URLs, and unwraps unknown elements. Inline HTML at the top level of a paragraph is not rendered yet.
 
 ## Events
 

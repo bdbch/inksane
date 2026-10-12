@@ -74,6 +74,45 @@ describe("html decorations", () => {
     expect(editor.view.dom.textContent).toContain("<div class");
   });
 
+  it("enters the block below on ArrowDown", () => {
+    const content = 'intro\n\n<div class="callout">Hi</div>\n\nafter';
+    editor.view.dispatch({ changes: { from: 0, to: editor.content.length, insert: content } });
+    editor.view.dispatch({ selection: { anchor: editor.state.doc.line(2).from } });
+
+    editor.view.contentDOM.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
+    );
+
+    expect(editor.state.selection.main.anchor).toBe(content.indexOf("<div"));
+    expect(editor.view.dom.textContent).toContain("<div class");
+  });
+
+  it("enters the block above on ArrowUp", () => {
+    const content = 'intro\n\n<div class="callout">Hi</div>\n\nafter';
+    editor.view.dispatch({ changes: { from: 0, to: editor.content.length, insert: content } });
+    editor.view.dispatch({ selection: { anchor: editor.state.doc.line(4).from } });
+
+    editor.view.contentDOM.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }),
+    );
+
+    expect(editor.state.selection.main.anchor).toBe(content.indexOf("</div>") + "</div>".length);
+    expect(editor.view.dom.textContent).toContain("<div class");
+  });
+
+  it("leaves Shift+ArrowDown to the native selection", () => {
+    const content = 'intro\n\n<div class="callout">Hi</div>\n\nafter';
+    editor.view.dispatch({ changes: { from: 0, to: editor.content.length, insert: content } });
+    const start = editor.state.doc.line(2).from;
+    editor.view.dispatch({ selection: { anchor: start } });
+
+    editor.view.contentDOM.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowDown", shiftKey: true, bubbles: true }),
+    );
+
+    expect(editor.state.selection.main.anchor).toBe(start);
+  });
+
   it("keeps a revealed block open while dragging", () => {
     const content = 'intro\n\n<div class="callout">Hi</div>\n\nafter';
     editor.view.dispatch({ changes: { from: 0, to: editor.content.length, insert: content } });
