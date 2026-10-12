@@ -5,21 +5,26 @@ on:
     workflows: [Check]
     branches: [main]
     types: [completed]
+  workflow_dispatch:
 
 env:
   NODE_VERSION: 24
   PNPM_VERSION: 11.18.0
+  # workflow_run gives the triggering run's commit; a manual run uses the selected ref.
+  RELEASE_REF: ${{ github.event.workflow_run.head_sha || github.sha }}
 
 permissions:
   contents: read
 
 concurrency:
-  group: bumpy-release-${{ github.event.workflow_run.head_branch }}
+  group: bumpy-release-${{ github.event.workflow_run.head_branch || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
   plan:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     outputs:
       mode: ${{ steps.plan.outputs.mode }}
@@ -27,10 +32,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ env.RELEASE_REF }}
 
       # workflow_run SHA checkouts are detached; Bumpy uses the current branch as the PR base.
-      - run: git checkout -B main ${{ github.event.workflow_run.head_sha }}
+      - run: git checkout -B main ${{ env.RELEASE_REF }}
 
       - uses: pnpm/action-setup@v4
         with:
@@ -59,10 +64,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ env.RELEASE_REF }}
 
       # workflow_run SHA checkouts are detached; Bumpy uses the current branch as the PR base.
-      - run: git checkout -B main ${{ github.event.workflow_run.head_sha }}
+      - run: git checkout -B main ${{ env.RELEASE_REF }}
 
       - uses: pnpm/action-setup@v4
         with:
@@ -92,10 +97,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ env.RELEASE_REF }}
 
       # workflow_run SHA checkouts are detached; Bumpy uses the current branch as the PR base.
-      - run: git checkout -B main ${{ github.event.workflow_run.head_sha }}
+      - run: git checkout -B main ${{ env.RELEASE_REF }}
 
       - uses: pnpm/action-setup@v4
         with:
