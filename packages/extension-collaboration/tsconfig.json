@@ -17,7 +17,8 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "paths": {
-      "@inksane/extension-collaboration": ["./src/index.ts"]
+      "@inksane/extension-collaboration": ["./src/index.ts"],
+      "@inksane/core": ["../core/src/index.ts"]
     }
   }
 }
