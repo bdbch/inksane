@@ -355,7 +355,7 @@ export function MyExtension(options: { color: string } = { color: "red" }): Exte
 }
 ```
 
-<Callout type="warn" title="Lifecycle handlers are not wired up yet">
+<Callout type="warning" title="Lifecycle handlers are not wired up yet">
   The `Extension` type allows handlers named after the editor events, but the extension manager does
   not subscribe them. Subscribe with `editor.on(...)` in application code for now.
 </Callout>

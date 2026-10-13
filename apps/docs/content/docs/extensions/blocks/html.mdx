@@ -19,7 +19,7 @@ Clicking a rendered block moves the cursor into its source so it can be edited. 
 single widget, the up and down arrow keys would normally skip over it, so the extension binds
 `ArrowUp` and `ArrowDown` to move into an adjacent HTML block when there is one.
 
-<Callout type="warn" title="Document HTML is not trusted">
+<Callout type="warning" title="Document HTML is not trusted">
   The markup is cleaned with `sanitizeHtml` before it is rendered. That helper drops scripts, event
   handlers, and unsafe URLs, and unwraps elements it does not know. Inline HTML at the top level of
   a paragraph is not rendered yet.

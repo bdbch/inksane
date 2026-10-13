@@ -108,11 +108,17 @@ other options later has no effect. `content` is the exception: it stays in sync 
 prop.
 
 ```tsx
-// content updates the document
-const editor = useInksane({ content: markdown });
+import type { Extension } from "@inksane/core";
+import { Inksane, useInksane } from "@inksane/react";
+
+function Editor({ extensions }: { extensions?: Extension[] }) {
+  const editor = useInksane({ extensions });
+
+  return <Inksane editor={editor} />;
+}
 ```
 
-To replace the editor with new options, remount it with a `key`:
+To apply new options, remount the editor with a `key`:
 
 ```tsx
 <Editor key={storageKey} extensions={extensions} />

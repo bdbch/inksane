@@ -57,12 +57,13 @@ it gets `inksane-editor-content`.
 
 ## Reading and writing content
 
-The document is Markdown. `getMarkdown()` reads it and `setMarkdown()` replaces it.
+The document is Markdown. `setMarkdown()` replaces it and `getMarkdown()` reads it back. The editor
+in the example above was created without content, so it starts empty.
 
 ```js
-editor.getMarkdown(); // "# Hello inksane\n\nHave a lot of **fun**."
+editor.setMarkdown("# Hello inksane\n\nHave a lot of **fun**.");
 
-editor.setMarkdown("# Replaced\n\nNew content.");
+editor.getMarkdown(); // "# Hello inksane\n\nHave a lot of **fun**."
 ```
 
 `editor.content` is the same value, just as a property:
@@ -89,7 +90,7 @@ editor.textJSON; // ["# Hello inksane", "", "Have a lot of **fun**."]
 editor.textJSON = ["# Replaced", "", "New content."];
 ```
 
-<Callout type="warn" title="Deprecated: json">
+<Callout type="warning" title="Deprecated: json">
   `editor.json` returns the same line array as `textJSON`, but its name promised a document AST. Use
   `getMarkdown()` to read the document or `textJSON` for the raw array instead. `json` will be
   removed in a future major release.

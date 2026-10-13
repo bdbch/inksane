@@ -36,7 +36,7 @@ listener for one event, and `removeListeners()` drops all of them.
 | `beforeTransaction` | `{ editor, transaction }` | Declared in the types. Not emitted yet.                                    |
 | `transaction`       | `{ editor, transaction }` | Declared in the types. Not emitted yet.                                    |
 
-<Callout type="warn" title="beforeTransaction and transaction are not wired up yet">
+<Callout type="warning" title="beforeTransaction and transaction are not wired up yet">
   Both names are part of `EditorEvents` so the shape is stable, but the editor does not emit them.
   Subscribe to `update` for document changes until they are implemented.
 </Callout>
@@ -71,10 +71,19 @@ In React, `useInksaneSelection()` wraps this event. See the [React guide](/react
 right after creation when you pass `element`, or later when you call `mount()` yourself. `destroy`
 runs when you tear the editor down.
 
+An editor created with `element` emits `mount` while the constructor runs, before any listener can
+subscribe. Create the editor without an element when you need to observe the mount:
+
 ```js
+const editor = new Editor({});
+
 editor.on("mount", ({ editor }) => console.log("mounted", editor.isMounted));
 editor.on("destroy", () => console.log("gone"));
+
+editor.mount(document.getElementById("editor")); // logs "mounted true"
 ```
+
+For an editor that may already be mounted, check `editor.isMounted` instead.
 
 ## Events on extensions
 
