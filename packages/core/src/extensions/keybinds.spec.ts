@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { searchPanelOpen } from "@codemirror/search";
 import { Editor } from "../Editor.ts";
+import { BaseKit } from "./baseKit.ts";
 
 function press(editor: Editor, key: string, modifiers: KeyboardEventInit = {}) {
   editor.view.contentDOM.dispatchEvent(
@@ -12,7 +13,11 @@ describe("select all", () => {
   let editor: Editor;
 
   beforeEach(() => {
-    editor = new Editor({ element: document.createElement("div"), content: "hello world" });
+    editor = new Editor({
+      element: document.createElement("div"),
+      content: "hello world",
+      extensions: [BaseKit()],
+    });
   });
 
   afterEach(() => {
@@ -33,7 +38,11 @@ describe("default keymap", () => {
   let editor: Editor;
 
   beforeEach(() => {
-    editor = new Editor({ element: document.createElement("div"), content: "hello world" });
+    editor = new Editor({
+      element: document.createElement("div"),
+      content: "hello world",
+      extensions: [BaseKit()],
+    });
   });
 
   afterEach(() => {
@@ -51,7 +60,7 @@ describe("default keymap", () => {
 
   it("moves the current line up on Alt-ArrowUp", () => {
     const mount = document.createElement("div");
-    const lines = new Editor({ element: mount, content: "one\ntwo" });
+    const lines = new Editor({ element: mount, content: "one\ntwo", extensions: [BaseKit()] });
     lines.view.dispatch({ selection: { anchor: 4 } });
 
     press(lines, "ArrowUp", { altKey: true });
@@ -70,7 +79,12 @@ describe("default keymap", () => {
 
   it("keeps the editor's own Tab indentation, honoring tabSize", () => {
     const mount = document.createElement("div");
-    const tabbed = new Editor({ element: mount, content: "a", tabSize: 4 });
+    const tabbed = new Editor({
+      element: mount,
+      content: "a",
+      tabSize: 4,
+      extensions: [BaseKit()],
+    });
     tabbed.view.dispatch({ selection: { anchor: 0 } });
 
     press(tabbed, "Tab");
@@ -86,7 +100,7 @@ describe("newline input", () => {
   /** Loads content, puts the caret at the given position, and presses Enter. */
   const typeEnter = (content: string, anchor: number | "end", times = 1) => {
     const mount = document.createElement("div");
-    const editor = new Editor({ element: mount, content });
+    const editor = new Editor({ element: mount, content, extensions: [BaseKit()] });
     editor.view.focus();
     editor.view.dispatch({
       selection: { anchor: anchor === "end" ? editor.content.length : anchor },
@@ -126,9 +140,9 @@ describe("newline input", () => {
 });
 
 describe("default keymap configuration", () => {
-  it("can be opted out of with defaultKeymap: false", () => {
+  it("can be disabled in BaseKit", () => {
     const mount = document.createElement("div");
-    const editor = new Editor({ element: mount, defaultKeymap: false });
+    const editor = new Editor({ element: mount, extensions: [BaseKit({ defaultKeymap: false })] });
 
     press(editor, "f", { ctrlKey: true });
 
@@ -138,11 +152,14 @@ describe("default keymap configuration", () => {
     editor.destroy();
   });
 
-  it("can be replaced by a configured extension with the same name", () => {
+  it("can be replaced after disabling the kit's keymap", () => {
     const mount = document.createElement("div");
     const editor = new Editor({
       element: mount,
-      extensions: [{ name: "defaultKeymap", addKeybinds: () => [] }],
+      extensions: [
+        BaseKit({ defaultKeymap: false }),
+        { name: "defaultKeymap", addKeybinds: () => [] },
+      ],
     });
 
     press(editor, "f", { ctrlKey: true });

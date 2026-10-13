@@ -1,11 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { Editor } from "../Editor.ts";
+import { HorizontalRuleExtension } from "./horizontalRule.ts";
 
 describe("insertHorizontalRule", () => {
   let editor: Editor;
 
   beforeEach(() => {
-    editor = new Editor({ element: document.createElement("div"), content: "hello" });
+    editor = new Editor({
+      element: document.createElement("div"),
+      content: "hello",
+      extensions: [HorizontalRuleExtension],
+    });
   });
 
   afterEach(() => {

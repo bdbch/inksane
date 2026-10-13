@@ -42,6 +42,20 @@
   "type": "module",
   "exports": {
     ".": "./dist/index.mjs",
+    "./extensions/base-kit": "./dist/extensions/base-kit.mjs",
+    "./extensions/blockquote": "./dist/extensions/blockquote.mjs",
+    "./extensions/bold": "./dist/extensions/bold.mjs",
+    "./extensions/code": "./dist/extensions/code.mjs",
+    "./extensions/heading": "./dist/extensions/heading.mjs",
+    "./extensions/history": "./dist/extensions/history.mjs",
+    "./extensions/horizontal-rule": "./dist/extensions/horizontal-rule.mjs",
+    "./extensions/html": "./dist/extensions/html.mjs",
+    "./extensions/image": "./dist/extensions/image.mjs",
+    "./extensions/italic": "./dist/extensions/italic.mjs",
+    "./extensions/keybinds": "./dist/extensions/keybinds.mjs",
+    "./extensions/link": "./dist/extensions/link.mjs",
+    "./extensions/list": "./dist/extensions/list.mjs",
+    "./extensions/placeholder": "./dist/extensions/placeholder.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -51,6 +65,7 @@
     "build": "vp pack",
     "dev": "vp pack --watch",
     "test": "vp test",
+    "test:exports": "vp pack && node scripts/checkExports.mjs",
     "check": "vp check",
     "prepublishOnly": "vp run build"
   },

@@ -13,8 +13,8 @@ export type EditorOptions = {
   /** Allow user input and commands. Defaults to true. Content setters still work. */
   editable?: boolean;
   /**
-   * Extensions to add. An extension replaces the built-in with the same name,
-   * so a built-in feature can be configured with its own options.
+   * Features to register. No feature extensions are loaded automatically.
+   * Pass BaseKit() for the standard setup or choose individual extensions.
    */
   extensions?: Extension[];
   theme?: CMExtension;
@@ -22,22 +22,14 @@ export type EditorOptions = {
   lineWrapping?: boolean;
   /**
    * Text shown while the document is empty. Omit it, or pass an empty string,
-   * to show nothing.
+   * to show nothing. Requires PlaceholderExtension or BaseKit.
    */
   placeholder?: string;
   /**
    * The number of spaces Tab and Shift+Tab use when indenting. Defaults to 2.
+   * Requires KeybindExtension or BaseKit.
    */
   tabSize?: number;
-  /**
-   * Whether the standard editing keymap is registered. Covers common editing
-   * keys such as word deletion, Home/End, line selection, and Find. Defaults to
-   * true. Set to false to opt out and register your own keymap.
-   *
-   * Passing an extension named `defaultKeymap` replaces the built-in instead,
-   * which is how the keymap is extended with more bindings.
-   */
-  defaultKeymap?: boolean;
   classNames?: {
     editor?: string;
     editable?: string;

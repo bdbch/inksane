@@ -4,7 +4,7 @@ import type { Extension } from "../types/index.ts";
 /**
  * Adds undo/redo to the editor.
  *
- * Ships as a built-in extension so history is part of the default setup. The
+ * Included in BaseKit or registered individually. The
  * CodeMirror `history()` extension records document changes, including the
  * ones commands dispatch, so typing and command-based edits are both undoable.
  *

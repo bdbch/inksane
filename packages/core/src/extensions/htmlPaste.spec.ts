@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import type { EditorView } from "@codemirror/view";
 import { Editor } from "../Editor.ts";
+import { BaseKit } from "./baseKit.ts";
 
 /** Dispatches a paste event with the given clipboard data. */
 function paste(view: EditorView, data: Record<string, string>): void {
@@ -20,7 +21,11 @@ describe("html paste", () => {
   };
 
   beforeEach(() => {
-    editor = new Editor({ element: document.createElement("div"), content: "start" });
+    editor = new Editor({
+      element: document.createElement("div"),
+      content: "start",
+      extensions: [BaseKit()],
+    });
   });
 
   afterEach(() => {

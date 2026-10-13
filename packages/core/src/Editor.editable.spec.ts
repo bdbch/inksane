@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { Editor } from "./Editor.ts";
+import { BaseKit } from "./extensions/baseKit.ts";
 
 describe("read-only mode", () => {
   let editor: Editor;
@@ -53,6 +54,7 @@ describe("read-only mode", () => {
 
   it("renders and selects read-only content without editing it", () => {
     editor = new Editor({
+      extensions: [BaseKit()],
       element: document.createElement("div"),
       content: "hello",
       editable: false,
@@ -71,6 +73,7 @@ describe("read-only mode", () => {
 
   it("rejects commands, chains and capability checks while read-only", () => {
     editor = new Editor({
+      extensions: [BaseKit()],
       element: document.createElement("div"),
       content: "hello",
       editable: false,
@@ -129,6 +132,7 @@ describe("read-only mode", () => {
     ["Backspace", false],
   ])("blocks editing with %s, shift %s", (key, shiftKey) => {
     editor = new Editor({
+      extensions: [BaseKit()],
       element: document.createElement("div"),
       content: "  hello",
       editable: false,

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { Editor } from "../Editor.ts";
+import { ImageExtension } from "./image.ts";
 
 describe("image decorations", () => {
   let editor: Editor;
@@ -8,6 +9,7 @@ describe("image decorations", () => {
     const element = document.createElement("div");
     document.body.append(element);
     editor = new Editor({
+      extensions: [ImageExtension],
       element,
       content: "before\n![alt text](https://example.com/image.png)\nafter",
     });

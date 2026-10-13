@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { Editor } from "../Editor.ts";
+import { HtmlExtension } from "./html.ts";
 
 describe("html decorations", () => {
   let editor: Editor;
@@ -8,6 +9,7 @@ describe("html decorations", () => {
     const element = document.createElement("div");
     document.body.append(element);
     editor = new Editor({
+      extensions: [HtmlExtension],
       element,
       content: '<div class="callout">Hello <strong>HTML</strong></div>\n\nafter',
     });
