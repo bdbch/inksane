@@ -62,6 +62,7 @@ export class ExtensionManager {
 
     const sortedExtensions = this.sortExtensionsByPrio(this._resolvedExtensions);
     for (const ext of sortedExtensions) {
+      this.bindEvents(ext);
       if (ext.addMarkdownSyntax) this.bindMarkdownSyntax(ext.addMarkdownSyntax);
       if (ext.addMarkdownDecorations) this.bindMarkdownDecorations(ext.addMarkdownDecorations);
       if (ext.addStateQueries) this.bindStateQueries(ext.addStateQueries);
@@ -125,6 +126,27 @@ export class ExtensionManager {
    */
   public sortExtensionsByPrio(extensions: Extension[]): Extension[] {
     return [...extensions].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+  }
+
+  /** Registers extension handlers. Editor.destroy removes the listeners. */
+  private bindEvents(extension: Extension): void {
+    const editor = this.editor;
+    const context = { editor };
+    if (extension.beforeCreate)
+      editor.on("beforeCreate", extension.beforeCreate.bind(extension, context));
+    if (extension.create) editor.on("create", extension.create.bind(extension, context));
+    if (extension.mount) editor.on("mount", extension.mount.bind(extension, context));
+    if (extension.unmount) editor.on("unmount", extension.unmount.bind(extension, context));
+    if (extension.update) editor.on("update", extension.update.bind(extension, context));
+    if (extension.selectionUpdate)
+      editor.on("selectionUpdate", extension.selectionUpdate.bind(extension, context));
+    if (extension.beforeTransaction)
+      editor.on("beforeTransaction", extension.beforeTransaction.bind(extension, context));
+    if (extension.transaction)
+      editor.on("transaction", extension.transaction.bind(extension, context));
+    if (extension.focus) editor.on("focus", extension.focus.bind(extension, context));
+    if (extension.blur) editor.on("blur", extension.blur.bind(extension, context));
+    if (extension.destroy) editor.on("destroy", extension.destroy.bind(extension, context));
   }
 
   /** Collects commands from one extension into the registry. */

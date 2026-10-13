@@ -119,6 +119,7 @@ For an editor that may already be mounted, check `editor.isMounted` instead.
 
 ## Events on extensions
 
-The `Extension` type also allows handlers named after these events. The extension manager does not
-subscribe them yet, so they never run. Subscribe with `editor.on(...)` in application code, or use a
-CodeMirror extension, until extension lifecycle handlers are implemented.
+Extensions can declare handlers named after these events. The extension manager registers them
+before `beforeCreate`, including handlers from child extensions. Higher-priority extensions run
+first. Each handler receives `{ editor }` followed by the event payload. All listeners are removed
+when the editor is destroyed, after the `destroy` handlers run.
