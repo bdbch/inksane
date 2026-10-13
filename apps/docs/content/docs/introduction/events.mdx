@@ -3,8 +3,6 @@ title: Events
 description: "React to document changes, selection changes, and the editor lifecycle."
 ---
 
-import { Callout } from "fumadocs-ui/components/callout";
-
 The editor is an event emitter. Subscribe with `editor.on(name, listener)` and unsubscribe with
 `editor.off(name, listener)`. Every listener receives the event payload, which always contains the
 `editor`.
@@ -35,13 +33,29 @@ listener for one event, and `removeListeners()` drops all of them.
 | `selectionUpdate`   | `{ editor, selection }`   | After a transaction changed the selection.                                 |
 | `focus`             | `{ editor }`              | After the editor gains DOM focus.                                          |
 | `blur`              | `{ editor }`              | After the editor loses DOM focus.                                          |
-| `beforeTransaction` | `{ editor, transaction }` | Declared in the types. Not emitted yet.                                    |
-| `transaction`       | `{ editor, transaction }` | Declared in the types. Not emitted yet.                                    |
+| `beforeTransaction` | `{ editor, transaction }` | Before the mounted view applies a dispatched transaction batch.            |
+| `transaction`       | `{ editor, transaction }` | After the mounted view applies a transaction batch, once per transaction.  |
 
-<Callout type="warning" title="beforeTransaction and transaction are not wired up yet">
-  Both names are part of `EditorEvents` so the shape is stable, but the editor does not emit them.
-  Subscribe to `update` for document changes until they are implemented.
-</Callout>
+## Transactions
+
+`beforeTransaction` and `transaction` fire for every transaction dispatched to the mounted view,
+including selection changes, effects, and transactions with no document changes. Both receive the
+same CodeMirror `Transaction` object. Content changes made before mounting do not emit these events.
+
+For a batch, all `beforeTransaction` listeners run before the batch is applied and see the old
+editor state. Then `transaction` fires for each transaction in order, with the editor in the final
+batch state. Read `transaction.startState` and `transaction.state` for each transaction's own states.
+These events observe transactions. They do not cancel or replace them.
+
+```js
+editor.on("beforeTransaction", ({ transaction }) => {
+  console.log("before", transaction.startState.doc.toString());
+});
+
+editor.on("transaction", ({ transaction }) => {
+  console.log("after", transaction.state.doc.toString());
+});
+```
 
 ## Document changes
 

@@ -76,10 +76,12 @@ export type EditorEvents = {
     editor: Editor;
     selection: EditorSelection;
   };
+  /** Fires for each dispatched transaction before the mounted view applies the batch. */
   beforeTransaction: {
     editor: Editor;
     transaction: Transaction;
   };
+  /** Fires for each transaction after the mounted view applies the batch. */
   transaction: {
     editor: Editor;
     transaction: Transaction;
