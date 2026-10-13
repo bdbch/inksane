@@ -14,7 +14,7 @@ const markdown = rawContent()
 </Base>
 
 <script>
-    import { Editor, type Extension } from "@inksane/core";
+    import { Editor, LinkExtension, type Extension } from "@inksane/core";
     import { EditorView } from "@codemirror/view";
 
     const buttons = document.querySelectorAll("button[data-action]");
@@ -60,7 +60,17 @@ const markdown = rawContent()
         element: document.getElementById("editor-mount")!,
         content: markdown,
 
-        extensions: [TestExtension],
+        extensions: [
+            TestExtension,
+            LinkExtension({
+                // Ask for a URL when Mod-K is pressed. Returning null cancels the link.
+                onLinkRequest: ({ text }) =>
+                    window.prompt(
+                        "Link URL",
+                        text ? `https://example.com/${encodeURIComponent(text)}` : "https://",
+                    ),
+            }),
+        ],
         theme,
         classNames: {
             editable: "font-sans",

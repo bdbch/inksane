@@ -10,6 +10,10 @@ export type EditorOptions = {
    */
   element?: HTMLElement;
   content?: string;
+  /**
+   * Extensions to add. An extension replaces the built-in with the same name,
+   * so a built-in feature can be configured with its own options.
+   */
   extensions?: Extension[];
   theme?: CMExtension;
   /** Wrap long lines instead of allowing horizontal overflow. Defaults to true. */

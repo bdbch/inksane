@@ -74,102 +74,142 @@ const getLinkUrl = (node: SyntaxNode, state: EditorState): string => {
   return url ? state.doc.sliceString(url.from, url.to) : "";
 };
 
-export const LinkExtension: Extension = {
-  name: "link",
-
-  addMarkdownDecorations() {
-    return [
-      {
-        nodeName: "Link",
-        className: "inksane-mark-link",
-        markup: ["LinkMark", "URL"],
-        hideSyntax: true,
-        widgets: [
-          {
-            kind: "attach",
-            position: "after",
-            type: (node, state) => createOpenLinkWidget(getLinkUrl(node, state)),
-          },
-        ],
-      },
-    ];
-  },
-
-  addHtmlConverters() {
-    return [
-      {
-        match: (element) => element.tagName.toLowerCase() === "a",
-        toMarkdown: (element, { renderChildren }) => {
-          const text = renderChildren(element).trim();
-          const href = (element.getAttribute("href") ?? "").trim();
-          if (!href || !isSafeUrl(href)) return text;
-          return `[${text || href}](${href})`;
-        },
-      },
-    ];
-  },
-
-  addCommands() {
-    return {
-      insertLink:
-        (ctx) =>
-        ({ content, url, pos }) => {
-          const { from, to } = resolveFromTo(ctx.state, pos);
-          return insertContent(ctx)({ content: `[${content}](${url})`, from, to });
-        },
-
-      setLink: (ctx) => (options) => {
-        const { from, to } = resolveFromTo(ctx.state, options.pos);
-        const selectedText = ctx.state.sliceDoc(from, to);
-
-        if (!options.url) {
-          return false;
-        }
-
-        if (isAlreadyLink(selectedText)) {
-          return false;
-        } else {
-          return insertContent(ctx)({ content: `[${selectedText}](${options.url})`, from, to });
-        }
-      },
-
-      removeLink: (ctx) => (options) => {
-        const { from, to } = resolveFromTo(ctx.state, options?.pos);
-        const selectedText = ctx.state.sliceDoc(from, to);
-        const match = isAlreadyLink(selectedText);
-
-        if (!match) {
-          return false;
-        } else {
-          return insertContent(ctx)({ content: match[1], from, to });
-        }
-      },
-
-      toggleLink: (ctx) => (options) => {
-        const { from, to } = resolveFromTo(ctx.state, options.pos);
-        const selectedText = ctx.state.sliceDoc(from, to);
-
-        if (isAlreadyLink(selectedText)) {
-          return ctx.editor.commands.removeLink({ pos: { from, to } });
-        } else {
-          return ctx.editor.commands.setLink({ url: options.url, pos: { from, to } });
-        }
-      },
-    };
-  },
-
-  addKeybinds(ctx) {
-    return [
-      {
-        key: "Mod-k",
-        run(view) {
-          const { from, to } = view.state.selection.main;
-          if (isAlreadyLink(view.state.sliceDoc(from, to))) {
-            return ctx.editor.commands.removeLink();
-          }
-          return ctx.editor.commands.setLink({ url: "" });
-        },
-      },
-    ];
-  },
+/** Context passed to the {@link LinkOptions.onLinkRequest} handler. */
+export type LinkRequestContext = {
+  /** The currently selected text, or an empty string when the selection is collapsed. */
+  text: string;
 };
+
+/** Options for the link extension. */
+export type LinkOptions = {
+  /**
+   * Supplies the URL when Mod-K creates a link. Return the URL to wrap the
+   * current selection in a link, or a falsy value to cancel.
+   *
+   * Mod-K stays unbound while this option is not set.
+   */
+  onLinkRequest?: (context: LinkRequestContext) => string | null | undefined;
+};
+
+/**
+ * Adds link commands, decorations, and the Mod-K keybinding.
+ *
+ * Without `onLinkRequest`, Mod-K is not bound at all, so the browser keeps it.
+ */
+export function LinkExtension(options: LinkOptions = {}): Extension {
+  const { onLinkRequest } = options;
+
+  return {
+    name: "link",
+
+    addMarkdownDecorations() {
+      return [
+        {
+          nodeName: "Link",
+          className: "inksane-mark-link",
+          markup: ["LinkMark", "URL"],
+          hideSyntax: true,
+          widgets: [
+            {
+              kind: "attach",
+              position: "after",
+              type: (node, state) => createOpenLinkWidget(getLinkUrl(node, state)),
+            },
+          ],
+        },
+      ];
+    },
+
+    addHtmlConverters() {
+      return [
+        {
+          match: (element) => element.tagName.toLowerCase() === "a",
+          toMarkdown: (element, { renderChildren }) => {
+            const text = renderChildren(element).trim();
+            const href = (element.getAttribute("href") ?? "").trim();
+            if (!href || !isSafeUrl(href)) return text;
+            return `[${text || href}](${href})`;
+          },
+        },
+      ];
+    },
+
+    addCommands() {
+      return {
+        insertLink:
+          (ctx) =>
+          ({ content, url, pos }) => {
+            const { from, to } = resolveFromTo(ctx.state, pos);
+            return insertContent(ctx)({ content: `[${content}](${url})`, from, to });
+          },
+
+        setLink: (ctx) => (options) => {
+          const { from, to } = resolveFromTo(ctx.state, options.pos);
+          const selectedText = ctx.state.sliceDoc(from, to);
+
+          if (!options.url) {
+            return false;
+          }
+
+          if (isAlreadyLink(selectedText)) {
+            return false;
+          } else {
+            return insertContent(ctx)({ content: `[${selectedText}](${options.url})`, from, to });
+          }
+        },
+
+        removeLink: (ctx) => (options) => {
+          const { from, to } = resolveFromTo(ctx.state, options?.pos);
+          const selectedText = ctx.state.sliceDoc(from, to);
+          const match = isAlreadyLink(selectedText);
+
+          if (!match) {
+            return false;
+          } else {
+            return insertContent(ctx)({ content: match[1], from, to });
+          }
+        },
+
+        toggleLink: (ctx) => (options) => {
+          const { from, to } = resolveFromTo(ctx.state, options.pos);
+          const selectedText = ctx.state.sliceDoc(from, to);
+
+          if (isAlreadyLink(selectedText)) {
+            return ctx.editor.commands.removeLink({ pos: { from, to } });
+          } else {
+            return ctx.editor.commands.setLink({ url: options.url, pos: { from, to } });
+          }
+        },
+      };
+    },
+
+    addKeybinds(ctx) {
+      if (!onLinkRequest) {
+        return [];
+      }
+
+      return [
+        {
+          key: "Mod-k",
+          run(view) {
+            const { from, to } = view.state.selection.main;
+            const selectedText = view.state.sliceDoc(from, to);
+
+            if (isAlreadyLink(selectedText)) {
+              return ctx.editor.commands.removeLink();
+            }
+
+            const requested = onLinkRequest({ text: selectedText });
+            const url = typeof requested === "string" ? requested.trim() : "";
+
+            if (!url) {
+              return false;
+            }
+
+            return ctx.editor.commands.setLink({ url });
+          },
+        },
+      ];
+    },
+  };
+}
