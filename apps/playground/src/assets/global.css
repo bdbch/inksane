@@ -204,3 +204,23 @@
 .cm-editor .cm-content[data-inksane-editor-content] {
   caret-color: currentColor;
 }
+
+/* Rendered Markdown output shared by the examples (chat bubbles, issue bodies,
+   comment previews). The typography plugin styles the nested elements. */
+.markdown-body {
+  @apply prose prose-sm max-w-none;
+}
+
+.markdown-body :where(p, ul, ol, pre, blockquote, table, h1, h2, h3, h4, h5, h6):first-child {
+  margin-top: 0;
+}
+
+.markdown-body :where(p, ul, ol, pre, blockquote, table, h1, h2, h3, h4, h5, h6):last-child {
+  margin-bottom: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .markdown-body {
+    @apply prose-invert;
+  }
+}
