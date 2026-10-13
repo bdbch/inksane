@@ -159,6 +159,68 @@ describe("Editor", () => {
     editor.destroy();
   });
 
+  describe("document serialization", () => {
+    it("returns the Markdown source from getMarkdown", () => {
+      const editor = new Editor({ content: "# Hi\n\n**bold**" });
+
+      expect(editor.getMarkdown()).toBe("# Hi\n\n**bold**");
+
+      editor.destroy();
+    });
+
+    it("replaces the document from setMarkdown", () => {
+      const editor = new Editor({ content: "old" });
+
+      editor.setMarkdown("# New\n\ntext");
+
+      expect(editor.getMarkdown()).toBe("# New\n\ntext");
+      expect(editor.content).toBe("# New\n\ntext");
+
+      editor.destroy();
+    });
+
+    it("applies Markdown set before mount", () => {
+      const editor = new Editor({});
+
+      editor.setMarkdown("# Later");
+      editor.mount(document.createElement("div"));
+
+      expect(editor.getMarkdown()).toBe("# Later");
+
+      editor.destroy();
+    });
+
+    it("returns the document as a line array from textJSON", () => {
+      const editor = new Editor({ content: "a\nb" });
+
+      expect(editor.textJSON).toEqual(["a", "b"]);
+
+      editor.destroy();
+    });
+
+    it("replaces the document from a textJSON line array", () => {
+      const editor = new Editor({ content: "a\nb" });
+
+      editor.textJSON = ["c", "d"];
+
+      expect(editor.getMarkdown()).toBe("c\nd");
+
+      editor.destroy();
+    });
+
+    it("keeps json as a deprecated alias of textJSON", () => {
+      const editor = new Editor({ content: "a\nb" });
+
+      expect(editor.json).toEqual(["a", "b"]);
+
+      editor.json = ["c"];
+
+      expect(editor.textJSON).toEqual(["c"]);
+
+      editor.destroy();
+    });
+  });
+
   it("lets a configured extension replace the built-in with the same name", () => {
     const mount = document.createElement("div");
     const editor = new Editor({

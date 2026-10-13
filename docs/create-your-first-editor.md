@@ -59,6 +59,28 @@ const editor = new Editor({
 });
 ```
 
+## Reading and writing content
+
+The document is Markdown, so read it with `getMarkdown()` and replace it with `setMarkdown()`:
+
+```js
+editor.getMarkdown(); // "# Hello inksane\n\nHave a lot of **fun**."
+
+editor.setMarkdown("# Replaced\n\nNew content.");
+```
+
+`getMarkdown()` and `setMarkdown()` are the recommended serialization API. The `content` property reads and writes the same Markdown string.
+
+If you specifically need CodeMirror's raw line array, use `textJSON`, which returns one string per line:
+
+```js
+editor.textJSON; // ["# Hello inksane", "", "Have a lot of **fun**."]
+
+editor.textJSON = ["# Replaced", "", "New content."];
+```
+
+> **Deprecated:** `json` returns the same line array as `textJSON`, but its name promised a document AST. Use `getMarkdown()` to read the document or `textJSON` for the raw array instead. `json` will be removed in a future major release.
+
 ## Pasting HTML
 
 When you copy content from a web page or another editor, the clipboard usually holds HTML. Paste it into inksane and the HTML is converted to Markdown before it is inserted at your cursor or over your selection.
