@@ -152,4 +152,99 @@ describe("Editor", () => {
 
     expect(calls).toEqual(["create", "destroy"]);
   });
+
+  it("passes { editor } and the event payload to lifecycle handlers", () => {
+    const received: { ctx?: { editor: Editor }; payload?: unknown } = {};
+    const editor = new Editor({
+      element: document.createElement("div"),
+      extensions: [
+        {
+          name: "payload",
+          transaction: (ctx, payload) => {
+            received.ctx = ctx;
+            received.payload = payload;
+          },
+        },
+      ],
+    });
+
+    const payload = { editor, transaction: editor.state.update({}) };
+    editor.emit("transaction", payload);
+
+    expect(received.ctx?.editor).toBe(editor);
+    expect(received.payload).toBe(payload);
+    editor.destroy();
+  });
+
+  it("calls higher priority extensions' lifecycle handlers first", () => {
+    const calls: string[] = [];
+    const editor = new Editor({
+      element: document.createElement("div"),
+      extensions: [
+        { name: "low", priority: 1, create: () => void calls.push("low") },
+        { name: "high", priority: 10, create: () => void calls.push("high") },
+      ],
+    });
+
+    expect(calls).toEqual(["high", "low"]);
+    editor.destroy();
+  });
+
+  it("calls mount handlers when a detached editor is mounted later", () => {
+    const calls: string[] = [];
+    const editor = new Editor({
+      extensions: [{ name: "mounts", mount: () => void calls.push("mount") }],
+    });
+
+    expect(calls).toEqual([]);
+
+    editor.mount(document.createElement("div"));
+
+    expect(calls).toEqual(["mount"]);
+    editor.destroy();
+  });
+
+  it("still removes listeners and destroys the view when a destroy handler throws", () => {
+    const calls: string[] = [];
+    const editor = new Editor({
+      element: document.createElement("div"),
+      extensions: [
+        {
+          name: "throws",
+          destroy: () => {
+            throw new Error("destroy failed");
+          },
+        },
+        { name: "counter", create: () => void calls.push("create") },
+      ],
+    });
+
+    expect(() => editor.destroy()).toThrow("destroy failed");
+    expect(editor.isMounted).toBe(false);
+
+    editor.emit("create", { editor });
+    expect(calls).toEqual(["create"]);
+  });
+
+  it("still destroys the view and removes listeners when an unmount handler throws", () => {
+    const calls: string[] = [];
+    const editor = new Editor({
+      element: document.createElement("div"),
+      extensions: [
+        {
+          name: "throws",
+          unmount: () => {
+            throw new Error("unmount failed");
+          },
+        },
+        { name: "counter", destroy: () => void calls.push("destroy") },
+      ],
+    });
+
+    expect(() => editor.destroy()).toThrow("unmount failed");
+    expect(editor.isMounted).toBe(false);
+
+    editor.emit("destroy", { editor });
+    expect(calls).toEqual([]);
+  });
 });

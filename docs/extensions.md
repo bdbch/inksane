@@ -269,7 +269,9 @@ Elements no converter claims keep their text, so an extension only covers the HT
 
 ## Events
 
-An extension can declare handlers named after editor events: `mount`, `unmount`, `beforeCreate`, `create`, `update`, `destroy`, `selectionUpdate`, `beforeTransaction`, and `transaction`. The extension manager subscribes them when the editor is created and removes them after `destroy` has been emitted. Each handler receives `{ editor }` and the event payload, and runs in priority order.
+An extension can declare handlers named after editor events: `mount`, `unmount`, `beforeCreate`, `create`, `update`, `destroy`, `selectionUpdate`, `beforeTransaction`, and `transaction`. The extension manager subscribes them when the editor is created and removes them after `destroy` has been emitted. Each handler receives `{ editor }` and the event payload, and runs in priority order. Handlers are called as methods, so `this` is the extension object.
+
+The editor currently emits only `beforeCreate`, `create`, `mount`, `unmount`, and `destroy`. The `update`, `selectionUpdate`, `beforeTransaction`, and `transaction` handlers are subscribed but not called until the editor emits those events.
 
 ```ts
 const logger: Extension = {

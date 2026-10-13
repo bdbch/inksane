@@ -12,18 +12,21 @@ import { htmlPasteHandler } from "./helpers/htmlPasteHandler.ts";
 import { resolveExtensionsOnEditor } from "./helpers/resolveExtensionsOnEditor.ts";
 import { createMarkdownDecorations } from "./markdownDecorations.ts";
 
-/** Editor events that extensions can handle through their own named methods. */
-const EXTENSION_EVENT_NAMES: (keyof EditorEvents)[] = [
-  "mount",
-  "unmount",
-  "beforeCreate",
-  "create",
-  "update",
-  "destroy",
-  "selectionUpdate",
-  "beforeTransaction",
-  "transaction",
-];
+/**
+ * Editor events that extensions can handle through their own named methods.
+ * Typed per event, so adding an event to {@link EditorEvents} without listing it here is a type error.
+ */
+const EXTENSION_EVENT_NAMES: Record<keyof EditorEvents, true> = {
+  mount: true,
+  unmount: true,
+  beforeCreate: true,
+  create: true,
+  update: true,
+  destroy: true,
+  selectionUpdate: true,
+  beforeTransaction: true,
+  transaction: true,
+};
 
 /**
  * Manages and resolves extensions so the editor receives one complete CodeMirror setup.
@@ -84,15 +87,19 @@ export class ExtensionManager {
   /**
    * Subscribes each resolved extension's event handlers to the editor, higher priority first.
    * Call once the editor exists, so lifecycle events emitted after this are received.
+   * Calling it again while listeners are bound does nothing, so handlers never run twice.
    */
   bindEventHandlers(): void {
+    if (this._eventListeners.length) return;
+
     for (const ext of this.sortExtensionsByPrio(this._resolvedExtensions)) {
-      for (const eventName of EXTENSION_EVENT_NAMES) {
+      for (const eventName of Object.keys(EXTENSION_EVENT_NAMES) as (keyof EditorEvents)[]) {
         const handler = ext[eventName] as
           | ((ctx: { editor: Editor }, payload: unknown) => void)
           | undefined;
         if (!handler) continue;
 
+        // Handlers are called as methods, so `this` is the extension object.
         const listener: EventListener = (payload) =>
           handler.call(ext, { editor: this.editor }, payload);
         this.editor.on(eventName, listener);

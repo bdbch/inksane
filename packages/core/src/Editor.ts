@@ -194,14 +194,21 @@ export class Editor extends EventEmitter<EditorEvents> {
 
   // TODO: extend destruction of editor instance here
   public destroy(): void {
-    if (this._view) {
-      this.emit("unmount", { editor: this });
-      this._view.destroy();
-      this._view = null;
-    }
+    try {
+      if (this._view) {
+        try {
+          this.emit("unmount", { editor: this });
+        } finally {
+          this._view.destroy();
+          this._view = null;
+        }
+      }
 
-    this.emit("destroy", { editor: this });
-    this._extensionManager.unbindEventHandlers();
+      this.emit("destroy", { editor: this });
+    } finally {
+      // Runs even when an extension handler throws, so no listeners leak.
+      this._extensionManager.unbindEventHandlers();
+    }
   }
 
   private setupDOM(): void {
