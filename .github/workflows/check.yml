@@ -25,6 +25,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Generates the Astro content types so the docs app is type checked against its
+      # real collections instead of Astro's `any` fallback.
+      - name: Sync docs types
+        run: pnpm --filter @inksane/docs run sync
+
       - name: Lint
         run: pnpm exec vp check
 

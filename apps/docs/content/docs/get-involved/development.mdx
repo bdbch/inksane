@@ -91,9 +91,18 @@ Links written in Markdown are not rewritten by Astro when a base path is set, so
 Every pull request runs:
 
 ```sh
+pnpm --filter @inksane/docs run sync
 pnpm exec vp check
 pnpm exec vp run -r test
 ```
 
-`vp check` formats, lints, and type checks the repository. Run it locally before you push, or run
-`pnpm exec vp check --fix` to apply the formatting.
+`vp check` formats, lints, and type checks the repository. `astro sync` runs first because it
+generates the Astro content types for `apps/docs`. Without them the docs app is checked against
+Astro's `any` fallback instead of its real collections, which hides type errors and reports a
+redundant-type warning. Run it once after cloning if you work on the docs:
+
+```sh
+pnpm --filter @inksane/docs run sync
+```
+
+Run `pnpm exec vp check --fix` to apply the formatting.
