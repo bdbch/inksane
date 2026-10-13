@@ -133,6 +133,7 @@ export class CommandChain {
     this.done = true;
 
     const state = this.snapshotState();
+    if (state.readOnly) return false;
     const { specs, allSucceeded } = this.runSteps(state);
     this.dispatchAll(specs);
 

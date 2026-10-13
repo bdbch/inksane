@@ -10,6 +10,8 @@ export type EditorOptions = {
    */
   element?: HTMLElement;
   content?: string;
+  /** Allow user input and commands. Defaults to true. Content setters still work. */
+  editable?: boolean;
   /**
    * Extensions to add. An extension replaces the built-in with the same name,
    * so a built-in feature can be configured with its own options.

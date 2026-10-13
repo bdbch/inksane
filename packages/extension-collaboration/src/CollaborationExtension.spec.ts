@@ -74,6 +74,26 @@ describe("CollaborationExtension", () => {
     expect(docB.getText("content").toJSON()).toBe("Xhello");
   });
 
+  it("receives remote edits while read-only without publishing local edits", () => {
+    const docA = new Y.Doc();
+    const docB = new Y.Doc();
+    linkDocuments(docA, docB);
+    docA.getText("content").insert(0, "hello");
+
+    const editorA = mount("hello", [CollaborationExtension({ ydoc: docA })]);
+    const editorB = mount("hello", [CollaborationExtension({ ydoc: docB })]);
+    editorB.setEditable(false);
+    expect(editorB.canRun("clearContent")).toBe(false);
+
+    editorB.view.dispatch({ changes: { from: 0, insert: "blocked" } });
+    expect(editorB.content).toBe("hello");
+    expect(docB.getText("content").toJSON()).toBe("hello");
+
+    editorA.view.dispatch({ changes: { from: 0, insert: "X" } });
+    expect(editorB.content).toBe("Xhello");
+    expect(docB.getText("content").toJSON()).toBe("Xhello");
+  });
+
   it("announces the configured user on awareness", () => {
     const ydoc = new Y.Doc();
     const awareness = new Awareness(ydoc);

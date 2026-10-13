@@ -1,7 +1,8 @@
 import type { Extension as CMExtension } from "@codemirror/state";
+import { EditorState, Prec, Transaction } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import type { Extension } from "@inksane/core";
-import { yCollab } from "y-codemirror.next";
+import { yCollab, ySyncAnnotation } from "y-codemirror.next";
 import type * as Y from "yjs";
 import { Awareness } from "y-protocols/awareness";
 
@@ -82,7 +83,18 @@ export function CollaborationExtension(options: CollaborationOptions): Extension
       }
 
       announceUser();
-      return [yCollab(ytext, awareness), caretNameTheme];
+      return [
+        yCollab(ytext, awareness),
+        // Identify Yjs updates before the core read-only filter runs.
+        Prec.lowest(
+          EditorState.transactionFilter.of((transaction) =>
+            transaction.annotation(ySyncAnnotation)
+              ? [transaction, { annotations: Transaction.remote.of(true) }]
+              : transaction,
+          ),
+        ),
+        caretNameTheme,
+      ];
     },
   };
 }

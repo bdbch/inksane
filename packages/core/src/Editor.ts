@@ -1,4 +1,4 @@
-import { EditorState, Text } from "@codemirror/state";
+import { Compartment, EditorState, Prec, Text, Transaction } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { editorFocusField } from "./editorFocus.ts";
 import { EventEmitter } from "./EventEmitter.ts";
@@ -54,6 +54,7 @@ export class Editor extends EventEmitter<EditorEvents> {
   private _te: TextEncoder = new TextEncoder();
   private _td: TextDecoder = new TextDecoder();
   private _extensionManager: ExtensionManager;
+  private _editable = new Compartment();
 
   /** Holds the editor state until the view is created on mount. */
   private _state: EditorState;
@@ -81,6 +82,22 @@ export class Editor extends EventEmitter<EditorEvents> {
 
   get state(): EditorState {
     return this._view?.state ?? this._state;
+  }
+
+  /**
+   * Enables or disables user editing without replacing the document or selection.
+   * Works before mount. Programmatic content loading remains available.
+   *
+   * @param editable - Whether input and commands may edit the document.
+   */
+  public setEditable(editable: boolean): void {
+    this.options.editable = editable;
+    const spec = { effects: this._editable.reconfigure(EditorState.readOnly.of(!editable)) };
+    if (this._view) {
+      this._view.dispatch(spec);
+    } else {
+      this._state = this._state.update(spec).state;
+    }
   }
 
   /** Whether the editor currently has DOM focus. */
@@ -128,7 +145,7 @@ export class Editor extends EventEmitter<EditorEvents> {
    *
    * @param command - The command name, such as `toggleBold`.
    * @param args - The arguments the command would receive.
-   * @returns The boolean the command would return.
+   * @returns False in read-only mode, otherwise the boolean the command would return.
    */
   public canRun<K extends keyof SingleCommands>(
     command: K,
@@ -213,9 +230,9 @@ export class Editor extends EventEmitter<EditorEvents> {
   /** Applies document changes to the view, or to the pending state before mount. */
   private applyChanges(changes: { from: number; to: number; insert: string | Text }): void {
     if (this._view) {
-      this._view.dispatch({ changes });
+      this._view.dispatch({ changes, filter: false });
     } else {
-      this._state = this._state.update({ changes }).state;
+      this._state = this._state.update({ changes, filter: false }).state;
     }
   }
 
@@ -255,6 +272,23 @@ export class Editor extends EventEmitter<EditorEvents> {
     }
 
     editorViewExtensions.push(
+      this._editable.of(EditorState.readOnly.of(this.options.editable === false)),
+      // Run after other filters so remote updates can be identified first.
+      Prec.highest(
+        EditorState.transactionFilter.of((transaction) => {
+          if (
+            transaction.startState.readOnly &&
+            transaction.docChanged &&
+            !transaction.annotation(Transaction.remote)
+          ) {
+            return [];
+          }
+          return transaction;
+        }),
+      ),
+      EditorView.editable.compute([EditorState.readOnly], (state) => !state.readOnly),
+      // Read-only content must remain reachable by keyboard for selection and scrolling.
+      EditorView.contentAttributes.of({ tabindex: "0" }),
       EditorView.updateListener.of((update) => {
         const transaction = update.transactions.at(-1);
 
