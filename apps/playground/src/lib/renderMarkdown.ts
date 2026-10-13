@@ -6,13 +6,30 @@
  * headings, emphasis, inline code, fenced code, links, images, blockquotes,
  * lists, tables, horizontal rules and paragraphs.
  *
- * Everything that is not emitted by this file is escaped, so interpolating the
- * result with `innerHTML` is safe.
+ * Everything that is not emitted by this file is escaped, and link/image URLs
+ * are validated before they reach an attribute, so interpolating the result
+ * with `innerHTML` is safe.
  */
 import { escapeHtml } from "@inksane/core";
 
 /** Sentinel wrapped around stashed inline-code spans so later passes skip them. */
 const MARK = "\uE000";
+
+/** Matches a leading URL scheme, e.g. `javascript:` or `data:`. */
+const URL_SCHEME = /^[a-z][a-z\d+.-]*:/i;
+
+/**
+ * Allows only `http:`, `https:`, `mailto:` and scheme-less (relative) URLs.
+ * Mirrors `isSafeUrl` in `@inksane/core`, which the editor uses for links.
+ */
+const isSafeUrl = (url: string): boolean => {
+  try {
+    const { protocol } = new URL(url);
+    return protocol === "http:" || protocol === "https:" || protocol === "mailto:";
+  } catch {
+    return !URL_SCHEME.test(url);
+  }
+};
 
 function renderInline(source: string): string {
   const codeSpans: string[] = [];
@@ -23,14 +40,13 @@ function renderInline(source: string): string {
 
   text = escapeHtml(text);
 
-  text = text.replace(
-    /!\[([^\]]*)\]\(([^)\s]+)\)/g,
-    (_match, alt: string, url: string) => `<img src="${url}" alt="${alt}">`,
+  text = text.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (match, alt: string, url: string) =>
+    isSafeUrl(url) ? `<img src="${url}" alt="${alt}">` : match,
   );
-  text = text.replace(
-    /\[([^\]]+)\]\(([^)\s]+)\)/g,
-    (_match, label: string, url: string) =>
-      `<a href="${url}" target="_blank" rel="noreferrer noopener">${label}</a>`,
+  text = text.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_match, label: string, url: string) =>
+    isSafeUrl(url)
+      ? `<a href="${url}" target="_blank" rel="noreferrer noopener">${label}</a>`
+      : label,
   );
 
   text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
@@ -90,10 +106,15 @@ function renderBlocks(lines: string[]): string {
     const fence = /^\s*(`{3,}|~{3,})\s*([\w+-]*)\s*$/.exec(line);
     if (fence) {
       const marker = fence[1][0];
+      const openLength = fence[1].length;
       const language = fence[2];
       const body: string[] = [];
       index++;
-      while (index < lines.length && !new RegExp(`^\\s*${marker}{3,}\\s*$`).test(lines[index])) {
+      const isClosingFence = (candidate: string): boolean => {
+        const match = /^\s*(`{3,}|~{3,})\s*$/.exec(candidate);
+        return match !== null && match[1][0] === marker && match[1].length >= openLength;
+      };
+      while (index < lines.length && !isClosingFence(lines[index])) {
         body.push(lines[index]);
         index++;
       }
