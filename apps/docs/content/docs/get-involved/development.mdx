@@ -70,6 +70,22 @@ Navigation lives in the `meta.json` file next to the pages:
 
 Add the page file, then list it in the `meta.json` of its folder to control where it appears.
 
+## Deployment
+
+`.github/workflows/pages.yml` builds both apps and deploys a single GitHub Pages site: the
+playground at the root and the docs under `/docs`. A Pages deployment replaces the whole site, so
+both apps have to build in the same workflow.
+
+The docs build reads `DOCS_BASE_PATH` for that subpath. Without it the build targets the site root,
+which is what `pnpm dev:docs` and a local `pnpm --filter @inksane/docs build` use.
+
+```sh
+DOCS_BASE_PATH=/inksane/docs pnpm --filter @inksane/docs build
+```
+
+Links written in Markdown are not rewritten by Astro when a base path is set, so
+`plugins/rehype-base-links.mjs` prefixes root-relative links and image sources with it.
+
 ## Checks in CI
 
 Every pull request runs:

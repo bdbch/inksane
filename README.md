@@ -9,7 +9,8 @@
 ## Documentation
 
 The documentation site lives in [`apps/docs`](./apps/docs). It is built with
-[Astro](https://astro.build/) and [Fumadocs](https://fumadocs.dev/).
+[Astro](https://astro.build/) and [Fumadocs](https://fumadocs.dev/), and is published at
+**https://bdbch.github.io/inksane/docs/**.
 
 Run it locally:
 

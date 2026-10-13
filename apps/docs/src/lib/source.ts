@@ -5,7 +5,7 @@ import * as path from "node:path";
 
 export const source = loader({
   source: await createSource(),
-  baseUrl: "/",
+  baseUrl: import.meta.env.BASE_URL,
 });
 
 export function getStructuredData(entry: CollectionEntry<"docs">): StructuredData {

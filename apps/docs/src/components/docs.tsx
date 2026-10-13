@@ -5,6 +5,7 @@ import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { DocsPage, type DocsPageProps } from "fumadocs-ui/layouts/docs/page";
 import { RootProvider } from "fumadocs-ui/provider/astro";
 import type { ReactNode } from "react";
+import { basePath } from "@/lib/base";
 import SearchDialog from "./search";
 
 const githubUrl = "https://github.com/bdbch/inksane";
@@ -36,7 +37,7 @@ export function Docs({
         ]}
         nav={{
           title: "inksane",
-          url: "/introduction",
+          url: `${basePath}introduction`,
         }}
       >
         <DocsPage {...page}>{children}</DocsPage>
