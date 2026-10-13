@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { Editor } from "./Editor.ts";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
+import { LinkExtension } from "./extensions/link.ts";
 
 function createEditor() {
   const mount = document.createElement("div");
@@ -154,6 +155,24 @@ describe("Editor", () => {
     editor.view.dispatch({ selection: { anchor: 1, head: 4 } });
 
     expect(ranges).toEqual([{ from: 1, to: 4 }]);
+
+    editor.destroy();
+  });
+
+  it("lets a configured extension replace the built-in with the same name", () => {
+    const mount = document.createElement("div");
+    const editor = new Editor({
+      element: mount,
+      content: "hello",
+      extensions: [LinkExtension({ onLinkRequest: () => "https://example.com" })],
+    });
+
+    editor.view.dispatch({ selection: { anchor: 0, head: 5 } });
+    editor.view.contentDOM.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }),
+    );
+
+    expect(editor.content).toBe("[hello](https://example.com)");
 
     editor.destroy();
   });
