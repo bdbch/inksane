@@ -10,6 +10,9 @@ Every command returns a boolean. `true` means the command ran, `false` means it 
 applied, for example because the content already had the requested formatting. Commands that fail
 leave the document untouched.
 
+To ask whether a command would run without running it, use `editor.canRun`. See
+[Editor state](/introduction/editor-state#check-whether-a-command-would-run).
+
 ## Run a single command
 
 `editor.commands` exposes every registered command, bound to the editor.

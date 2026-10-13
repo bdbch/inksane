@@ -45,12 +45,12 @@ The icon is skipped for empty URLs and for URLs that fail the safe-URL check, wh
 
 ## Commands
 
-| Command                              | Description                                                                                    |
-| ------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| `insertLink({ content, url, pos? })` | Inserts `[content](url)`.                                                                      |
-| `setLink({ url, pos? })`             | Wraps the range in a link. Returns `false` for an empty URL or a range that is already a link. |
-| `removeLink({ pos? })`               | Replaces the link with its text.                                                               |
-| `toggleLink({ url, pos? })`          | `setLink` or `removeLink`.                                                                     |
+| Command                              | Description                                                                                               |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `insertLink({ content, url, pos? })` | Inserts `[content](url)`. Returns `false` for an empty or unsafe URL.                                     |
+| `setLink({ url, pos? })`             | Wraps the range in a link. Returns `false` for an empty or unsafe URL, or a range that is already a link. |
+| `removeLink({ pos? })`               | Replaces the link with its text.                                                                          |
+| `toggleLink({ url, pos? })`          | `setLink` or `removeLink`.                                                                                |
 
 ```js
 editor.chain().setLink({ url: "https://inksane.dev" }).focus().run();

@@ -27,6 +27,9 @@ export const MyExtension: Extension = {
   addMarkdownDecorations({ editor }) {
     return [];
   },
+  addStateQueries({ editor }) {
+    return [];
+  },
   addHtmlConverters({ editor }) {
     return [];
   },
@@ -52,6 +55,7 @@ export const MyExtension: Extension = {
 | `addCodeMirrorExtensions` | CodeMirror `Extension[]`    | Add CodeMirror features that do not fit the other hooks. |
 | `addMarkdownSyntax`       | Lezer `MarkdownExtension[]` | Teach the Markdown parser new syntax.                    |
 | `addMarkdownDecorations`  | decoration configs          | Style or replace parsed nodes.                           |
+| `addStateQueries`         | state query configs         | Name the nodes that make a feature active.               |
 | `addHtmlConverters`       | `HtmlConverter[]`           | Turn pasted HTML into Markdown.                          |
 
 ## Compose with child extensions
@@ -140,6 +144,9 @@ addKeybinds({ editor }) {
   ];
 }
 ```
+
+Bindings from extensions are checked before the [default keymap](/extensions/features/keybindings),
+so an extension can override a standard key.
 
 ## CodeMirror extensions
 
@@ -231,6 +238,36 @@ shown only while the syntax is hidden by default.
   onlyWhenHidden: false,
 }
 ```
+
+## State queries
+
+`addStateQueries` gives a logical name to the syntax nodes that make a feature active, so
+`editor.isActive` and `editor.getMarkRange` can report it. Each entry maps one name to the Lezer
+nodes that make it active.
+
+```ts
+addStateQueries() {
+  return [
+    { name: "highlight", nodeNames: ["Highlight"] },
+  ];
+}
+```
+
+| Option      | Description                                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `name`      | Required. The name passed to `editor.isActive(name)`.                                                                          |
+| `nodeNames` | Required. The Lezer syntax node names that make the query active.                                                              |
+| `kind`      | `"mark"` or `"node"`. Defaults to `"mark"`.                                                                                    |
+| `attrs`     | Reads attributes from a matched node, such as a heading level or a link href. `editor.isActive(name, attrs)` matches a subset. |
+
+A mark requires a collapsed selection to sit inside the node, while `kind: "node"` also counts when
+the selection sits on the node's edge, which is what block nodes such as headings or lists need.
+
+`attrs` is how a query gets attributes to match. The built-in heading extension reads the level from
+the matched node, so `editor.isActive("heading", { level: 1 })` only matches first-level headings.
+The link extension reads the `href` the same way.
+
+See [Editor state](/introduction/editor-state) for the consumer side.
 
 ## HTML converters
 

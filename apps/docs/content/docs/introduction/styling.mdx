@@ -99,6 +99,11 @@ Scope your content styles to it:
     min-width: 1.75em;
     text-align: right;
   }
+
+  /* placeholder while the document is empty */
+  .inksane-placeholder::before {
+    color: #999;
+  }
 }
 ```
 
@@ -118,6 +123,7 @@ Every extension documents the classes it adds. The complete set:
 | `.inksane-mark-inline-code`, `.inksane-code-block`                                      | [Code](/extensions/inline/code)                       |
 | `.inksane-mark-horizontal-rule`, `.inksane-hr`                                          | [Horizontal rule](/extensions/blocks/horizontal-rule) |
 | `.inksane-mark-html`, `.inksane-html-block`                                             | [HTML](/extensions/blocks/html)                       |
+| `.inksane-placeholder`, `.inksane-placeholder::before`                                  | [Placeholder](/introduction/quick-start#placeholder)  |
 
 Custom extensions add classes the same way through
 [markdown decorations](/extensions/custom#decorations).

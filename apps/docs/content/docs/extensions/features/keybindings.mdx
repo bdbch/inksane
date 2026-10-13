@@ -1,15 +1,39 @@
 ---
 title: Keybindings
-description: "The keybinds extension and every keyboard shortcut the editor registers."
+description: "The default editing keymap, every shortcut the editor registers, and how to change them."
 ---
 
-The `keybinds` extension handles indentation and select-all. Its bindings, and the bindings from the
-other extensions, are listed here.
+inksane registers a standard editing keymap on every editor. It covers the keys users expect from any
+text field or code editor, so common actions such as deleting a word, selecting a line, or searching
+do not read as missing features.
 
-## Tab and Shift+Tab
+## The default keymap
 
-Tab indents the selected lines, or the current line when nothing is selected. Shift+Tab dedents.
-Indentation uses the `tabSize` editor option, which defaults to `2`.
+The default keymap is composed from CodeMirror's `defaultKeymap`, `searchKeymap`, and
+`indentWithTab`. It ships as the built-in extension named `defaultKeymap`.
+
+Standard editing keys include:
+
+- Word and line deletion, such as `Mod-Backspace` and `Shift-Mod-k`.
+- Line movement and selection, such as `Alt-ArrowUp`, `Mod-]`, and `Mod-/`.
+- Home, End, page, and arrow navigation, with the usual `Shift` variants for selection.
+- Select all on `Mod-a`.
+
+Enter and Backspace stay with the editor instead of the Markdown language keymap. Enter always
+inserts a newline and Backspace deletes a single character, even at the end of a list item or
+blockquote, so typing does not silently add list or quote markup.
+
+Search keys include:
+
+- `Mod-f` opens the Find panel.
+- `Mod-g` and `F3` find the next match, with `Shift` for the previous one.
+- `Mod-d` selects the next occurrence.
+- `Mod-Alt-g` jumps to a line.
+
+## Indentation
+
+Tab indents the selected lines, or the current line when nothing is selected. Shift+Tab dedents. The
+`keybinds` extension owns these bindings and honors the `tabSize` option, which defaults to `2`.
 
 ```js
 const editor = new Editor({
@@ -19,35 +43,88 @@ const editor = new Editor({
 ```
 
 The commands return `false` when there is nothing to indent, for example when a dedent would go past
-the start of a line, and the key is left to the browser.
+the start of a line, and the key is left to the browser. `indentWithTab` from the default keymap
+stays registered as a fallback for setups that replace the built-in `keybinds` extension.
 
-## Select all
+## Precedence
 
-`Mod-a` selects the whole document. Note that this is the editor's own binding, not the browser's.
+Bindings from extensions are checked before the default keymap, so an extension can override a
+standard key. The italic extension keeps `Mod-i`, and the code extension keeps `Mod-.`, even though
+CodeMirror binds those keys too.
 
-## All default keybindings
+Undo and redo (`Mod-z`, `Mod-y`, `Mod-Shift-z`) come from the [history](/extensions/features/history)
+extension, which owns its own keymap.
+
+## Bindings inksane adds
 
 `Mod` is Cmd on macOS and Ctrl on Windows and Linux.
 
-| Keys          | Action                            | Extension                                               |
-| ------------- | --------------------------------- | ------------------------------------------------------- |
-| `Mod-a`       | Select the whole document         | `keybinds`                                              |
-| `Tab`         | Indent the selection or the line  | `keybinds`                                              |
-| `Shift-Tab`   | Dedent the selection or the line  | `keybinds`                                              |
-| `Mod-b`       | Bold                              | [`bold`](/extensions/inline/bold)                       |
-| `Mod-i`       | Italic                            | [`italic`](/extensions/inline/italic)                   |
-| `Mod-k`       | Link, when `onLinkRequest` is set | [`link`](/extensions/inline/link)                       |
-| `Mod-.`       | Inline code                       | [`code`](/extensions/inline/code)                       |
-| `Mod-Shift-.` | Code block                        | [`code`](/extensions/inline/code)                       |
-| `Mod-Shift->` | Code block                        | [`code`](/extensions/inline/code)                       |
-| `Mod-Shift--` | Horizontal rule                   | [`horizontal-rule`](/extensions/blocks/horizontal-rule) |
-| `Mod-z`       | Undo                              | [`history`](/extensions/features/history)               |
-| `Mod-y`       | Redo                              | [`history`](/extensions/features/history)               |
-| `Mod-Shift-z` | Redo                              | [`history`](/extensions/features/history)               |
-| `ArrowUp`     | Move into an adjacent HTML block  | [`html`](/extensions/blocks/html)                       |
-| `ArrowDown`   | Move into an adjacent HTML block  | [`html`](/extensions/blocks/html)                       |
+| Keys          | Action                            | From                                                  |
+| ------------- | --------------------------------- | ----------------------------------------------------- |
+| `Mod-b`       | Bold                              | [Bold](/extensions/inline/bold)                       |
+| `Mod-i`       | Italic                            | [Italic](/extensions/inline/italic)                   |
+| `Mod-k`       | Link, when `onLinkRequest` is set | [Link](/extensions/inline/link)                       |
+| `Mod-.`       | Inline code                       | [Code](/extensions/inline/code)                       |
+| `Mod-Shift-.` | Code block                        | [Code](/extensions/inline/code)                       |
+| `Mod-Shift->` | Code block                        | [Code](/extensions/inline/code)                       |
+| `Mod-Shift--` | Horizontal rule                   | [Horizontal rule](/extensions/blocks/horizontal-rule) |
+| `Mod-z`       | Undo                              | [History](/extensions/features/history)               |
+| `Mod-y`       | Redo                              | [History](/extensions/features/history)               |
+| `Mod-Shift-z` | Redo                              | [History](/extensions/features/history)               |
+| `Tab`         | Indent the selection or the line  | `keybinds`                                            |
+| `Shift-Tab`   | Dedent the selection or the line  | `keybinds`                                            |
+| `ArrowUp`     | Move into an adjacent HTML block  | [HTML](/extensions/blocks/html)                       |
+| `ArrowDown`   | Move into an adjacent HTML block  | [HTML](/extensions/blocks/html)                       |
 
-The arrow keys only take over when the cursor would otherwise skip past an HTML block.
+The arrow keys only take over when the cursor would otherwise skip past an HTML block. Everything
+else, such as `Mod-a`, `Mod-f`, or `Mod-d`, comes from the default keymap described above.
+
+## Opt out
+
+Pass `defaultKeymap: false` to skip the default keymap and register your own:
+
+```ts
+const editor = new Editor({
+  element: mount,
+  defaultKeymap: false,
+  extensions: [
+    {
+      name: "my-keymap",
+      addKeybinds() {
+        return [{ key: "Mod-Shift-t", run: () => editor.commands.insertTimestamp() }];
+      },
+    },
+  ],
+});
+```
+
+The editor's own Tab indentation stays active when the default keymap is disabled. Only the
+CodeMirror defaults, the search keys, and `indentWithTab` are removed.
+
+## Replace or extend
+
+The default keymap is a built-in extension named `defaultKeymap`. A configured extension with the
+same name replaces it, the same way any built-in extension is overridden:
+
+```ts
+import { defaultKeymap } from "@codemirror/commands";
+
+const editor = new Editor({
+  element: mount,
+  extensions: [
+    {
+      name: "defaultKeymap",
+      addKeybinds: () => [
+        ...defaultKeymap,
+        { key: "Mod-Shift-t", run: () => editor.commands.insertTimestamp() },
+      ],
+    },
+  ],
+});
+```
+
+Replacing the extension also disables the built-in, so the returned list defines the complete
+default keymap.
 
 ## Add your own
 

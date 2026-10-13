@@ -43,15 +43,17 @@ it gets `inksane-editor-content`.
 
 `EditorOptions` is the object you pass to `new Editor(...)`:
 
-| Option         | Type                                     | Default | Description                                                               |
-| -------------- | ---------------------------------------- | ------- | ------------------------------------------------------------------------- |
-| `element`      | `HTMLElement`                            | —       | The node to mount into. Optional, so you can [mount later](#mount-later). |
-| `content`      | `string`                                 | `""`    | Initial Markdown.                                                         |
-| `extensions`   | `Extension[]`                            | `[]`    | Extra extensions. An extension replaces the built-in with the same name.  |
-| `theme`        | CodeMirror `Extension`                   | —       | A CodeMirror theme. See [styling](/introduction/styling).                 |
-| `lineWrapping` | `boolean`                                | `true`  | Wrap long lines instead of overflowing horizontally.                      |
-| `tabSize`      | `number`                                 | `2`     | Spaces used by Tab and Shift+Tab.                                         |
-| `classNames`   | `{ editor?: string; editable?: string }` | —       | Extra classes for the mount element and the editable element.             |
+| Option          | Type                                     | Default | Description                                                                                             |
+| --------------- | ---------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------- |
+| `element`       | `HTMLElement`                            | —       | The node to mount into. Optional, so you can [mount later](#mount-later).                               |
+| `content`       | `string`                                 | `""`    | Initial Markdown.                                                                                       |
+| `extensions`    | `Extension[]`                            | `[]`    | Extra extensions. An extension replaces the built-in with the same name.                                |
+| `theme`         | CodeMirror `Extension`                   | —       | A CodeMirror theme. See [styling](/introduction/styling).                                               |
+| `lineWrapping`  | `boolean`                                | `true`  | Wrap long lines instead of overflowing horizontally.                                                    |
+| `placeholder`   | `string`                                 | —       | Text shown while the document is empty. See [placeholder](#placeholder).                                |
+| `tabSize`       | `number`                                 | `2`     | Spaces used by Tab and Shift+Tab.                                                                       |
+| `defaultKeymap` | `boolean`                                | `true`  | Whether the standard editing keymap is registered. See [keybindings](/extensions/features/keybindings). |
+| `classNames`    | `{ editor?: string; editable?: string }` | —       | Extra classes for the mount element and the editable element.                                           |
 
 ## Reading and writing content
 
@@ -127,6 +129,34 @@ selection.
 Headings, paragraphs, emphasis, links, images, lists, blockquotes, and code are converted. The HTML
 is cleaned first, so scripts and unsafe URLs are dropped. Each extension teaches the editor how its
 own HTML becomes Markdown, which is documented on the [extension pages](/extensions).
+
+## Placeholder
+
+Pass a `placeholder` to show example text while the document is empty. It disappears as soon as any
+content exists:
+
+```js
+const editor = new Editor({
+  element: mount,
+  placeholder: "Write something…",
+});
+```
+
+The placeholder is not part of the document, so it never appears in `getMarkdown()` and never moves
+the cursor. Change how it looks with `placeholderTheme`, which merges your styles over the defaults:
+
+```js
+import { Editor, placeholderTheme } from "@inksane/core";
+
+const editor = new Editor({
+  element: mount,
+  placeholder: "Write something…",
+  theme: placeholderTheme({ color: "#999", fontStyle: "italic" }),
+});
+```
+
+It styles `.inksane-placeholder::before`, so you can target that class from CSS too. The empty line
+also carries an `aria-placeholder` attribute.
 
 ## Next steps
 
