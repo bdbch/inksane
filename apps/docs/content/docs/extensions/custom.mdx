@@ -355,7 +355,24 @@ export function MyExtension(options: { color: string } = { color: "red" }): Exte
 }
 ```
 
-<Callout type="warning" title="Lifecycle handlers are not wired up yet">
-  The `Extension` type allows handlers named after the editor events, but the extension manager does
-  not subscribe them. Subscribe with `editor.on(...)` in application code for now.
-</Callout>
+## Event handlers
+
+Extensions can handle editor events with methods named after each event. Each handler receives
+`{ editor }` as its first argument and the event payload as its second argument.
+
+```ts
+const MyExtension: Extension = {
+  name: "my-extension",
+  create({ editor }) {
+    console.log(editor.getMarkdown());
+  },
+  update({ editor }, { transaction }) {
+    console.log(editor.getMarkdown(), transaction.changes);
+  },
+};
+```
+
+The extension manager registers root and child extension handlers in priority order before
+`beforeCreate` fires. The editor removes all listeners on destroy, after the `destroy` handlers run.
+
+See [editor events](/introduction/events) for event timing and payloads.
