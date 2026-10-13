@@ -76,6 +76,25 @@ const editor = new Editor({
 });
 ```
 
+## Links
+
+Press Mod-K (Ctrl-K on Windows and Linux, Cmd-K on macOS) to create a link from the selected text. The link extension does not prompt for a URL on its own, so configure it with an `onLinkRequest` handler that returns one:
+
+```js
+import { Editor, LinkExtension } from "@inksane/core";
+
+const editor = new Editor({
+  element: mount,
+  extensions: [
+    LinkExtension({
+      onLinkRequest: ({ text }) => window.prompt(`Link for "${text}"`),
+    }),
+  ],
+});
+```
+
+Return `null` or an empty string to cancel, and the document is left unchanged. Pressing Mod-K on an existing link removes it without calling the handler. Without `onLinkRequest`, the extension does not define Mod-K at all.
+
 ## Up Next
 
 - [Styling](./styling.md)

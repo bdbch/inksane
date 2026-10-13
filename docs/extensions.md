@@ -19,6 +19,25 @@ const editor = new Editor({
 
 Each distinct extension name must be unique across the complete extension tree. Duplicate names and circular child-extension graphs throw during editor creation. Reusing the same child-extension instance through multiple parents is deduplicated.
 
+## Extension options
+
+Some built-in extensions are factories that take options. A configured extension replaces the built-in with the same name, so the feature is not registered twice:
+
+```ts
+import { Editor, LinkExtension } from "@inksane/core";
+
+const editor = new Editor({
+  element: mount,
+  extensions: [
+    LinkExtension({
+      onLinkRequest: ({ text }) => window.prompt(`Link for "${text}"`),
+    }),
+  ],
+});
+```
+
+Write your own configurable extension as a factory that closes over its options, the way `CollaborationExtension({ ydoc })` does.
+
 ## Create an extension
 
 An extension is an object with a required `name` and optional hooks. Every hook receives `{ editor }`, so it can read the editor instance and its options during setup.
