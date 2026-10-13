@@ -49,10 +49,10 @@ function resolveMarkupRanges(
 
 /** Resolves a widget type from a value or a per-node factory. */
 function resolveWidgetType(
-  type: WidgetType | ((node: SyntaxNode, state: EditorState) => WidgetType),
+  type: WidgetType | ((node: SyntaxNode, state: EditorState) => WidgetType | null),
   node: SyntaxNode,
   state: EditorState,
-): WidgetType {
+): WidgetType | null {
   return typeof type === "function" ? type(node, state) : type;
 }
 
@@ -82,6 +82,8 @@ function addReplacementWidgetDecorations(
   if (!hidden) return;
 
   const type = resolveWidgetType(widget.type, node, state);
+  if (!type) return;
+
   for (const { from, to } of markupRanges) {
     ranges.push(Decoration.replace({ widget: type, block: widget.block }).range(from, to));
   }
@@ -103,10 +105,13 @@ function addAttachmentWidgetDecoration(
       : widget.position === "before"
         ? node.from
         : node.to;
+  const type = resolveWidgetType(widget.type, node, state);
+  if (!type) return;
+
   const side = widget.position === "before" ? -1 : 1;
   ranges.push(
     Decoration.widget({
-      widget: resolveWidgetType(widget.type, node, state),
+      widget: type,
       side,
       block: widget.block,
     }).range(pos),

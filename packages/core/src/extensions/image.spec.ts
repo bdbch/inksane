@@ -84,4 +84,24 @@ describe("image decorations", () => {
     expect(editor.view.dom.querySelectorAll(".inksane-image")).toHaveLength(2);
     expect(editor.view.dom.textContent).toContain("and");
   });
+
+  it("keeps unfinished image syntax visible instead of a broken image", () => {
+    const content = "![image](";
+    editor.view.dispatch({ changes: { from: 0, to: editor.content.length, insert: content } });
+
+    expect(editor.view.dom.querySelector(".inksane-image")).toBeNull();
+    expect(editor.view.dom.textContent).toContain(content);
+  });
+
+  it("renders the image once the unfinished syntax gets a url", () => {
+    editor.view.dispatch({
+      changes: { from: 0, to: editor.content.length, insert: "![image](" },
+    });
+    editor.view.dispatch({
+      changes: { from: editor.content.length, to: editor.content.length, insert: "image.png)" },
+    });
+
+    expect(editor.view.dom.querySelectorAll(".inksane-image")).toHaveLength(1);
+    expect(editor.view.dom.textContent).not.toContain("![image](image.png)");
+  });
 });
