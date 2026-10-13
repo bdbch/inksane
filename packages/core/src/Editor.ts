@@ -57,10 +57,11 @@ export class Editor extends EventEmitter<EditorEvents> {
   private _editable = new Compartment();
 
   /** Holds the editor state until the view is created on mount. */
-  private _state: EditorState;
+  private _state: EditorState | null;
 
   /** Holds the CodeMirror view once mounted, or null while detached. */
   private _view: EditorView | null = null;
+  private _destroyed = false;
 
   options: EditorOptions;
 
@@ -80,8 +81,11 @@ export class Editor extends EventEmitter<EditorEvents> {
     return this._view !== null;
   }
 
+  /** The current state. Throws after the editor has been destroyed. */
   get state(): EditorState {
-    return this._view?.state ?? this._state;
+    const state = this._view?.state ?? this._state;
+    if (!state) throw new Error("Editor is destroyed.");
+    return state;
   }
 
   /**
@@ -96,7 +100,7 @@ export class Editor extends EventEmitter<EditorEvents> {
     if (this._view) {
       this._view.dispatch(spec);
     } else {
-      this._state = this._state.update(spec).state;
+      this._state = this.state.update(spec).state;
     }
   }
 
@@ -232,7 +236,7 @@ export class Editor extends EventEmitter<EditorEvents> {
     if (this._view) {
       this._view.dispatch({ changes, filter: false });
     } else {
-      this._state = this._state.update({ changes, filter: false }).state;
+      this._state = this.state.update({ changes, filter: false }).state;
     }
   }
 
@@ -317,14 +321,15 @@ export class Editor extends EventEmitter<EditorEvents> {
   /**
    * Attaches the editor to a DOM element and creates the CodeMirror view.
    * Call this when no element was passed to the constructor, as framework
-   * bindings do once their mount node exists. Later calls are ignored.
+   * bindings do once their mount node exists. Later calls and calls after
+   * destruction are ignored. Create a new editor to mount again.
    */
   public mount(element: HTMLElement): void {
-    if (this._view) return;
+    if (this._view || this._destroyed) return;
 
     this.options.element = element;
     this._view = new EditorView({
-      state: this._state,
+      state: this.state,
       parent: element,
     });
     this.setupDOM();
@@ -332,15 +337,33 @@ export class Editor extends EventEmitter<EditorEvents> {
     this.emit("mount", { editor: this });
   }
 
-  // TODO: extend destruction of editor instance here
+  /** Releases the view, DOM references, state, and listeners. Repeated calls do nothing. */
   public destroy(): void {
-    if (this._view) {
-      this.emit("unmount", { editor: this });
-      this._view.destroy();
-      this._view = null;
-    }
+    if (this._destroyed) return;
+    this._destroyed = true;
 
-    this.emit("destroy", { editor: this });
+    const view = this._view;
+    const nodes = [this.options.element, view?.dom, view?.contentDOM];
+    try {
+      if (view) {
+        try {
+          this.emit("unmount", { editor: this });
+        } finally {
+          view.destroy();
+          this._view = null;
+        }
+      }
+
+      this.emit("destroy", { editor: this });
+    } finally {
+      for (const node of nodes) {
+        if (node && "editor" in node && node.editor === this) delete node.editor;
+      }
+      delete this.options.element;
+      this._view = null;
+      this._state = null;
+      this.removeListeners();
+    }
   }
 
   private setupDOM(): void {
