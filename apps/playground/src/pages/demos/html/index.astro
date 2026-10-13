@@ -15,6 +15,7 @@ import Base from "../../../layouts/Base.astro";
 
 <script>
     import { Editor } from "@inksane/core";
+    import { BaseKit } from "@inksane/core/extensions/base-kit";
     import { EditorView } from "@codemirror/view";
 
     const content = `<div class="callout">
@@ -55,6 +56,7 @@ Mix HTML blocks with regular **Markdown**. Only scripts and other unsafe parts a
     const editor = new Editor({
         element: document.getElementById("editor-mount")!,
         content,
+        extensions: [BaseKit()],
         theme,
         classNames: { editable: "font-sans" },
     });

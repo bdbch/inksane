@@ -39,6 +39,7 @@ editor shows your cursor with your name.
 
 <script>
     import { Editor } from "@inksane/core";
+    import { BaseKit } from "@inksane/core/extensions/base-kit";
     import { CollaborationExtension } from "@inksane/extension-collaboration";
     import { EditorView } from "@codemirror/view";
     import * as Y from "yjs";
@@ -88,7 +89,10 @@ editor shows your cursor with your name.
             element,
             content: ydoc.getText(FIELD).toJSON(),
             theme,
-            extensions: [CollaborationExtension({ ydoc, awareness, user: { name, color } })],
+            extensions: [
+                BaseKit({ history: false }),
+                CollaborationExtension({ ydoc, awareness, user: { name, color } }),
+            ],
         });
     };
 
