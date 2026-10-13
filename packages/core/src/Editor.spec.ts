@@ -127,4 +127,29 @@ describe("Editor", () => {
 
     expect(editor.isMounted).toBe(false);
   });
+
+  it("invokes extension lifecycle handlers and stops them after destroy", () => {
+    const calls: string[] = [];
+    const editor = new Editor({
+      element: document.createElement("div"),
+      extensions: [
+        {
+          name: "lifecycle",
+          create: () => {
+            calls.push("create");
+          },
+          destroy: () => {
+            calls.push("destroy");
+          },
+        },
+      ],
+    });
+
+    expect(calls).toEqual(["create"]);
+
+    editor.destroy();
+    editor.emit("create", { editor });
+
+    expect(calls).toEqual(["create", "destroy"]);
+  });
 });

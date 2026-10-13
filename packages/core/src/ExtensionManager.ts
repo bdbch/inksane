@@ -5,10 +5,25 @@ import type { MarkdownExtension } from "@lezer/markdown";
 import { editorFocusExtension } from "./editorFocus.ts";
 import type { Editor } from "./Editor.ts";
 import type { Extension, HtmlConverter, MarkdownDecorationConfig } from "./types/extensions.ts";
+import type { EditorEvents } from "./types/editor.ts";
+import type { EventListener } from "./EventEmitter.ts";
 import type { CommandRegistry } from "./CommandChain.ts";
 import { htmlPasteHandler } from "./helpers/htmlPasteHandler.ts";
 import { resolveExtensionsOnEditor } from "./helpers/resolveExtensionsOnEditor.ts";
 import { createMarkdownDecorations } from "./markdownDecorations.ts";
+
+/** Editor events that extensions can handle through their own named methods. */
+const EXTENSION_EVENT_NAMES: (keyof EditorEvents)[] = [
+  "mount",
+  "unmount",
+  "beforeCreate",
+  "create",
+  "update",
+  "destroy",
+  "selectionUpdate",
+  "beforeTransaction",
+  "transaction",
+];
 
 /**
  * Manages and resolves extensions so the editor receives one complete CodeMirror setup.
@@ -41,6 +56,9 @@ export class ExtensionManager {
   /** Flat map of command name to curried impl, collected from extensions. */
   private _commands: CommandRegistry = {};
 
+  /** Editor event listeners subscribed from extension handlers, kept so they can be removed. */
+  private _eventListeners: [keyof EditorEvents, EventListener][] = [];
+
   /**
    * Creates one extension setup lifecycle for the editor and its configured extensions.
    *
@@ -61,6 +79,34 @@ export class ExtensionManager {
       if (ext.addKeybinds) this.bindKeymaps(ext.addKeybinds);
       if (ext.addCodeMirrorExtensions) this.bindCmExtensions(ext.addCodeMirrorExtensions);
     }
+  }
+
+  /**
+   * Subscribes each resolved extension's event handlers to the editor, higher priority first.
+   * Call once the editor exists, so lifecycle events emitted after this are received.
+   */
+  bindEventHandlers(): void {
+    for (const ext of this.sortExtensionsByPrio(this._resolvedExtensions)) {
+      for (const eventName of EXTENSION_EVENT_NAMES) {
+        const handler = ext[eventName] as
+          | ((ctx: { editor: Editor }, payload: unknown) => void)
+          | undefined;
+        if (!handler) continue;
+
+        const listener: EventListener = (payload) =>
+          handler.call(ext, { editor: this.editor }, payload);
+        this.editor.on(eventName, listener);
+        this._eventListeners.push([eventName, listener]);
+      }
+    }
+  }
+
+  /** Removes every event listener that {@link bindEventHandlers} subscribed. */
+  unbindEventHandlers(): void {
+    for (const [eventName, listener] of this._eventListeners) {
+      this.editor.off(eventName, listener);
+    }
+    this._eventListeners = [];
   }
 
   /** Provides the root extensions before child extensions are resolved. */

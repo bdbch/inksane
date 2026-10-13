@@ -148,6 +148,7 @@ export class Editor extends EventEmitter<EditorEvents> {
       KeybindExtension,
       ...(this.options?.extensions ?? []),
     ]);
+    this._extensionManager.bindEventHandlers();
 
     this.emit("beforeCreate", { editor: this });
 
@@ -200,6 +201,7 @@ export class Editor extends EventEmitter<EditorEvents> {
     }
 
     this.emit("destroy", { editor: this });
+    this._extensionManager.unbindEventHandlers();
   }
 
   private setupDOM(): void {
