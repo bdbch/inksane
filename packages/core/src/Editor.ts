@@ -203,11 +203,14 @@ export class Editor extends EventEmitter<EditorEvents> {
           this._view = null;
         }
       }
-
-      this.emit("destroy", { editor: this });
     } finally {
-      // Runs even when an extension handler throws, so no listeners leak.
-      this._extensionManager.unbindEventHandlers();
+      // Runs even when an unmount handler throws, so every destroy handler can clean up.
+      try {
+        this.emit("destroy", { editor: this });
+      } finally {
+        // Runs even when an extension handler throws, so no listeners leak.
+        this._extensionManager.unbindEventHandlers();
+      }
     }
   }
 

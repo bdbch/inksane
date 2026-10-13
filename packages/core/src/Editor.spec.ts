@@ -243,8 +243,9 @@ describe("Editor", () => {
 
     expect(() => editor.destroy()).toThrow("unmount failed");
     expect(editor.isMounted).toBe(false);
+    expect(calls).toEqual(["destroy"]);
 
-    editor.emit("destroy", { editor });
-    expect(calls).toEqual([]);
+    editor.emit("create", { editor });
+    expect(calls).toEqual(["destroy"]);
   });
 });
