@@ -13,6 +13,7 @@ import {
   CommandsExtension,
   HeadingExtension,
   HorizontalRuleExtension,
+  HistoryExtension,
   HtmlExtension,
   ImageExtension,
   KeybindExtension,
@@ -135,6 +136,7 @@ export class Editor extends EventEmitter<EditorEvents> {
     const { element, content } = this.options;
     this._extensionManager = new ExtensionManager(this, [
       CommandsExtension,
+      HistoryExtension,
       BoldExtension,
       ItalicExtension,
       LinkExtension,

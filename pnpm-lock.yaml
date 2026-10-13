@@ -9,6 +9,9 @@ catalogs:
     '@astrojs/react':
       specifier: ^7.0.1
       version: 7.0.1
+    '@codemirror/commands':
+      specifier: ^6.11.1
+      version: 6.11.1
     '@codemirror/lang-markdown':
       specifier: ^6.5.0
       version: 6.5.2
@@ -145,6 +148,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@codemirror/commands':
+        specifier: 'catalog:'
+        version: 6.11.1
       '@codemirror/lang-markdown':
         specifier: 'catalog:'
         version: 6.5.2
@@ -463,6 +469,9 @@ packages:
 
   '@codemirror/autocomplete@6.20.3':
     resolution: {integrity: sha512-tlosUqb+3BbxCxZdu4tKeRghPFC+QM7q4X5YhKV2eCmPG+1r2F3f4AaSz5sCrFqUtX4Jh20VFTKecl16MgiV9g==}
+
+  '@codemirror/commands@6.11.1':
+    resolution: {integrity: sha512-O/4hG3SC1YwcmQ0d2UVNDs+AsaNWd1iHVxbTeEBuqH+6bExAiPK3iS/BvpY6rZGURALv4ZD3sIgcCmRvw3ehBg==}
 
   '@codemirror/lang-css@6.3.1':
     resolution: {integrity: sha512-kr5fwBGiGtmz6l0LSJIbno9QrifNMUusivHbnA1H6Dmqy4HZFte3UAICix1VuKo0lMPKQr2rqB+0BkKi/S3Ejg==}
@@ -3200,6 +3209,13 @@ snapshots:
       sisteransi: 1.0.5
 
   '@codemirror/autocomplete@6.20.3':
+    dependencies:
+      '@codemirror/language': 6.12.4
+      '@codemirror/state': 6.7.1
+      '@codemirror/view': 6.43.7
+      '@lezer/common': 1.5.2
+
+  '@codemirror/commands@6.11.1':
     dependencies:
       '@codemirror/language': 6.12.4
       '@codemirror/state': 6.7.1

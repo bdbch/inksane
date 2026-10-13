@@ -55,6 +55,7 @@
     "prepublishOnly": "vp run build"
   },
   "dependencies": {
+    "@codemirror/commands": "catalog:",
     "@codemirror/lang-markdown": "catalog:",
     "@codemirror/language": "catalog:",
     "@codemirror/state": "catalog:",
