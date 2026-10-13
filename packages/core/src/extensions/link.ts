@@ -14,14 +14,14 @@ declare module "@inksane/core" {
       /**
        * Inserts a link with the given content and url into the document.
        * @param options An object containing the content and url, and optionally the position or range.
-       * @returns A boolean indicating whether the command was executed successfully.
+       * @returns A boolean indicating whether the command was executed successfully. Returns `false` for empty or unsafe URLs.
        */
       insertLink: (options: { content: string; url: string; pos?: PosOrRange }) => ReturnType;
 
       /**
        * Wraps existing content with a link at the specified position or range in the document, otherwise uses the current selection.
        * @param options An object containing the url, and optionally the position or range.
-       * @returns A boolean indicating whether the command was executed successfully.
+       * @returns A boolean indicating whether the command was executed successfully. Returns `false` for empty or unsafe URLs.
        */
       setLink: (options: { url: string; pos?: PosOrRange }) => ReturnType;
 
@@ -140,6 +140,9 @@ export function LinkExtension(options: LinkOptions = {}): Extension {
         insertLink:
           (ctx) =>
           ({ content, url, pos }) => {
+            if (!url || !isSafeUrl(url)) {
+              return false;
+            }
             const { from, to } = resolveFromTo(ctx.state, pos);
             return insertContent(ctx)({ content: `[${content}](${url})`, from, to });
           },
@@ -148,7 +151,7 @@ export function LinkExtension(options: LinkOptions = {}): Extension {
           const { from, to } = resolveFromTo(ctx.state, options.pos);
           const selectedText = ctx.state.sliceDoc(from, to);
 
-          if (!options.url) {
+          if (!options.url || !isSafeUrl(options.url)) {
             return false;
           }
 
