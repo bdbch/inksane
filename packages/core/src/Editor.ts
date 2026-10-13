@@ -24,6 +24,7 @@ import {
   ItalicExtension,
   LinkExtension,
   ListExtension,
+  PlaceholderExtension,
 } from "./extensions/index.ts";
 
 /**
@@ -37,6 +38,7 @@ const BUILT_IN_EXTENSIONS: InksaneExtension[] = [
   BoldExtension,
   ItalicExtension,
   LinkExtension(),
+  PlaceholderExtension,
   HeadingExtension,
   HorizontalRuleExtension,
   HtmlExtension,

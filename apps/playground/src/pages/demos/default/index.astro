@@ -9,12 +9,13 @@ const markdown = rawContent()
     <div class="mb-4 flex items-center gap-2 flex-wrap">
         <button data-action="toggleBold">Toggle Bold</button>
         <button data-action="toggleItalic">Toggle Italic</button>
+        <button data-action="clear">Clear</button>
     </div>
     <div id="editor-mount" class="border" data-markdown={markdown}></div>
 </Base>
 
 <script>
-    import { Editor, LinkExtension, type Extension } from "@inksane/core";
+    import { Editor, LinkExtension, placeholderTheme, type Extension } from "@inksane/core";
     import { EditorView } from "@codemirror/view";
 
     const buttons = document.querySelectorAll("button[data-action]");
@@ -53,6 +54,8 @@ const markdown = rawContent()
         ".cm-line": { paddingLeft: "24px", paddingRight: "24px" },
     });
 
+    const placeholderStyle = placeholderTheme({ color: "var(--foreground-muted)" });
+
     const el = document.getElementById("editor-mount")!
     const markdown = el.dataset.markdown || "";
 
@@ -71,7 +74,8 @@ const markdown = rawContent()
                     ),
             }),
         ],
-        theme,
+        theme: [theme, placeholderStyle],
+        placeholder: "Start writing your Markdown…",
         classNames: {
             editable: "font-sans",
         },
@@ -87,6 +91,10 @@ const markdown = rawContent()
             break;
           case "toggleItalic":
             editor.chain().toggleItalic().focus().run();
+            break;
+          case "clear":
+            editor.setMarkdown("");
+            editor.view.focus();
             break;
           default:
             console.warn(`No action defined for ${action}`);

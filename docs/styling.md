@@ -171,5 +171,10 @@ This is an example style:
     min-width: 1.75em;
     text-align: right;
   }
+
+  // placeholder while the document is empty
+  .inksane-placeholder::before {
+    color: #999;
+  }
 }
 ```

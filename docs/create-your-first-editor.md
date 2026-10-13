@@ -117,6 +117,31 @@ const editor = new Editor({
 
 Return `null` or an empty string to cancel, and the document is left unchanged. Pressing Mod-K on an existing link removes it without calling the handler. Without `onLinkRequest`, the extension does not define Mod-K at all.
 
+## Placeholder
+
+Pass a `placeholder` to show example text while the document is empty. It disappears as soon as any content exists:
+
+```js
+const editor = new Editor({
+  element: mount,
+  placeholder: "Write something…",
+});
+```
+
+The placeholder is not part of the document, so it never appears in `getMarkdown()` and never moves the cursor. Change how it looks with `placeholderTheme`, which merges your styles over the defaults:
+
+```js
+import { Editor, placeholderTheme } from "@inksane/core";
+
+const editor = new Editor({
+  element: mount,
+  placeholder: "Write something…",
+  theme: placeholderTheme({ color: "#999", fontStyle: "italic" }),
+});
+```
+
+It styles `.inksane-placeholder::before`, so you can target that class from CSS too.
+
 ## Up Next
 
 - [Styling](./styling.md)
