@@ -65,6 +65,29 @@ export type HtmlConverter = {
   block?: boolean;
 };
 
+/**
+ * Declares how a logical name resolves against the Markdown syntax tree for
+ * state queries, so `editor.isActive`, `editor.getMarkRange`, and toolbars can
+ * ask whether a mark or node is active at the current selection.
+ */
+export type StateQueryConfig = {
+  /** The logical name used by `editor.isActive(name)`, e.g. "bold" or "heading". */
+  name: string;
+  /** The Lezer syntax node names that make this query active. */
+  nodeNames: string[];
+  /**
+   * Whether the query covers an inline mark or a block node. A collapsed
+   * selection must sit inside a mark, but may sit on the edge of a node.
+   * Defaults to "mark".
+   */
+  kind?: "mark" | "node";
+  /**
+   * Reads the query's attributes from a matched node, such as a heading level
+   * or a link href. `editor.isActive(name, attrs)` matches them as a subset.
+   */
+  attrs?: (node: SyntaxNode, state: EditorState) => Record<string, unknown>;
+};
+
 /** Declares how a syntax-tree node is decorated. */
 export type MarkdownDecorationConfig = {
   /** The syntax-tree node name this config applies to. */
@@ -103,6 +126,7 @@ export type Extension = ExtensionEventHandlers & {
 
   addMarkdownSyntax?: (ctx: EditorContext) => MarkdownExtension[];
   addMarkdownDecorations?: (ctx: EditorContext) => MarkdownDecorationConfig[];
+  addStateQueries?: (ctx: EditorContext) => StateQueryConfig[];
   addHtmlConverters?: (ctx: EditorContext) => HtmlConverter[];
   addCommands?: (ctx: EditorContext) => Partial<RawCommands>;
   addCodeMirrorExtensions?: (ctx: EditorContext) => CMExtension[];

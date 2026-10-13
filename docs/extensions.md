@@ -61,6 +61,10 @@ export const MyExtension: Extension = {
     return [];
   },
 
+  addStateQueries({ editor }) {
+    return [];
+  },
+
   addHtmlConverters({ editor }) {
     return [];
   },
@@ -223,6 +227,22 @@ An `attach` widget is placed before or after the node, or at a position returned
   onlyWhenHidden: false,
 }
 ```
+
+### State queries
+
+`addStateQueries(ctx)` gives a logical name to the syntax nodes that make a feature active, so `editor.isActive` and `editor.getMarkRange` can report it. Each entry maps one name to the Lezer nodes that make it active.
+
+```ts
+addStateQueries() {
+  return [
+    { name: "highlight", nodeNames: ["Highlight"] },
+  ];
+}
+```
+
+`nodeNames` is required. Set `kind: "node"` for block nodes such as headings or lists, where the selection may sit on the node's edge. The default `"mark"` requires a collapsed selection to sit inside the node. An optional `attrs` function reads attributes from a matched node, such as a heading level or a link href, and `editor.isActive(name, attrs)` matches them as a subset.
+
+See [Editor state](./editor-state.md) for the consumer side.
 
 ## HTML
 

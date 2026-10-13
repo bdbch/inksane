@@ -46,6 +46,10 @@ export const BlockquoteExtension: Extension = {
     ];
   },
 
+  addStateQueries() {
+    return [{ name: "blockquote", kind: "node", nodeNames: ["Blockquote"] }];
+  },
+
   addHtmlConverters() {
     return [
       {

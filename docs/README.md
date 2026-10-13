@@ -9,5 +9,6 @@
 ## Using inksane
 
 - [Commands](./commands.md)
-- [Keybindings](./keybindings.md)
+- [Editor state](./editor-state.md)
 - [Extensions](./extensions.md)
+- [Keybindings](./keybindings.md)

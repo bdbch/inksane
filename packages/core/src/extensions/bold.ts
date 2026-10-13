@@ -52,6 +52,10 @@ export const BoldExtension: Extension = {
     ];
   },
 
+  addStateQueries() {
+    return [{ name: "bold", nodeNames: ["StrongEmphasis"] }];
+  },
+
   addHtmlConverters() {
     return [
       {

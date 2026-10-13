@@ -1,5 +1,6 @@
 import type { EditorState, TransactionSpec } from "@codemirror/state";
-import type { ChainedCommands, Command, CommandContext } from "./types/commands.ts";
+import type { EditorView } from "@codemirror/view";
+import type { ChainedCommands, Command, CommandContext, SingleCommands } from "./types/commands.ts";
 import type { Editor } from "./Editor.ts";
 
 /** One collected chain step: a command impl and the args to call it with. */
@@ -10,6 +11,80 @@ type CommandStep = {
 
 /** Flat map of command name to curried impl, populated by ExtensionManager. */
 export type CommandRegistry = Record<string, Command<any[]>>;
+
+/** Just enough of an {@link Editor} for commands to run against projected state. */
+type SpeculativeEditor = {
+  readonly state: EditorState;
+  readonly view: EditorView;
+  commands: SingleCommands;
+};
+
+/** Builds the bound commands object from a registry. */
+export function createBoundCommands(editor: Editor, registry: CommandRegistry): SingleCommands {
+  const bound = {} as Record<string, (...args: unknown[]) => boolean>;
+
+  for (const name of Object.keys(registry)) {
+    bound[name] = (...args: unknown[]) => {
+      const chain = CommandChain.create(editor, registry);
+      // Proxy forwards unknown keys to add(name, args), returns the chain.
+      (chain as unknown as Record<string, (...args: unknown[]) => ChainedCommands>)[name](...args);
+      return chain.run();
+    };
+  }
+
+  return bound as unknown as SingleCommands;
+}
+
+/**
+ * Editor-shaped sandbox that records dispatches into a projected state instead
+ * of touching the real view, so a command can be evaluated without running it.
+ */
+function createSpeculativeEditor(editor: Editor, registry: CommandRegistry): Editor {
+  let state = editor.state;
+
+  const view = {
+    dispatch: (...specs: TransactionSpec[]) => {
+      for (const spec of specs) state = state.update(spec).state;
+    },
+    focus: () => {},
+  } as unknown as EditorView;
+
+  const sandbox: SpeculativeEditor = {
+    get state() {
+      return state;
+    },
+    get view() {
+      return view;
+    },
+    get commands() {
+      return createBoundCommands(sandbox as unknown as Editor, registry);
+    },
+  };
+
+  return sandbox as unknown as Editor;
+}
+
+/**
+ * Evaluates a command against a projected copy of the current state.
+ * Returns false when the command could not apply, without changing the editor.
+ */
+export function canRunCommand(
+  editor: Editor,
+  registry: CommandRegistry,
+  name: string,
+  args: unknown[],
+): boolean {
+  if (!registry[name]) {
+    throw new Error(`Command "${name}" is not registered.`);
+  }
+
+  const sandbox = createSpeculativeEditor(editor, registry);
+  const commands = createBoundCommands(sandbox, registry) as Record<
+    string,
+    (...args: unknown[]) => boolean
+  >;
+  return commands[name](...args);
+}
 
 /**
  * Collects commands + args until `run()` executes them as one dispatch.

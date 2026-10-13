@@ -40,6 +40,9 @@ const getHeadingLevel = (text: string): number | null => {
   return match ? match[1].length : null;
 };
 
+/** Reads the level from a `ATXHeading1` or `SetextHeading2` node name. */
+const headingLevelFromNode = (name: string): number => Number(/(\d)$/.exec(name)?.[1] ?? 0);
+
 const stripHeading = (text: string) => text.replace(/^#+\s?/, "");
 
 export const HeadingExtension: Extension = {
@@ -52,6 +55,26 @@ export const HeadingExtension: Extension = {
       hideSyntax: true,
       markup: (node, state) => markRangesWithWhitespace(node, state, "HeaderMark"),
     }));
+  },
+
+  addStateQueries() {
+    return [
+      {
+        name: "heading",
+        kind: "node",
+        nodeNames: [
+          "ATXHeading1",
+          "ATXHeading2",
+          "ATXHeading3",
+          "ATXHeading4",
+          "ATXHeading5",
+          "ATXHeading6",
+          "SetextHeading1",
+          "SetextHeading2",
+        ],
+        attrs: (node) => ({ level: headingLevelFromNode(node.name) }),
+      },
+    ];
   },
 
   addHtmlConverters() {

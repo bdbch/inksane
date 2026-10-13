@@ -56,6 +56,10 @@ export const ItalicExtension: Extension = {
     ];
   },
 
+  addStateQueries() {
+    return [{ name: "italic", nodeNames: ["Emphasis"] }];
+  },
+
   addHtmlConverters() {
     return [
       {

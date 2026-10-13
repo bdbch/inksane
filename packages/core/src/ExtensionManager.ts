@@ -4,7 +4,12 @@ import { markdown } from "@codemirror/lang-markdown";
 import type { MarkdownExtension } from "@lezer/markdown";
 import { editorFocusExtension } from "./editorFocus.ts";
 import type { Editor } from "./Editor.ts";
-import type { Extension, HtmlConverter, MarkdownDecorationConfig } from "./types/extensions.ts";
+import type {
+  Extension,
+  HtmlConverter,
+  MarkdownDecorationConfig,
+  StateQueryConfig,
+} from "./types/extensions.ts";
 import type { CommandRegistry } from "./CommandChain.ts";
 import { htmlPasteHandler } from "./helpers/htmlPasteHandler.ts";
 import { resolveExtensionsOnEditor } from "./helpers/resolveExtensionsOnEditor.ts";
@@ -32,6 +37,9 @@ export class ExtensionManager {
   /** Stores syntax-tree decorations declared by configured extensions. */
   private _markdownDecorations: MarkdownDecorationConfig[] = [];
 
+  /** Stores state queries declared by configured extensions. */
+  private _stateQueries: StateQueryConfig[] = [];
+
   /** Stores HTML to Markdown converters declared by configured extensions. */
   private _htmlConverters: HtmlConverter[] = [];
 
@@ -56,6 +64,7 @@ export class ExtensionManager {
     for (const ext of sortedExtensions) {
       if (ext.addMarkdownSyntax) this.bindMarkdownSyntax(ext.addMarkdownSyntax);
       if (ext.addMarkdownDecorations) this.bindMarkdownDecorations(ext.addMarkdownDecorations);
+      if (ext.addStateQueries) this.bindStateQueries(ext.addStateQueries);
       if (ext.addHtmlConverters) this.bindHtmlConverters(ext.addHtmlConverters);
       if (ext.addCommands) this.bindCommands(ext.addCommands);
       if (ext.addKeybinds) this.bindKeymaps(ext.addKeybinds);
@@ -90,6 +99,11 @@ export class ExtensionManager {
     return { ...this._commands };
   }
 
+  /** Provides the state queries declared by configured extensions. */
+  get stateQueries(): StateQueryConfig[] {
+    return [...this._stateQueries];
+  }
+
   /**
    * Expands child extensions so their contributions are included in editor setup.
    *
@@ -113,6 +127,12 @@ export class ExtensionManager {
   private bindCommands(addCommands: NonNullable<Extension["addCommands"]>) {
     const commands = addCommands({ editor: this.editor }) ?? {};
     Object.assign(this._commands, commands);
+  }
+
+  /** Collects state queries from one extension. */
+  private bindStateQueries(addStateQueries: NonNullable<Extension["addStateQueries"]>) {
+    const queries = addStateQueries({ editor: this.editor }) ?? [];
+    this._stateQueries.push(...queries);
   }
 
   /** Collects Markdown parser additions for the shared Markdown language setup. */
