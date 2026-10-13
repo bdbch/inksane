@@ -11,17 +11,16 @@ import type { Extension } from "../types/index.ts";
 /** Class applied to the empty line so themes can style the placeholder. */
 export const PLACEHOLDER_CLASS = "inksane-placeholder";
 
-/** Attribute that carries the placeholder text for the generated element. */
+/** Attribute that holds the placeholder text. */
 const PLACEHOLDER_ATTRIBUTE = "data-inksane-placeholder";
 
 /**
- * Renders the placeholder as generated content on the line.
+ * Draws the placeholder as generated content on the line.
  *
- * CodeMirror's own `placeholder` renders a zero-width widget, so it has to
- * insert a `cm-widgetBuffer` image that reserves space for the caret. That
- * image can grow the line box and leave the caret hanging above the text, so
- * the placeholder is drawn as generated content instead. The element is kept
- * out of the inline flow so the caret stays at the line start, next to it.
+ * CodeMirror's `placeholder` is a zero-width widget, which adds a
+ * `cm-widgetBuffer` image before the text. That image can push the caret above
+ * the placeholder. The text is drawn with `::before` outside the inline flow
+ * instead, which keeps the caret at the start of the placeholder.
  */
 const placeholderTheme = EditorView.baseTheme({
   [`.${PLACEHOLDER_CLASS}`]: {
@@ -38,7 +37,7 @@ const placeholderTheme = EditorView.baseTheme({
   },
 });
 
-/** Contributes the placeholder for the configured text. */
+/** Builds the extensions that draw the placeholder. */
 function placeholderExtension(text: string): CMExtension[] {
   const line = Decoration.line({
     class: PLACEHOLDER_CLASS,
@@ -74,9 +73,8 @@ function placeholderExtension(text: string): CMExtension[] {
 /**
  * Shows `options.placeholder` while the document is empty.
  *
- * The text is generated from the line's `data-inksane-placeholder` attribute,
- * so it never becomes document content and disappears as soon as the document
- * has any.
+ * The text lives in a line decoration attribute, so it is not document content
+ * and it disappears once the document has any.
  */
 export const PlaceholderExtension: Extension = {
   name: "placeholder",

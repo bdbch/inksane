@@ -128,7 +128,7 @@ const editor = new Editor({
 });
 ```
 
-The placeholder is generated content on the empty line, not document content, so it never appears in `getMarkdown()` or moves the cursor. Style it through the `inksane-placeholder` class, for example `.inksane-placeholder::before { color: #999 }`.
+The placeholder is not part of the document, so it never appears in `getMarkdown()` and never moves the cursor. Style it through the `inksane-placeholder` class, for example `.inksane-placeholder::before { color: #999 }`.
 
 ## Up Next
 

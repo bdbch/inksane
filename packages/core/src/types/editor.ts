@@ -19,8 +19,8 @@ export type EditorOptions = {
   /** Wrap long lines instead of allowing horizontal overflow. Defaults to true. */
   lineWrapping?: boolean;
   /**
-   * Text shown in place of the document while it is empty. An empty or omitted
-   * value renders nothing.
+   * Text shown while the document is empty. Omit it, or pass an empty string,
+   * to show nothing.
    */
   placeholder?: string;
   /**

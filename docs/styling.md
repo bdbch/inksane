@@ -172,7 +172,7 @@ This is an example style:
     text-align: right;
   }
 
-  // placeholder shown while the document is empty
+  // placeholder while the document is empty
   .inksane-placeholder::before {
     color: #999;
   }
