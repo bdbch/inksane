@@ -1,6 +1,6 @@
 {
   "name": "@inksane/core",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "A modular and extensible Markdown editor built with CodeMirror 6.",
   "keywords": [
     "codemirror",
