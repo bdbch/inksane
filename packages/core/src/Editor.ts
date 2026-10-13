@@ -294,6 +294,11 @@ export class Editor extends EventEmitter<EditorEvents> {
       // Read-only content must remain reachable by keyboard for selection and scrolling.
       EditorView.contentAttributes.of({ tabindex: "0" }),
       EditorView.updateListener.of((update) => {
+        const focused = update.state.field(editorFocusField);
+        if (focused !== update.startState.field(editorFocusField)) {
+          this.emit(focused ? "focus" : "blur", { editor: this });
+        }
+
         const transaction = update.transactions.at(-1);
 
         if (update.docChanged && transaction) {

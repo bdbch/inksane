@@ -33,6 +33,8 @@ listener for one event, and `removeListeners()` drops all of them.
 | `destroy`           | `{ editor }`              | After `destroy()` ran.                                                     |
 | `update`            | `{ editor, transaction }` | After a transaction changed the document.                                  |
 | `selectionUpdate`   | `{ editor, selection }`   | After a transaction changed the selection.                                 |
+| `focus`             | `{ editor }`              | After the editor gains DOM focus.                                          |
+| `blur`              | `{ editor }`              | After the editor loses DOM focus.                                          |
 | `beforeTransaction` | `{ editor, transaction }` | Declared in the types. Not emitted yet.                                    |
 | `transaction`       | `{ editor, transaction }` | Declared in the types. Not emitted yet.                                    |
 
@@ -64,6 +66,22 @@ editor.on("selectionUpdate", ({ selection }) => {
 ```
 
 In React, `useInksaneSelection()` wraps this event. See the [React guide](/react).
+
+## Focus changes
+
+`focus` and `blur` fire when the editor's focus state changes. The payload contains only `editor`,
+and `editor.focused` already reflects the new state when the listener runs. Focusing an editor
+that already has focus does not emit another event. These events also work in read-only mode.
+
+```js
+editor.on("focus", ({ editor }) => {
+  toolbar.setVisible(editor.focused);
+});
+
+editor.on("blur", ({ editor }) => {
+  save(editor.getMarkdown());
+});
+```
 
 ## Lifecycle
 

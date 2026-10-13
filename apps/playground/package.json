@@ -1,5 +1,5 @@
 {
-  "name": "@inksane/playground",
+  "name": "@inksane-internal/playground",
   "private": true,
   "type": "module",
   "scripts": {

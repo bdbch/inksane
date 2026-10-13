@@ -45,6 +45,14 @@ export type EditorOptions = {
 };
 
 export type EditorEvents = {
+  /** Fires after the editor gains DOM focus. `editor.focused` is true. */
+  focus: {
+    editor: Editor;
+  };
+  /** Fires after the editor loses DOM focus. `editor.focused` is false. */
+  blur: {
+    editor: Editor;
+  };
   mount: {
     editor: Editor;
   };
