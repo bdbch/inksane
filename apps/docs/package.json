@@ -1,5 +1,5 @@
 {
-  "name": "@inksane/docs",
+  "name": "@inksane-internal/docs",
   "private": true,
   "type": "module",
   "scripts": {
