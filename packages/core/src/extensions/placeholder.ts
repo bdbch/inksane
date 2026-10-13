@@ -14,6 +14,45 @@ export const PLACEHOLDER_CLASS = "inksane-placeholder";
 /** Attribute that holds the placeholder text. */
 const PLACEHOLDER_ATTRIBUTE = "data-inksane-placeholder";
 
+/** Styles for the placeholder text. Each key is a CSS property. */
+export type PlaceholderThemeStyles = {
+  [property: string]: string | number | null;
+};
+
+const defaultStyles: PlaceholderThemeStyles = {
+  content: `attr(${PLACEHOLDER_ATTRIBUTE})`,
+  position: "absolute",
+  inset: "0",
+  padding: "inherit",
+  color: "#888",
+  pointerEvents: "none",
+  userSelect: "none",
+};
+
+/** Builds the style spec shared by the default and configured themes. */
+const placeholderStyleSpec = (styles: PlaceholderThemeStyles = {}) => ({
+  [`.${PLACEHOLDER_CLASS}`]: { position: "relative" },
+  [`.${PLACEHOLDER_CLASS}::before`]: { ...defaultStyles, ...styles },
+});
+
+/**
+ * Adjusts the styles of the placeholder text.
+ *
+ * Pass the result through the editor `theme` option. Only the properties you
+ * want to change are needed, the rest keep their defaults.
+ *
+ * @example
+ * ```ts
+ * const editor = new Editor({
+ *   placeholder: "Write something…",
+ *   theme: placeholderTheme({ color: "#999", fontStyle: "italic" }),
+ * });
+ * ```
+ */
+export function placeholderTheme(styles: PlaceholderThemeStyles = {}): CMExtension {
+  return EditorView.theme(placeholderStyleSpec(styles));
+}
+
 /**
  * Draws the placeholder as generated content on the line.
  *
@@ -22,20 +61,7 @@ const PLACEHOLDER_ATTRIBUTE = "data-inksane-placeholder";
  * the placeholder. The text is drawn with `::before` outside the inline flow
  * instead, which keeps the caret at the start of the placeholder.
  */
-const placeholderTheme = EditorView.baseTheme({
-  [`.${PLACEHOLDER_CLASS}`]: {
-    position: "relative",
-  },
-  [`.${PLACEHOLDER_CLASS}::before`]: {
-    content: `attr(${PLACEHOLDER_ATTRIBUTE})`,
-    position: "absolute",
-    inset: "0",
-    padding: "inherit",
-    color: "#888",
-    pointerEvents: "none",
-    userSelect: "none",
-  },
-});
+const placeholderBaseTheme = EditorView.baseTheme(placeholderStyleSpec());
 
 /** Builds the extensions that draw the placeholder. */
 function placeholderExtension(text: string): CMExtension[] {
@@ -45,7 +71,7 @@ function placeholderExtension(text: string): CMExtension[] {
   });
 
   return [
-    placeholderTheme,
+    placeholderBaseTheme,
     EditorView.contentAttributes.of({ "aria-placeholder": text }),
     ViewPlugin.fromClass(
       class {

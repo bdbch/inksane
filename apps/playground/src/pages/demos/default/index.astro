@@ -15,7 +15,7 @@ const markdown = rawContent()
 </Base>
 
 <script>
-    import { Editor, LinkExtension, type Extension } from "@inksane/core";
+    import { Editor, LinkExtension, placeholderTheme, type Extension } from "@inksane/core";
     import { EditorView } from "@codemirror/view";
 
     const buttons = document.querySelectorAll("button[data-action]");
@@ -54,6 +54,8 @@ const markdown = rawContent()
         ".cm-line": { paddingLeft: "24px", paddingRight: "24px" },
     });
 
+    const placeholderStyle = placeholderTheme({ color: "var(--foreground-muted)" });
+
     const el = document.getElementById("editor-mount")!
     const markdown = el.dataset.markdown || "";
 
@@ -72,7 +74,7 @@ const markdown = rawContent()
                     ),
             }),
         ],
-        theme,
+        theme: [theme, placeholderStyle],
         placeholder: "Start writing your Markdown…",
         classNames: {
             editable: "font-sans",

@@ -128,7 +128,19 @@ const editor = new Editor({
 });
 ```
 
-The placeholder is not part of the document, so it never appears in `getMarkdown()` and never moves the cursor. Style it through the `inksane-placeholder` class, for example `.inksane-placeholder::before { color: #999 }`.
+The placeholder is not part of the document, so it never appears in `getMarkdown()` and never moves the cursor. Change how it looks with `placeholderTheme`, which merges your styles over the defaults:
+
+```js
+import { Editor, placeholderTheme } from "@inksane/core";
+
+const editor = new Editor({
+  element: mount,
+  placeholder: "Write something…",
+  theme: placeholderTheme({ color: "#999", fontStyle: "italic" }),
+});
+```
+
+It styles `.inksane-placeholder::before`, so you can target that class from CSS too.
 
 ## Up Next
 

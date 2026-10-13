@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { Editor } from "../Editor.ts";
+import { placeholderTheme } from "./placeholder.ts";
 
 const queryPlaceholder = (editor: Editor) =>
   editor.view.dom.querySelector<HTMLElement>(".cm-line.inksane-placeholder");
@@ -55,5 +56,20 @@ describe("placeholder", () => {
     editor = new Editor({ element: document.createElement("div"), placeholder: "" });
 
     expect(queryPlaceholder(editor)).toBeNull();
+  });
+
+  it("applies styles passed to placeholderTheme", () => {
+    editor = new Editor({
+      element: document.createElement("div"),
+      placeholder: "Start writing…",
+      theme: placeholderTheme({ color: "#123456", fontStyle: "italic" }),
+    });
+
+    const css = [...document.querySelectorAll("style")]
+      .map((style) => style.textContent ?? "")
+      .join("\n");
+
+    expect(queryPlaceholder(editor)).not.toBeNull();
+    expect(css).toContain("#123456");
   });
 });
