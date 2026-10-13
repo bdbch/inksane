@@ -19,8 +19,11 @@ export type MarkupRange = {
 /** A widget that replaces the hidden markup of a node. */
 export type ReplacementWidget = {
   kind: "replace";
-  /** The widget to render in place of the markup. */
-  type: WidgetType | ((node: SyntaxNode, state: EditorState) => WidgetType);
+  /**
+   * The widget to render in place of the markup. A factory can return `null`
+   * to leave the markup undeclared, which keeps the source text visible.
+   */
+  type: WidgetType | ((node: SyntaxNode, state: EditorState) => WidgetType | null);
   /** Renders it as a block-level widget spanning the line. */
   block?: boolean;
 };
@@ -36,8 +39,11 @@ export type AttachmentWidget = {
   onlyWhenHidden?: boolean;
   /** Only renders while the syntax is visible. Defaults to false. */
   onlyWhenVisible?: boolean;
-  /** The widget to render. A factory can build it per node. */
-  type: WidgetType | ((node: SyntaxNode, state: EditorState) => WidgetType);
+  /**
+   * The widget to render. A factory can build it per node, or return `null`
+   * to render nothing.
+   */
+  type: WidgetType | ((node: SyntaxNode, state: EditorState) => WidgetType | null);
 };
 
 /** A widget rendered for a decorated node. */

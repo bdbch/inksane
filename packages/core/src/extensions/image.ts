@@ -1,4 +1,5 @@
 import type { EditorState } from "@codemirror/state";
+import type { WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
 import { insertContent } from "../commands/index.ts";
 import { escapeHtml } from "../helpers/escapeHtml.ts";
@@ -24,9 +25,14 @@ declare module "@inksane/core" {
  * Builds an image widget. Clicking it places the cursor at the end of the image range.
  * The block variant renders below the source line inside its own `cm-line`.
  */
-const createImageWidget = (src: string, alt: string, end: number, block: boolean) => {
-  if (!isSafeUrl(src)) {
-    return htmlWidget("");
+const createImageWidget = (
+  src: string,
+  alt: string,
+  end: number,
+  block: boolean,
+): WidgetType | null => {
+  if (!src || !isSafeUrl(src)) {
+    return null;
   }
 
   return htmlWidget(
