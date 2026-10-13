@@ -487,8 +487,9 @@ import Base from "../../../layouts/Base.astro";
             title: "Link",
             run: (editor) => {
                 const { from, to } = editor.state.selection.main;
-                if (from === to) editor.chain().insertLink({ content: "link text", url: "https://" }).focus().run();
-                else editor.chain().setLink({ url: "https://" }).focus().run();
+                const url = "https://example.com";
+                if (from === to) editor.chain().insertLink({ content: "link text", url }).focus().run();
+                else editor.chain().setLink({ url }).focus().run();
             },
         },
         {
