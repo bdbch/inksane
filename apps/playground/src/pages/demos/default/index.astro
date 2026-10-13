@@ -9,6 +9,7 @@ const markdown = rawContent()
     <div class="mb-4 flex items-center gap-2 flex-wrap">
         <button data-action="toggleBold">Toggle Bold</button>
         <button data-action="toggleItalic">Toggle Italic</button>
+        <button data-action="clear">Clear</button>
     </div>
     <div id="editor-mount" class="border" data-markdown={markdown}></div>
 </Base>
@@ -72,6 +73,7 @@ const markdown = rawContent()
             }),
         ],
         theme,
+        placeholder: "Start writing your Markdown…",
         classNames: {
             editable: "font-sans",
         },
@@ -87,6 +89,10 @@ const markdown = rawContent()
             break;
           case "toggleItalic":
             editor.chain().toggleItalic().focus().run();
+            break;
+          case "clear":
+            editor.setMarkdown("");
+            editor.view.focus();
             break;
           default:
             console.warn(`No action defined for ${action}`);

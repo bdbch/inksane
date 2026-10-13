@@ -19,6 +19,11 @@ export type EditorOptions = {
   /** Wrap long lines instead of allowing horizontal overflow. Defaults to true. */
   lineWrapping?: boolean;
   /**
+   * Text shown in place of the document while it is empty. An empty or omitted
+   * value renders nothing.
+   */
+  placeholder?: string;
+  /**
    * The number of spaces Tab and Shift+Tab use when indenting. Defaults to 2.
    */
   tabSize?: number;
