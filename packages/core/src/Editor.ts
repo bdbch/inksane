@@ -294,6 +294,10 @@ export class Editor extends EventEmitter<EditorEvents> {
       // Read-only content must remain reachable by keyboard for selection and scrolling.
       EditorView.contentAttributes.of({ tabindex: "0" }),
       EditorView.updateListener.of((update) => {
+        for (const transaction of update.transactions) {
+          this.emit("transaction", { editor: this, transaction });
+        }
+
         const focused = update.state.field(editorFocusField);
         if (focused !== update.startState.field(editorFocusField)) {
           this.emit(focused ? "focus" : "blur", { editor: this });
@@ -336,6 +340,12 @@ export class Editor extends EventEmitter<EditorEvents> {
     this._view = new EditorView({
       state: this.state,
       parent: element,
+      dispatchTransactions: (transactions, view) => {
+        for (const transaction of transactions) {
+          this.emit("beforeTransaction", { editor: this, transaction });
+        }
+        view.update(transactions);
+      },
     });
     this.setupDOM();
 
