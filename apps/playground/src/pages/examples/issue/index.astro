@@ -1,0 +1,847 @@
+---
+import Base from "../../../layouts/Base.astro";
+---
+
+<Base>
+    <div class="issue-app" id="issue-app">
+        <div class="issue-app__topbar">
+            <span class="issue-app__repo">bdbch</span>
+            <span>/</span>
+            <span class="issue-app__repo">inksane</span>
+        </div>
+
+        <section id="create-view">
+            <h1 class="issue-app__heading">New issue</h1>
+
+            <div class="issue-layout">
+                <div class="issue-layout__main">
+                    <input
+                        id="issue-title"
+                        class="issue-title-input"
+                        type="text"
+                        placeholder="Title"
+                        autocomplete="off"
+                    />
+
+                    <div id="body-box"></div>
+
+                    <div class="issue-actions">
+                        <button type="button" class="btn btn--primary" id="submit-issue" disabled>
+                            Submit new issue
+                        </button>
+                        <button type="button" class="btn btn--ghost" id="reset-issue">Clear</button>
+                    </div>
+                </div>
+
+                <aside class="issue-layout__side">
+                    <div class="sidebar-box">
+                        <div class="sidebar-box__head">Labels</div>
+                        <div class="sidebar-box__body" id="label-picker"></div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="issue-view" id="issue-view" hidden></section>
+    </div>
+</Base>
+
+<style is:global>
+    .issue-app {
+        --accent: #1f883d;
+        --accent-hover: #1a7f37;
+        max-width: 64rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .issue-app {
+            --accent: #238636;
+            --accent-hover: #2ea043;
+        }
+    }
+
+    .issue-app__topbar {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+        color: var(--foreground-muted);
+    }
+
+    .issue-app__repo {
+        color: var(--foreground);
+        font-weight: 500;
+    }
+
+    .issue-app__heading {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .issue-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 16rem;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    @media (max-width: 900px) {
+        .issue-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .issue-layout__main {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .issue-title-input {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9375rem;
+        color: var(--foreground);
+        background: var(--background);
+        border: 1px solid var(--border);
+        border-bottom-width: 2px;
+        border-radius: 6px;
+    }
+
+    .issue-title-input::placeholder {
+        color: var(--foreground-muted);
+    }
+
+    .issue-title-input:focus {
+        outline: none;
+        border-color: var(--accent);
+    }
+
+    .issue-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        line-height: 1.4;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .btn--primary {
+        background: var(--accent);
+        color: #fff;
+    }
+
+    .btn--primary:hover:not(:disabled) {
+        background: var(--accent-hover);
+    }
+
+    .btn--primary:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+    .btn--ghost {
+        background: var(--background);
+        border-color: var(--border);
+        color: var(--foreground);
+    }
+
+    .btn--ghost:hover {
+        border-color: var(--foreground-muted);
+    }
+
+    .mdbox {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--background);
+        overflow: hidden;
+    }
+
+    .mdbox:focus-within {
+        border-color: var(--foreground-muted);
+    }
+
+    .mdbox__bar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.375rem 0.5rem;
+        border-bottom: 1px solid var(--border-muted);
+        background: var(--background-muted);
+    }
+
+    .mdbox__tabs {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .mdbox__tab {
+        padding: 0.2rem 0.6rem;
+        font-size: 0.8125rem;
+        color: var(--foreground-muted);
+        border: 1px solid transparent;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .mdbox__tab--active {
+        color: var(--foreground);
+        background: var(--background);
+        border-color: var(--border);
+    }
+
+    .mdbox__tools {
+        display: flex;
+        gap: 0.125rem;
+        margin-left: auto;
+    }
+
+    .mdbox__tool {
+        display: grid;
+        place-items: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        font-size: 0.8125rem;
+        color: var(--foreground-muted);
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .mdbox__tool:hover {
+        color: var(--foreground);
+        background: var(--background);
+    }
+
+    .mdbox__tool--bold {
+        font-weight: 700;
+    }
+
+    .mdbox__tool--italic {
+        font-family: Georgia, serif;
+        font-style: italic;
+    }
+
+    .mdbox__preview {
+        min-height: 6rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .mdbox__empty {
+        font-size: 0.875rem;
+        font-style: italic;
+        color: var(--foreground-muted);
+    }
+
+    .mdbox__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        border-top: 1px solid var(--border-muted);
+        background: var(--background-muted);
+    }
+
+    .mdbox__hint {
+        font-size: 0.75rem;
+        color: var(--foreground-muted);
+    }
+
+    .mdbox__actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .sidebar-box {
+        border: 1px solid var(--border-muted);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .sidebar-box__head {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--foreground-muted);
+        background: var(--background-muted);
+        border-bottom: 1px solid var(--border-muted);
+    }
+
+    .sidebar-box__body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        padding: 0.375rem;
+    }
+
+    .label-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.3rem 0.4rem;
+        font-size: 0.8125rem;
+        color: var(--foreground);
+        text-align: left;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .label-row:hover {
+        background: var(--background-muted);
+    }
+
+    .label-row__swatch {
+        flex: none;
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 9999px;
+    }
+
+    .label-row__check {
+        margin-left: auto;
+        font-size: 0.75rem;
+        opacity: 0;
+    }
+
+    .label-row--on .label-row__check {
+        opacity: 1;
+    }
+
+    .issue-view {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .issue-head {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .issue-head__title-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .issue-badge {
+        flex: none;
+        margin-top: 0.35rem;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #fff;
+        background: var(--accent);
+        border-radius: 9999px;
+    }
+
+    .issue-badge--closed {
+        background: var(--foreground-muted);
+    }
+
+    .issue-head__title {
+        font-size: 1.5rem;
+        font-weight: 400;
+        line-height: 1.3;
+    }
+
+    .issue-head__meta {
+        font-size: 0.8125rem;
+        color: var(--foreground-muted);
+    }
+
+    .issue-head__labels {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.375rem;
+    }
+
+    .label-chip {
+        padding: 0.1rem 0.6rem;
+        font-size: 0.6875rem;
+        font-weight: 500;
+        border-radius: 9999px;
+    }
+
+    .comments {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .comment {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .comment__avatar {
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--foreground-muted);
+        background: var(--background-muted);
+        border: 1px solid var(--border);
+        border-radius: 9999px;
+    }
+
+    .comment__panel {
+        flex: 1;
+        min-width: 0;
+        border: 1px solid var(--border-muted);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .comment__head {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        color: var(--foreground-muted);
+        background: var(--background-muted);
+        border-bottom: 1px solid var(--border-muted);
+    }
+
+    .comment__body {
+        padding: 0.75rem 1rem;
+    }
+</style>
+
+<script>
+    import { Editor } from "@inksane/core";
+    import { EditorView, placeholder } from "@codemirror/view";
+    import { renderMarkdown } from "../../../lib/renderMarkdown";
+
+    type LabelDef = { name: string; color: string };
+
+    type Issue = {
+        number: number;
+        title: string;
+        body: string;
+        labels: LabelDef[];
+    };
+
+    const LABELS: LabelDef[] = [
+        { name: "bug", color: "#d73a4a" },
+        { name: "enhancement", color: "#a2eeef" },
+        { name: "documentation", color: "#0075ca" },
+        { name: "good first issue", color: "#7057ff" },
+    ];
+
+    const LINK_ICON =
+        '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11 5"></path><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07L13 19"></path></svg>';
+
+    type Tool = {
+        content: string;
+        title: string;
+        className?: string;
+        run: (editor: Editor) => void;
+    };
+
+    const TOOLS: Tool[] = [
+        {
+            content: "B",
+            title: "Bold",
+            className: "mdbox__tool--bold",
+            run: (editor) => void editor.chain().toggleBold().focus().run(),
+        },
+        {
+            content: "I",
+            title: "Italic",
+            className: "mdbox__tool--italic",
+            run: (editor) => void editor.chain().toggleItalic().focus().run(),
+        },
+        {
+            content: "H",
+            title: "Heading",
+            run: (editor) => void editor.chain().toggleHeading({ level: 2 }).focus().run(),
+        },
+        {
+            content: "&ldquo;",
+            title: "Quote",
+            run: (editor) => void editor.chain().toggleBlockquote().focus().run(),
+        },
+        {
+            content: "&lt;/&gt;",
+            title: "Code block",
+            run: (editor) => void editor.chain().toggleCodeBlock().focus().run(),
+        },
+        {
+            content: LINK_ICON,
+            title: "Link",
+            run: (editor) => {
+                const { from, to } = editor.state.selection.main;
+                if (from === to) editor.chain().insertLink({ content: "link text", url: "https://" }).focus().run();
+                else editor.chain().setLink({ url: "https://" }).focus().run();
+            },
+        },
+        {
+            content: "•",
+            title: "Bullet list",
+            run: (editor) => void editor.chain().toggleBulletList().focus().run(),
+        },
+        {
+            content: "1.",
+            title: "Numbered list",
+            run: (editor) => void editor.chain().toggleOrderedList().focus().run(),
+        },
+    ];
+
+    const boxTheme = (minHeight: string) =>
+        EditorView.theme({
+            ".cm-content": { padding: "12px 16px", minHeight },
+            ".cm-line": { paddingLeft: "0px", paddingRight: "0px" },
+            ".cm-editor.cm-focused": { outline: "none" },
+        });
+
+    type MarkdownBox = {
+        element: HTMLElement;
+        editor: Editor;
+    };
+
+    function createMarkdownBox(options: {
+        placeholder: string;
+        minHeight: string;
+        footer?: HTMLElement;
+        onChange?: () => void;
+    }): MarkdownBox {
+        const root = document.createElement("div");
+        root.className = "mdbox";
+
+        const bar = document.createElement("div");
+        bar.className = "mdbox__bar";
+
+        const tabs = document.createElement("div");
+        tabs.className = "mdbox__tabs";
+
+        const writeTab = document.createElement("button");
+        writeTab.type = "button";
+        writeTab.className = "mdbox__tab mdbox__tab--active";
+        writeTab.textContent = "Write";
+
+        const previewTab = document.createElement("button");
+        previewTab.type = "button";
+        previewTab.className = "mdbox__tab";
+        previewTab.textContent = "Preview";
+
+        tabs.append(writeTab, previewTab);
+
+        const tools = document.createElement("div");
+        tools.className = "mdbox__tools";
+
+        bar.append(tabs, tools);
+
+        const bodyPane = document.createElement("div");
+        const writePane = document.createElement("div");
+        const previewPane = document.createElement("div");
+        previewPane.className = "mdbox__preview markdown-body";
+        previewPane.hidden = true;
+        bodyPane.append(writePane, previewPane);
+
+        root.append(bar, bodyPane);
+        if (options.footer) root.append(options.footer);
+
+        const editor = new Editor({
+            element: writePane,
+            content: "",
+            theme: boxTheme(options.minHeight),
+            classNames: { editable: "font-sans" },
+            extensions: [
+                {
+                    name: "mdbox",
+                    addCodeMirrorExtensions: () => [
+                        placeholder(options.placeholder),
+                        EditorView.updateListener.of((update) => {
+                            if (update.docChanged) options.onChange?.();
+                        }),
+                    ],
+                },
+            ],
+        });
+
+        for (const tool of TOOLS) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = `mdbox__tool${tool.className ? ` ${tool.className}` : ""}`;
+            button.title = tool.title;
+            button.innerHTML = tool.content;
+            button.addEventListener("click", () => tool.run(editor));
+            tools.append(button);
+        }
+
+        writeTab.addEventListener("click", () => {
+            previewPane.hidden = true;
+            writePane.hidden = false;
+            writeTab.classList.add("mdbox__tab--active");
+            previewTab.classList.remove("mdbox__tab--active");
+            editor.view.focus();
+        });
+
+        previewTab.addEventListener("click", () => {
+            const content = editor.content.trim();
+            previewPane.innerHTML = content
+                ? renderMarkdown(content)
+                : '<p class="mdbox__empty">Nothing to preview</p>';
+            writePane.hidden = true;
+            previewPane.hidden = false;
+            writeTab.classList.remove("mdbox__tab--active");
+            previewTab.classList.add("mdbox__tab--active");
+        });
+
+        return { element: root, editor };
+    }
+
+    const contrastText = (hex: string): string => {
+        const value = Number.parseInt(hex.slice(1), 16);
+        const r = (value >> 16) & 255;
+        const g = (value >> 8) & 255;
+        const b = value & 255;
+        return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.6 ? "#24292f" : "#ffffff";
+    };
+
+    const initials = (name: string): string =>
+        name
+            .split(/\s+/)
+            .map((part) => part[0] ?? "")
+            .join("")
+            .slice(0, 2)
+            .toUpperCase();
+
+    function createLabelChip(label: LabelDef): HTMLElement {
+        const chip = document.createElement("span");
+        chip.className = "label-chip";
+        chip.style.background = label.color;
+        chip.style.color = contrastText(label.color);
+        chip.textContent = label.name;
+        return chip;
+    }
+
+    function createComment(author: string, markdown: string): HTMLElement {
+        const wrapper = document.createElement("div");
+        wrapper.className = "comment";
+
+        const avatar = document.createElement("span");
+        avatar.className = "comment__avatar";
+        avatar.textContent = initials(author);
+
+        const panel = document.createElement("div");
+        panel.className = "comment__panel";
+
+        const head = document.createElement("div");
+        head.className = "comment__head";
+        head.textContent = `${author} commented just now`;
+
+        const body = document.createElement("div");
+        body.className = "comment__body markdown-body";
+        body.innerHTML = markdown.trim()
+            ? renderMarkdown(markdown)
+            : '<p class="mdbox__empty">No description provided.</p>';
+
+        panel.append(head, body);
+        wrapper.append(avatar, panel);
+        return wrapper;
+    }
+
+    const app = document.getElementById("issue-app")!;
+    const createView = document.getElementById("create-view") as HTMLElement;
+    const issueView = document.getElementById("issue-view") as HTMLElement;
+    const titleInput = document.getElementById("issue-title") as HTMLInputElement;
+    const submitButton = document.getElementById("submit-issue") as HTMLButtonElement;
+
+    const bodyBox = createMarkdownBox({ placeholder: "Describe the issue", minHeight: "12rem" });
+    document.getElementById("body-box")!.append(bodyBox.element);
+
+    const selectedLabels = new Set<string>();
+    const labelRows: HTMLButtonElement[] = [];
+
+    for (const label of LABELS) {
+        const row = document.createElement("button");
+        row.type = "button";
+        row.className = "label-row";
+
+        const swatch = document.createElement("span");
+        swatch.className = "label-row__swatch";
+        swatch.style.background = label.color;
+
+        const name = document.createElement("span");
+        name.textContent = label.name;
+
+        const check = document.createElement("span");
+        check.className = "label-row__check";
+        check.textContent = "✓";
+
+        row.append(swatch, name, check);
+        row.addEventListener("click", () => {
+            if (selectedLabels.has(label.name)) selectedLabels.delete(label.name);
+            else selectedLabels.add(label.name);
+            row.classList.toggle("label-row--on", selectedLabels.has(label.name));
+        });
+
+        labelRows.push(row);
+        document.getElementById("label-picker")!.append(row);
+    }
+
+    const updateSubmitState = (): void => {
+        submitButton.disabled = titleInput.value.trim().length === 0;
+    };
+
+    titleInput.addEventListener("input", updateSubmitState);
+    updateSubmitState();
+
+    document.getElementById("reset-issue")!.addEventListener("click", () => {
+        titleInput.value = "";
+        bodyBox.editor.content = "";
+        selectedLabels.clear();
+        for (const row of labelRows) row.classList.remove("label-row--on");
+        updateSubmitState();
+        titleInput.focus();
+    });
+
+    const scrollToTop = (): void => {
+        app.closest<HTMLElement>(".overflow-y-auto")?.scrollTo({ top: 0 });
+    };
+
+    let issueNumber = 128;
+
+    function renderIssue(issue: Issue): void {
+        issueView.innerHTML = "";
+
+        const backbar = document.createElement("div");
+        const back = document.createElement("button");
+        back.type = "button";
+        back.className = "btn btn--ghost";
+        back.textContent = "← New issue";
+        back.addEventListener("click", () => {
+            issueView.hidden = true;
+            createView.hidden = false;
+            scrollToTop();
+            titleInput.focus();
+        });
+        backbar.append(back);
+
+        const head = document.createElement("div");
+        head.className = "issue-head";
+
+        const titleRow = document.createElement("div");
+        titleRow.className = "issue-head__title-row";
+
+        const badge = document.createElement("span");
+        badge.className = "issue-badge";
+        badge.textContent = "Open";
+
+        const title = document.createElement("h1");
+        title.className = "issue-head__title";
+        title.textContent = issue.title;
+
+        titleRow.append(badge, title);
+
+        let commentCount = issue.body ? 1 : 0;
+        const meta = document.createElement("p");
+        meta.className = "issue-head__meta";
+        const updateMeta = (): void => {
+            meta.textContent = `#${issue.number} · bdbch opened this issue just now · ${commentCount} comment${commentCount === 1 ? "" : "s"}`;
+        };
+        updateMeta();
+
+        head.append(titleRow, meta);
+
+        if (issue.labels.length > 0) {
+            const labels = document.createElement("div");
+            labels.className = "issue-head__labels";
+            for (const label of issue.labels) labels.append(createLabelChip(label));
+            head.append(labels);
+        }
+
+        const comments = document.createElement("div");
+        comments.className = "comments";
+        if (issue.body) comments.append(createComment("bdbch", issue.body));
+
+        // Comment composer.
+        const footer = document.createElement("div");
+        footer.className = "mdbox__footer";
+
+        const hint = document.createElement("span");
+        hint.className = "mdbox__hint";
+        hint.textContent = "Markdown is supported";
+
+        const closeButton = document.createElement("button");
+        closeButton.type = "button";
+        closeButton.className = "btn btn--ghost";
+        closeButton.textContent = "Close issue";
+
+        const commentButton = document.createElement("button");
+        commentButton.type = "button";
+        commentButton.className = "btn btn--primary";
+        commentButton.textContent = "Comment";
+        commentButton.disabled = true;
+
+        const actions = document.createElement("div");
+        actions.className = "mdbox__actions";
+        actions.append(closeButton, commentButton);
+        footer.append(hint, actions);
+
+        const commentBox = createMarkdownBox({
+            placeholder: "Leave a comment",
+            minHeight: "8rem",
+            footer,
+            onChange: () => {
+                commentButton.disabled = commentBox.editor.content.trim().length === 0;
+            },
+        });
+
+        commentButton.addEventListener("click", () => {
+            const value = commentBox.editor.content.trim();
+            if (!value) return;
+            commentCount += 1;
+            comments.append(createComment("bdbch", value));
+            commentBox.editor.content = "";
+            commentButton.disabled = true;
+            updateMeta();
+            commentBox.editor.view.focus();
+        });
+
+        closeButton.addEventListener("click", () => {
+            const closed = badge.classList.toggle("issue-badge--closed");
+            badge.textContent = closed ? "Closed" : "Open";
+            closeButton.textContent = closed ? "Reopen issue" : "Close issue";
+        });
+
+        issueView.append(backbar, head, comments, commentBox.element);
+    }
+
+    submitButton.addEventListener("click", () => {
+        const title = titleInput.value.trim();
+        if (!title) return;
+
+        issueNumber += 1;
+        renderIssue({
+            number: issueNumber,
+            title,
+            body: bodyBox.editor.content.trim(),
+            labels: LABELS.filter((label) => selectedLabels.has(label.name)),
+        });
+
+        createView.hidden = true;
+        issueView.hidden = false;
+        scrollToTop();
+    });
+
+    // @ts-expect-error expose the body editor for the browser console
+    window.issueEditor = bodyBox.editor;
+</script>

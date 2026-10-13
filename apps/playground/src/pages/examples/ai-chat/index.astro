@@ -1,0 +1,459 @@
+---
+import Base from "../../../layouts/Base.astro";
+---
+
+<Base>
+    <div class="ai-chat" id="ai-chat">
+        <header class="ai-chat__header">
+            <span class="ai-msg__avatar ai-msg__avatar--ai">AI</span>
+            <h1 class="ai-chat__title">inksane chat</h1>
+        </header>
+
+        <div class="ai-chat__messages" id="messages" aria-live="polite"></div>
+
+        <form class="ai-chat__composer" id="composer">
+            <div class="ai-chat__editor" id="editor-mount"></div>
+            <div class="ai-chat__toolbar">
+                <span class="ai-chat__hint">
+                    Markdown · <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> to send
+                </span>
+                <button type="submit" class="ai-chat__send" id="send" disabled>Send</button>
+            </div>
+        </form>
+    </div>
+</Base>
+
+<style is:global>
+    .ai-chat {
+        display: flex;
+        flex-direction: column;
+        height: calc(100dvh - 3rem);
+    }
+
+    @media (min-width: 1024px) {
+        .ai-chat {
+            height: calc(100dvh - 8rem);
+        }
+    }
+
+    .ai-chat__header {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-muted);
+    }
+
+    .ai-chat__title {
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .ai-chat__messages {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1.5rem 0.25rem;
+        scrollbar-gutter: stable;
+    }
+
+    .ai-msg {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .ai-msg--user {
+        flex-direction: row-reverse;
+    }
+
+    .ai-msg__avatar {
+        flex: none;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 9999px;
+        border: 1px solid var(--border);
+        display: grid;
+        place-items: center;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: var(--foreground-muted);
+        background: var(--background-muted);
+    }
+
+    .ai-msg__avatar--ai {
+        color: var(--background);
+        background: var(--foreground);
+        border-color: var(--foreground);
+    }
+
+    .ai-msg__body {
+        min-width: 0;
+        max-width: min(85%, 42rem);
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .ai-msg--user .ai-msg__body {
+        align-items: flex-end;
+        padding: 0.625rem 0.875rem;
+        border: 1px solid var(--border-muted);
+        border-radius: 0.75rem;
+        background: var(--background-muted);
+    }
+
+    .ai-typing {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        height: 1.25rem;
+    }
+
+    .ai-typing i {
+        width: 0.4rem;
+        height: 0.4rem;
+        border-radius: 9999px;
+        background: var(--foreground-muted);
+        animation: ai-typing 1.2s infinite ease-in-out;
+    }
+
+    .ai-typing i:nth-child(2) {
+        animation-delay: 0.15s;
+    }
+
+    .ai-typing i:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    @keyframes ai-typing {
+        0%,
+        60%,
+        100% {
+            opacity: 0.25;
+            transform: translateY(0);
+        }
+        30% {
+            opacity: 1;
+            transform: translateY(-2px);
+        }
+    }
+
+    .ai-chat__composer {
+        flex: none;
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        background: var(--background);
+        overflow: hidden;
+        transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .ai-chat__composer:focus-within {
+        border-color: var(--foreground-muted);
+    }
+
+    .ai-chat__editor .cm-editor {
+        max-height: 40vh;
+    }
+
+    .ai-chat__editor .cm-editor.cm-focused {
+        outline: none;
+    }
+
+    .ai-chat__editor .cm-scroller {
+        overflow-y: auto;
+    }
+
+    .ai-chat__toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.5rem 0.75rem;
+        border-top: 1px solid var(--border-muted);
+    }
+
+    .ai-chat__hint {
+        font-size: 0.75rem;
+        color: var(--foreground-muted);
+    }
+
+    .ai-chat__hint kbd {
+        font-family: ui-monospace, monospace;
+        font-size: 0.6875rem;
+        border: 1px solid var(--border);
+        border-radius: 0.25rem;
+        padding: 0 0.25rem;
+    }
+
+    .ai-chat__send {
+        flex: none;
+        border-radius: 0.5rem;
+        background: var(--foreground);
+        color: var(--background);
+        padding: 0.375rem 0.875rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .ai-chat__send:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+</style>
+
+<script>
+    import { Editor } from "@inksane/core";
+    import { EditorView, placeholder } from "@codemirror/view";
+    import { renderMarkdown } from "../../../lib/renderMarkdown";
+
+    type Role = "user" | "assistant";
+
+    const messagesEl = document.getElementById("messages")!;
+    const form = document.getElementById("composer") as HTMLFormElement;
+    const sendButton = document.getElementById("send") as HTMLButtonElement;
+
+    const lines = (...parts: string[]): string => parts.join("\n");
+
+    const FENCE = "```";
+
+    const code = (language: string, body: string): string =>
+        lines(`${FENCE}${language}`, body, FENCE);
+
+    const SEED: Array<{ role: Role; markdown: string }> = [
+        {
+            role: "assistant",
+            markdown: lines(
+                "Welcome to the inksane chat demo.",
+                "",
+                "The box below is a real **inksane** editor. Everything you write stays Markdown, but it renders while you type: headings, `inline code`, lists, quotes, tables and fenced code blocks.",
+                "",
+                "Press **Send** (or `Ctrl`/`⌘` + `Enter`) and your message shows up here, rendered from the Markdown you wrote.",
+            ),
+        },
+        {
+            role: "user",
+            markdown: lines(
+                "## Sprint update",
+                "",
+                "Here is where we landed this week:",
+                "",
+                "- Shipped the **markdown decorations**",
+                "- Fixed `blockquote` rendering",
+                "- Reviewed [the docs](https://inksane.dev)",
+                "",
+                "> Writing should feel like writing, not like typing syntax.",
+                "",
+                code(
+                    "ts",
+                    lines(
+                        "new Editor({",
+                        '  element: document.querySelector("#editor"),',
+                        '  content: "# Hello, inksane!",',
+                        "});",
+                    ),
+                ),
+                "",
+                "| Area | Status |",
+                "| --- | --- |",
+                "| Core | done |",
+                "| React | in progress |",
+            ),
+        },
+        {
+            role: "assistant",
+            markdown: lines(
+                "Nice update. Notice how it rendered: the heading, the list, the quote, the code block and the table all came straight from your Markdown.",
+                "",
+                "Try editing that message in the composer and sending it again. My reply will be just as made up.",
+            ),
+        },
+    ];
+
+    const RESPONSES: string[] = [
+        lines(
+            "Here is the short version:",
+            "",
+            "1. Write your message in **Markdown**",
+            "2. Send it",
+            "3. Read it back rendered",
+            "",
+            "Everything else is *make-believe*.",
+        ),
+        lines(
+            "A tiny comparison:",
+            "",
+            "| Input | Renders as |",
+            "| --- | --- |",
+            "| `**bold**` | **bold** |",
+            "| `*italic*` | *italic* |",
+            "| `` `code` `` | `` `code` `` |",
+            "",
+            code("js", 'console.log("hello from a fake assistant");'),
+        ),
+        lines(
+            "> This reply is simulated. The rendering is not.",
+            "",
+            "- The editor is real inksane",
+            "- The Markdown is real Markdown",
+            "- The answer is a canned string",
+            "",
+            "Try a heading, a table or a code block next.",
+        ),
+        lines(
+            "Sure, here is a quick sketch:",
+            "",
+            "**Plan**",
+            "",
+            "1. Draft it in the composer",
+            "2. Send with `Ctrl`/`⌘` + `Enter`",
+            "3. Keep the rendered result if you like it",
+            "",
+            "Writing `Markdown` here feels close to plain text, which is the whole point.",
+        ),
+    ];
+
+    let responseIndex = 0;
+
+    function createMessage(role: Role, markdown: string): HTMLElement {
+        const row = document.createElement("div");
+        row.className = `ai-msg ai-msg--${role}`;
+
+        const avatar = document.createElement("span");
+        avatar.className = "ai-msg__avatar";
+        if (role === "assistant") avatar.classList.add("ai-msg__avatar--ai");
+        avatar.textContent = role === "assistant" ? "AI" : "You";
+
+        const body = document.createElement("div");
+        body.className = "ai-msg__body";
+
+        const rendered = document.createElement("div");
+        rendered.className = "markdown-body";
+        rendered.innerHTML = renderMarkdown(markdown);
+        body.append(rendered);
+
+        row.append(avatar, body);
+        messagesEl.append(row);
+        scrollToBottom();
+        return row;
+    }
+
+    function createTyping(): HTMLElement {
+        const row = document.createElement("div");
+        row.className = "ai-msg ai-msg--assistant";
+
+        const avatar = document.createElement("span");
+        avatar.className = "ai-msg__avatar ai-msg__avatar--ai";
+        avatar.textContent = "AI";
+
+        const body = document.createElement("div");
+        body.className = "ai-msg__body";
+
+        const content = document.createElement("div");
+        content.className = "markdown-body";
+        content.innerHTML = '<span class="ai-typing"><i></i><i></i><i></i></span>';
+
+        body.append(content);
+        row.append(avatar, body);
+        messagesEl.append(row);
+        scrollToBottom();
+        return row;
+    }
+
+    function scrollToBottom(): void {
+        messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: "smooth" });
+    }
+
+    const theme = EditorView.theme({
+        ".cm-content": { paddingTop: "12px", paddingBottom: "12px" },
+        ".cm-line": { paddingLeft: "16px", paddingRight: "16px" },
+    });
+
+    const editor = new Editor({
+        element: document.getElementById("editor-mount")!,
+        content: "",
+        theme,
+        classNames: { editable: "font-sans" },
+        extensions: [
+            {
+                name: "chat-submit",
+                addKeybinds() {
+                    return [
+                        {
+                            key: "Mod-Enter",
+                            run() {
+                                send();
+                                return true;
+                            },
+                        },
+                    ];
+                },
+                addCodeMirrorExtensions() {
+                    return [
+                        placeholder("Write a message in Markdown…"),
+                        EditorView.updateListener.of((update) => {
+                            if (update.docChanged) updateSendState();
+                        }),
+                    ];
+                },
+            },
+        ],
+    });
+
+    function updateSendState(): void {
+        sendButton.disabled = editor.content.trim().length === 0;
+    }
+
+    function send(): void {
+        const markdown = editor.content.trim();
+        if (!markdown) return;
+
+        createMessage("user", markdown);
+        editor.content = "";
+        updateSendState();
+        editor.view.focus();
+
+        const typing = createTyping();
+        const reply = RESPONSES[responseIndex % RESPONSES.length];
+        responseIndex++;
+
+        window.setTimeout(
+            () => {
+                typing.remove();
+                createMessage("assistant", reply);
+            },
+            700 + Math.min(markdown.length * 4, 900),
+        );
+    }
+
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        send();
+    });
+
+    // Clicking anywhere in the composer should put the caret in the editor.
+    form.addEventListener("click", (event) => {
+        if ((event.target as HTMLElement).closest("button")) return;
+        editor.view.focus();
+    });
+
+    editor.on("update", updateSendState);
+
+    for (const message of SEED) {
+        createMessage(message.role, message.markdown);
+    }
+    updateSendState();
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+
+    // @ts-expect-error expose the editor for the browser console
+    window.chatEditor = editor;
+</script>
