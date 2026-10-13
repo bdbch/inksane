@@ -1,0 +1,106 @@
+---
+title: Overview
+description: "What an extension is, how the built-ins are grouped, and how to replace one."
+---
+
+import { Card, Cards } from "fumadocs-ui/components/card";
+import { Callout } from "fumadocs-ui/components/callout";
+
+Extensions add behavior to an editor. They can register commands, keybindings, Markdown parser
+extensions and decorations, CodeMirror extensions, and further extensions.
+
+The editor includes its built-in extensions automatically. Add your own with the `extensions` option:
+
+```ts
+import { Editor, type Extension } from "@inksane/core";
+
+const MyExtension: Extension = {
+  name: "my-extension",
+};
+
+const editor = new Editor({
+  element: mount,
+  extensions: [MyExtension],
+});
+```
+
+## How the built-ins are grouped
+
+The built-in extensions fall into three groups:
+
+- **Inline syntax** decorates and hides Markdown that lives inside a line.
+- **Block syntax** decorates and hides Markdown that owns whole lines or blocks.
+- **Editor features** change how the editor behaves instead of what it parses.
+
+Every one of them is enabled by default.
+
+## Inline syntax
+
+| Extension                           | What it adds                                                |
+| ----------------------------------- | ----------------------------------------------------------- |
+| [Bold](/extensions/inline/bold)     | `**bold**`, the `toggleBold()` command, and `Mod-b`.        |
+| [Italic](/extensions/inline/italic) | `*italic*`, the `toggleItalic()` command, and `Mod-i`.      |
+| [Link](/extensions/inline/link)     | `[text](url)`, the external-link icon, and `Mod-k`.         |
+| [Image](/extensions/inline/image)   | `![alt](src)` with a safe-URL check and a rendered preview. |
+| [Code](/extensions/inline/code)     | Inline code with backticks, plus fenced code blocks.        |
+
+## Block syntax
+
+| Extension                                             | What it adds                                       |
+| ----------------------------------------------------- | -------------------------------------------------- |
+| [Heading](/extensions/blocks/heading)                 | `#` to `######` headings and the heading commands. |
+| [List](/extensions/blocks/list)                       | Bullet and ordered lists.                          |
+| [Blockquote](/extensions/blocks/blockquote)           | `>` blockquotes.                                   |
+| [Horizontal rule](/extensions/blocks/horizontal-rule) | `---` separators and `Mod-Shift--`.                |
+| [HTML](/extensions/blocks/html)                       | Rendered block HTML and hidden comments.           |
+
+## Editor features
+
+| Extension                                       | What it adds                                            |
+| ----------------------------------------------- | ------------------------------------------------------- |
+| [History](/extensions/features/history)         | Undo and redo for typing and command-based edits.       |
+| [Keybindings](/extensions/features/keybindings) | Tab indentation, select all, and every default binding. |
+
+One more extension works behind the scenes: `__tiptap_commands` registers the core content and focus
+commands. It has no page of its own.
+
+## Replacing a built-in
+
+A configured extension replaces the built-in with the same `name`. That is how a built-in feature is
+given options. The [link](/extensions/inline/link) extension is the only built-in that ships as a
+factory today:
+
+```ts
+import { Editor, LinkExtension } from "@inksane/core";
+
+const editor = new Editor({
+  element: mount,
+  extensions: [
+    LinkExtension({
+      onLinkRequest: ({ text }) => window.prompt(`Link for "${text}"`),
+    }),
+  ],
+});
+```
+
+<Callout type="warning" title="Names must be unique">
+  Each distinct extension name must be unique across the complete extension tree. Duplicate names
+  and circular child-extension graphs throw while the editor is created. Reusing the same
+  child-extension instance through multiple parents is deduplicated, so it is safe.
+</Callout>
+
+## Priority
+
+`priority` is optional and defaults to `0`. Higher-priority extensions are initialized first. Do not
+rely on priority to resolve command-name collisions; command names should be unique too.
+
+## Next steps
+
+<Cards>
+  <Card title="Write your own extension" href="/extensions/custom">
+    The full hook reference, with commands, Markdown, and HTML.
+  </Card>
+  <Card title="Commands" href="/introduction/commands">
+    How consumers run the commands your extension registers.
+  </Card>
+</Cards>

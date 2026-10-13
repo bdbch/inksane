@@ -1,0 +1,88 @@
+---
+title: Link
+description: "The link extension: [text](url), the external-link icon, commands, and Mod-k."
+---
+
+The `link` extension renders `[text](url)` links, adds a small external-link icon next to them, and
+adds the link commands. It is the only built-in extension that ships as a factory.
+
+## Usage
+
+```ts
+import { Editor, LinkExtension } from "@inksane/core";
+
+const editor = new Editor({
+  element: mount,
+  extensions: [
+    LinkExtension({
+      onLinkRequest: ({ text }) => window.prompt(`Link for "${text}"`),
+    }),
+  ],
+});
+```
+
+## Options
+
+| Option          | Type                                       | Description                                                                   |
+| --------------- | ------------------------------------------ | ----------------------------------------------------------------------------- |
+| `onLinkRequest` | `(context) => string \| null \| undefined` | Supplies the URL when `Mod-k` creates a link. Return a falsy value to cancel. |
+
+The context contains the text of the current selection, which is an empty string when the cursor is
+collapsed.
+
+`Mod-k` stays **unbound** while `onLinkRequest` is not set, so the browser keeps the key.
+
+## What it adds
+
+- Decorates the `Link` node with `.inksane-mark-link` and hides the brackets and the URL.
+- Attaches an external-link anchor with `.inksane-mark-link-open` after links that have a URL the
+  editor considers safe.
+- Converts pasted `<a href>` elements to `[text](href)`. Links without a safe URL keep their text
+  only.
+
+The icon is skipped for empty URLs and for URLs that fail the safe-URL check, which allows `http:`,
+`https:`, `mailto:`, and relative URLs.
+
+## Commands
+
+| Command                              | Description                                                                                    |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `insertLink({ content, url, pos? })` | Inserts `[content](url)`.                                                                      |
+| `setLink({ url, pos? })`             | Wraps the range in a link. Returns `false` for an empty URL or a range that is already a link. |
+| `removeLink({ pos? })`               | Replaces the link with its text.                                                               |
+| `toggleLink({ url, pos? })`          | `setLink` or `removeLink`.                                                                     |
+
+```js
+editor.chain().setLink({ url: "https://inksane.dev" }).focus().run();
+```
+
+## Keyboard
+
+`Mod-k` behaves differently depending on the selection:
+
+- On an existing link it removes the link and does **not** call `onLinkRequest`.
+- Otherwise it calls `onLinkRequest({ text })`. An empty result cancels and leaves the document
+  unchanged.
+
+## Styling
+
+```css
+[data-inksane-editor-content] {
+  .inksane-mark-link {
+    text-decoration: underline;
+  }
+
+  .inksane-mark-link-open {
+    display: inline-block;
+    margin-left: 4px;
+    cursor: pointer;
+    vertical-align: middle;
+  }
+
+  .inksane-mark-link-open svg {
+    display: block;
+    width: 1em;
+    height: 1em;
+  }
+}
+```

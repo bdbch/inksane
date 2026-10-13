@@ -1,0 +1,83 @@
+---
+title: Events
+description: "React to document changes, selection changes, and the editor lifecycle."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+The editor is an event emitter. Subscribe with `editor.on(name, listener)` and unsubscribe with
+`editor.off(name, listener)`. Every listener receives the event payload, which always contains the
+`editor`.
+
+```js
+const handleUpdate = ({ editor, transaction }) => {
+  console.log(editor.getMarkdown(), transaction);
+};
+
+editor.on("update", handleUpdate);
+
+editor.off("update", handleUpdate);
+```
+
+`once(name, listener)` subscribes for a single call. `removeEventListeners(name)` drops every
+listener for one event, and `removeListeners()` drops all of them.
+
+## Events
+
+| Event               | Payload                   | When it fires                                                              |
+| ------------------- | ------------------------- | -------------------------------------------------------------------------- |
+| `beforeCreate`      | `{ editor }`              | In the constructor, before the editor state exists.                        |
+| `create`            | `{ editor }`              | After the editor is created, and after mounting when `element` was passed. |
+| `mount`             | `{ editor }`              | After the CodeMirror view is created in `mount()`.                         |
+| `unmount`           | `{ editor }`              | Before the view is destroyed in `destroy()`.                               |
+| `destroy`           | `{ editor }`              | After `destroy()` ran.                                                     |
+| `update`            | `{ editor, transaction }` | After a transaction changed the document.                                  |
+| `selectionUpdate`   | `{ editor, selection }`   | After a transaction changed the selection.                                 |
+| `beforeTransaction` | `{ editor, transaction }` | Declared in the types. Not emitted yet.                                    |
+| `transaction`       | `{ editor, transaction }` | Declared in the types. Not emitted yet.                                    |
+
+<Callout type="warn" title="beforeTransaction and transaction are not wired up yet">
+  Both names are part of `EditorEvents` so the shape is stable, but the editor does not emit them.
+  Subscribe to `update` for document changes until they are implemented.
+</Callout>
+
+## Document changes
+
+`update` fires for typing, pasting, and every command that changes the document. The payload
+includes the CodeMirror `transaction`, which has the changes and the new state.
+
+```js
+editor.on("update", ({ editor }) => {
+  save(editor.getMarkdown());
+});
+```
+
+## Selection changes
+
+`selectionUpdate` fires when the cursor or the selected range changes, including when a command
+moves the selection.
+
+```js
+editor.on("selectionUpdate", ({ selection }) => {
+  toolbar.setActive(selection.main.from !== selection.main.to);
+});
+```
+
+In React, `useInksaneSelection()` wraps this event. See the [React guide](/react).
+
+## Lifecycle
+
+`create` runs once per editor. `mount` runs when the editor attaches to an element, which happens
+right after creation when you pass `element`, or later when you call `mount()` yourself. `destroy`
+runs when you tear the editor down.
+
+```js
+editor.on("mount", ({ editor }) => console.log("mounted", editor.isMounted));
+editor.on("destroy", () => console.log("gone"));
+```
+
+## Events on extensions
+
+The `Extension` type also allows handlers named after these events. The extension manager does not
+subscribe them yet, so they never run. Subscribe with `editor.on(...)` in application code, or use a
+CodeMirror extension, until extension lifecycle handlers are implemented.

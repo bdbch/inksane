@@ -1,0 +1,51 @@
+---
+title: HTML
+description: "The HTML extension: rendered block HTML, hidden comments, and sanitizing."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+The `html` extension renders block-level HTML from the document, such as `<div>`, `<details>`, or
+`<table>`, and hides HTML comments.
+
+## What it adds
+
+- Replaces an `HTMLBlock` with a block widget that contains the cleaned markup. The wrapper gets
+  `.inksane-html-block` and, like every `htmlWidget`, the `inksane-html` class.
+- Hides the source of the block while the selection is outside it.
+- Hides HTML comments entirely.
+
+Clicking a rendered block moves the cursor into its source so it can be edited. Because a block is a
+single widget, the up and down arrow keys would normally skip over it, so the extension binds
+`ArrowUp` and `ArrowDown` to move into an adjacent HTML block when there is one.
+
+<Callout type="warn" title="Document HTML is not trusted">
+  The markup is cleaned with `sanitizeHtml` before it is rendered. That helper drops scripts, event
+  handlers, and unsafe URLs, and unwraps elements it does not know. Inline HTML at the top level of
+  a paragraph is not rendered yet.
+</Callout>
+
+## Styling
+
+```css
+[data-inksane-editor-content] {
+  .inksane-html-block {
+    padding-block: 16px;
+  }
+
+  .inksane-html-block table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .inksane-html-block th,
+  .inksane-html-block td {
+    border: 1px solid #ddd;
+    padding: 6px 12px;
+    text-align: left;
+  }
+}
+```
+
+`sanitizeHtml` and `escapeHtml` are exported from `@inksane/core` if you build your own HTML
+rendering. See [write your own extension](/extensions/custom#rendering-html-from-an-extension).

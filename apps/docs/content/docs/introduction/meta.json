@@ -1,0 +1,13 @@
+{
+  "title": "Introduction",
+  "collapsible": false,
+  "pages": [
+    "index",
+    "installation",
+    "quick-start",
+    "styling",
+    "commands",
+    "events",
+    "collaboration"
+  ]
+}

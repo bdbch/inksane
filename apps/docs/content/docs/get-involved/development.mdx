@@ -1,0 +1,83 @@
+---
+title: Development
+description: "Set up the repository locally and run the checks before you open a pull request."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+## Requirements
+
+- [Git](https://git-scm.com/)
+- [Node.js](https://nodejs.org/) 22.12.0 or newer
+- [pnpm](https://pnpm.io/) 11.18.0
+
+## Setup
+
+Clone the repository, install the dependencies, and run the full validation suite:
+
+```sh
+pnpm install
+pnpm ready
+```
+
+`pnpm ready` runs the type checks and linter, the tests, and the production build.
+
+## Repository layout
+
+| Path                               | What it is                                     |
+| ---------------------------------- | ---------------------------------------------- |
+| `packages/core`                    | The editor, built-in extensions, and commands. |
+| `packages/react`                   | The React bindings.                            |
+| `packages/extension-collaboration` | The Yjs collaboration extension.               |
+| `apps/playground`                  | The Astro playground with demos and examples.  |
+| `apps/docs`                        | This documentation site.                       |
+
+## Scripts
+
+| Command               | What it does                                          |
+| --------------------- | ----------------------------------------------------- |
+| `pnpm dev`            | Runs the playground locally.                          |
+| `pnpm dev:docs`       | Runs this documentation site locally.                 |
+| `pnpm build`          | Builds the published packages.                        |
+| `pnpm ready`          | Type checks, tests, and builds. Run this before a PR. |
+| `pnpm release:add`    | Creates a bump file for a release.                    |
+| `pnpm release:check`  | Validates the release metadata.                       |
+| `pnpm release:status` | Shows the pending releases.                           |
+
+Package-specific scripts work through pnpm filters, for example
+`pnpm --filter @inksane/core test`.
+
+## Documentation
+
+The docs are Markdown and MDX under `apps/docs/content/docs`. Run `pnpm dev:docs` and edit the
+files; the dev server reloads them.
+
+Navigation lives in the `meta.json` file next to the pages:
+
+```json
+{
+  "title": "Introduction",
+  "collapsible": false,
+  "pages": ["index", "installation", "quick-start"]
+}
+```
+
+- `title` is the label of the folder in the sidebar.
+- `pages` sets the order. Pages that are not listed are appended at the end.
+- `collapsible: false` renders the folder as a category label instead of a collapsible group, which
+  is how the top-level sections are built.
+- `"---Label---"` inside `pages` inserts a separator label without a folder.
+
+Add the page file, then list it in the `meta.json` of its folder to control where it appears.
+
+## Checks in CI
+
+Every pull request runs:
+
+```sh
+pnpm exec vp check
+pnpm exec vp run -r test
+```
+
+`vp check` formats, lints, and type checks the repository. Run it locally before you push, or run
+`pnpm exec vp check --fix` to apply the formatting.

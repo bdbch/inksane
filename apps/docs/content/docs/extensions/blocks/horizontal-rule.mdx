@@ -1,0 +1,50 @@
+---
+title: Horizontal rule
+description: "The horizontal rule extension: --- separators and the insertHorizontalRule command."
+---
+
+The `horizontalRule` extension renders `---` separators as a line and adds the
+`insertHorizontalRule` command.
+
+## What it adds
+
+- Hides the whole `HorizontalRule` node and replaces it with an `<hr class="inksane-hr">` widget.
+- Converts pasted `<hr>` elements to `---`.
+
+## Command
+
+| Command                          | Description                                                                                                                                      |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `insertHorizontalRule({ pos? })` | Inserts `---` on its own line. Blank lines are added when the target line already has content. Returns `false` for a range outside the document. |
+
+```js
+editor.chain().insertHorizontalRule().focus().run();
+```
+
+## Keyboard
+
+| Keys          | Action                    |
+| ------------- | ------------------------- |
+| `Mod-Shift--` | `insertHorizontalRule()`. |
+
+## Styling
+
+```css
+[data-inksane-editor-content] {
+  .inksane-mark-horizontal-rule {
+    width: 100%;
+    border-top: 1px solid #666;
+    margin-block: 24px;
+  }
+
+  .inksane-hr {
+    display: inline-block;
+    width: 100%;
+    height: 1px;
+    margin: 0;
+    border: none;
+    border-top: 1px solid #666;
+    vertical-align: middle;
+  }
+}
+```

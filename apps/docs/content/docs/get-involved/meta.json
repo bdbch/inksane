@@ -1,0 +1,5 @@
+{
+  "title": "Get Involved",
+  "collapsible": false,
+  "pages": ["contributing", "development", "code-of-conduct"]
+}

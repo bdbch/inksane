@@ -1,0 +1,39 @@
+---
+title: Blockquote
+description: "The blockquote extension: > quotes and the blockquote commands."
+---
+
+The `blockquote` extension renders `>` blockquotes and adds commands to set, remove, and toggle them.
+
+## What it adds
+
+- Decorates the `Blockquote` node with `.inksane-blockquote` and hides the `>` markers, including the
+  whitespace after each one.
+- Converts pasted `<blockquote>` elements to `>` lines, one per line.
+
+## Commands
+
+| Command                      | Description                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------ |
+| `setBlockquote({ pos? })`    | Prefixes the line with `> `. Returns `false` when the line is already a quote. |
+| `removeBlockquote({ pos? })` | Removes the `> ` prefix. Returns `false` when there is none.                   |
+| `toggleBlockquote({ pos? })` | `setBlockquote` or `removeBlockquote`.                                         |
+
+The commands work on the line that contains the position.
+
+```js
+editor.commands.toggleBlockquote();
+```
+
+There is no default keybinding. Bind your own with
+[`addKeybinds`](/extensions/custom#keybindings).
+
+## Styling
+
+```css
+[data-inksane-editor-content] .inksane-blockquote {
+  border-left: 3px solid #303030;
+  padding-left: 8px;
+  color: #999;
+}
+```

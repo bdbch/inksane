@@ -1,0 +1,324 @@
+---
+title: Write your own extension
+description: "The extension hooks, commands, Markdown parsing, decorations, widgets, and HTML converters."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+An extension is an object with a required `name` and optional hooks. Every hook receives
+`{ editor }`, so it can read the editor instance and its options during setup.
+
+The setup hooks run once while the editor is created. They do not run again when the document
+changes.
+
+```ts
+import type { Extension } from "@inksane/core";
+
+export const MyExtension: Extension = {
+  name: "my-extension",
+  priority: 10,
+
+  addExtensions({ editor }) {
+    return [];
+  },
+  addMarkdownSyntax({ editor }) {
+    return [];
+  },
+  addMarkdownDecorations({ editor }) {
+    return [];
+  },
+  addHtmlConverters({ editor }) {
+    return [];
+  },
+  addCommands({ editor }) {
+    return {};
+  },
+  addKeybinds({ editor }) {
+    return [];
+  },
+  addCodeMirrorExtensions({ editor }) {
+    return [];
+  },
+};
+```
+
+## Hooks
+
+| Hook                      | Returns                     | Purpose                                                  |
+| ------------------------- | --------------------------- | -------------------------------------------------------- |
+| `addExtensions`           | `Extension[]`               | Child extensions, resolved recursively.                  |
+| `addCommands`             | command implementations     | Register commands by name.                               |
+| `addKeybinds`             | CodeMirror `KeyBinding[]`   | Bind keys.                                               |
+| `addCodeMirrorExtensions` | CodeMirror `Extension[]`    | Add CodeMirror features that do not fit the other hooks. |
+| `addMarkdownSyntax`       | Lezer `MarkdownExtension[]` | Teach the Markdown parser new syntax.                    |
+| `addMarkdownDecorations`  | decoration configs          | Style or replace parsed nodes.                           |
+| `addHtmlConverters`       | `HtmlConverter[]`           | Turn pasted HTML into Markdown.                          |
+
+## Compose with child extensions
+
+`addExtensions` returns further extensions. They are resolved recursively and contribute to the same
+editor setup, so a feature can be assembled from smaller pieces.
+
+```ts
+export const ToolbarExtension: Extension = {
+  name: "toolbar",
+  addExtensions() {
+    return [BoldExtension, ItalicExtension];
+  },
+};
+```
+
+## Commands
+
+Declare the command on the `Commands` interface with module augmentation, then return a curried
+implementation from `addCommands`. The outer function receives the command context, the inner
+function receives the public arguments and returns a boolean.
+
+```ts
+import type { Extension } from "@inksane/core";
+
+declare module "@inksane/core" {
+  interface Commands<ReturnType> {
+    timestamp: {
+      insertTimestamp: () => ReturnType;
+    };
+  }
+}
+
+export const TimestampExtension: Extension = {
+  name: "timestamp",
+
+  addCommands() {
+    return {
+      insertTimestamp:
+        ({ state, dispatch }) =>
+        () => {
+          const { from } = state.selection.main;
+          dispatch({ changes: { from, insert: new Date().toISOString() } });
+          return true;
+        },
+    };
+  },
+};
+```
+
+The declared name and the key returned by `addCommands` must match. Once the extension is
+configured, both forms are typed:
+
+```ts
+editor.commands.insertTimestamp(); // boolean
+
+editor.chain().insertTimestamp().focus().run(); // boolean
+```
+
+The command context contains:
+
+| Field      | Description                                                                             |
+| ---------- | --------------------------------------------------------------------------------------- |
+| `editor`   | The editor instance.                                                                    |
+| `state`    | The current editor state.                                                               |
+| `view`     | The CodeMirror view.                                                                    |
+| `dispatch` | Applies a transaction. Use this instead of `view.dispatch` so a chain stays one update. |
+
+In a chain, `state` is projected to include the changes made by earlier commands in that chain.
+
+## Keybindings
+
+`addKeybinds` returns CodeMirror `KeyBinding` objects, or `undefined` when there is nothing to bind.
+Use CodeMirror's key syntax, such as `Mod-Shift-t`. The `run` callback must return whether it
+handled the key.
+
+```ts
+addKeybinds({ editor }) {
+  return [
+    {
+      key: "Mod-Shift-t",
+      run() {
+        return editor.commands.insertTimestamp();
+      },
+    },
+  ];
+}
+```
+
+## CodeMirror extensions
+
+`addCodeMirrorExtensions` returns raw CodeMirror extensions. Use it for features that do not fit the
+higher-level hooks.
+
+```ts
+import { drawSelection } from "@codemirror/view";
+
+addCodeMirrorExtensions() {
+  return [drawSelection()];
+}
+```
+
+## Markdown syntax
+
+`addMarkdownSyntax` returns `MarkdownExtension` values from `@lezer/markdown`. inksane passes them to
+CodeMirror's Markdown parser, which lets an extension parse custom syntax.
+
+```ts
+import type { MarkdownExtension } from "@lezer/markdown";
+
+addMarkdownSyntax(): MarkdownExtension[] {
+  return [myMarkdownSyntax];
+}
+```
+
+The node names your parser produces are what `addMarkdownDecorations` looks up.
+
+## Decorations
+
+`addMarkdownDecorations` describes how to style or replace parsed nodes. It does not change parsing,
+so pair it with `addMarkdownSyntax` when you decorate custom syntax.
+
+```ts
+addMarkdownDecorations() {
+  return [
+    {
+      nodeName: "StrongEmphasis",
+      className: "my-extension-strong",
+      hideSyntax: true,
+    },
+  ];
+}
+```
+
+| Option       | Description                                                                                     |
+| ------------ | ----------------------------------------------------------------------------------------------- |
+| `nodeName`   | Required. Must match a Lezer syntax-tree node name.                                             |
+| `className`  | Applied to the whole node range.                                                                |
+| `lineClass`  | Applied to every line the node touches.                                                         |
+| `markup`     | Which ranges count as syntax. Defaults to the node's direct children whose names end in `Mark`. |
+| `hideSyntax` | Hides the markup while the selection is outside the node.                                       |
+| `widgets`    | Replacement or attached widgets.                                                                |
+
+`markup` accepts child node names, or a function returning `{ from, to }` ranges:
+
+```ts
+markup: ["LinkMark", "URL"];
+
+markup: (node) => [{ from: node.from, to: node.to }];
+```
+
+`hideSyntax` reveals a node again while the selection touches it. During a drag, the node stays
+revealed until the pointer is released, so revealing cannot flicker.
+
+### Widgets
+
+A `replace` widget replaces every markup range while the syntax is hidden. Its `type` is a
+`WidgetType`, or a function that receives the syntax node and the editor state and may return `null`
+to keep the source text visible.
+
+```ts
+{
+  kind: "replace",
+  type: new MyWidget(),
+  block: true,
+}
+```
+
+An `attach` widget sits before or after the node, or at a position returned by a function. It is
+shown only while the syntax is hidden by default.
+
+```ts
+{
+  kind: "attach",
+  position: "after",
+  type: (node, state) => new MyWidget(state.doc.sliceString(node.from, node.to)),
+  onlyWhenHidden: false,
+}
+```
+
+## HTML converters
+
+`addHtmlConverters` teaches the editor how pasted HTML becomes Markdown. Each converter has a `match`
+predicate that claims an element and a `toMarkdown` that serializes it. Elements no converter claims
+keep their text.
+
+```ts
+addHtmlConverters() {
+  return [
+    {
+      match: (element) => element.tagName.toLowerCase() === "mark",
+      toMarkdown: (element, { renderChildren }) => `==${renderChildren(element).trim()}==`,
+    },
+  ];
+}
+```
+
+`renderChildren(element)` converts the children and applies the converters again. Set `block: true`
+for block-level elements so they get blank lines around them.
+
+The input is cleaned with `sanitizeHtml` before any converter runs.
+
+## Rendering HTML from an extension
+
+`htmlWidget` renders an HTML string for you, so a widget only passes a string. The markup is trusted
+because the extension writes it. Document text is not, so escape anything you interpolate.
+
+```ts
+import { escapeHtml, htmlWidget, type Extension } from "@inksane/core";
+
+export const CalloutExtension: Extension = {
+  name: "callout",
+
+  addMarkdownDecorations() {
+    return [
+      {
+        nodeName: "Callout",
+        hideSyntax: true,
+        markup: (node) => [{ from: node.from, to: node.to }],
+        widgets: [
+          {
+            kind: "replace",
+            block: true,
+            type: (node, state) =>
+              htmlWidget(
+                `<div class="callout">${escapeHtml(state.sliceDoc(node.from, node.to))}</div>`,
+                { block: true, className: "my-callout" },
+              ),
+          },
+        ],
+      },
+    ];
+  },
+};
+```
+
+`htmlWidget(html, options)` renders inline and wraps the markup in a `span`. Set `block: true` to wrap
+it in a `div`. The wrapper always gets the `inksane-html` class, and `className` adds one more.
+
+| Option            | Description                                                        |
+| ----------------- | ------------------------------------------------------------------ |
+| `block`           | Renders as a block element. Defaults to `false`.                   |
+| `className`       | Extra class next to `inksane-html`.                                |
+| `estimatedHeight` | Height hint in pixels for off-screen layout.                       |
+| `onRender`        | Runs after the markup is mounted and receives the wrapper element. |
+
+For block widgets, put spacing on the wrapper as padding, not as margin. CodeMirror measures the
+widget's border box, so margins are invisible to its height map and selection coordinates drift. The
+wrapper already gets `display: flow-root` to keep child margins inside the measured box.
+
+## Factories with options
+
+Give an extension options by writing it as a factory that closes over them, the way
+`LinkExtension({ onLinkRequest })` and `CollaborationExtension({ ydoc })` do.
+
+```ts
+export function MyExtension(options: { color: string } = { color: "red" }): Extension {
+  return {
+    name: "my-extension",
+    addMarkdownDecorations() {
+      return [{ nodeName: "Emphasis", className: `text-${options.color}` }];
+    },
+  };
+}
+```
+
+<Callout type="warn" title="Lifecycle handlers are not wired up yet">
+  The `Extension` type allows handlers named after the editor events, but the extension manager does
+  not subscribe them. Subscribe with `editor.on(...)` in application code for now.
+</Callout>

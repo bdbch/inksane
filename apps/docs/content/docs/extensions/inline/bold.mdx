@@ -1,0 +1,48 @@
+---
+title: Bold
+description: "The bold extension: ** syntax, commands, HTML pasting, and Mod-b."
+---
+
+The `bold` extension renders `**bold**` and `__bold__` as bold text and adds the bold commands.
+
+## What it adds
+
+- Decorates the `StrongEmphasis` node with `.inksane-mark-bold` and hides the `**` markers.
+- Converts pasted `<strong>` and `<b>` elements to `**text**`.
+- Registers the commands below and the `Mod-b` binding.
+
+## Commands
+
+| Command                         | Description                                                                                |
+| ------------------------------- | ------------------------------------------------------------------------------------------ |
+| `insertBold({ content, pos? })` | Inserts `**content**` at the range.                                                        |
+| `setBold({ pos? })`             | Wraps the range. At a collapsed cursor it inserts `****` and puts the caret in the middle. |
+| `removeBold({ pos? })`          | Removes the `**` around the range.                                                         |
+| `toggleBold({ pos? })`          | Removes bold when the range is bold, adds it otherwise.                                    |
+
+`setBold` returns `false` when the range is already bold, and `removeBold` returns `false` when it is
+not, so a toggle never nests markers.
+
+```js
+editor.commands.toggleBold();
+
+editor
+  .chain()
+  .setBold({ pos: { from: 0, to: 5 } })
+  .focus()
+  .run();
+```
+
+## Keyboard
+
+| Keys    | Action                           |
+| ------- | -------------------------------- |
+| `Mod-b` | `toggleBold()` on the selection. |
+
+## Styling
+
+```css
+[data-inksane-editor-content] .inksane-mark-bold {
+  font-weight: bold;
+}
+```

@@ -1,0 +1,26 @@
+---
+title: History
+description: "The history extension: undo and redo for typing and commands."
+---
+
+The `history` extension adds undo and redo. It ships as a built-in extension, so history is part of
+the default setup.
+
+## What it adds
+
+- The CodeMirror `history()` extension, which records document changes.
+- The redo and undo keybindings listed below.
+
+Commands dispatch their changes through the editor update, so both typing and command-based edits are
+undoable.
+
+## Keyboard
+
+| Keys          | Action |
+| ------------- | ------ |
+| `Mod-z`       | Undo.  |
+| `Mod-y`       | Redo.  |
+| `Mod-Shift-z` | Redo.  |
+
+`Mod-Shift-z` is bound explicitly in addition to the CodeMirror keymap, which would only bind it on
+macOS and Linux, so redo works on the same keys on every platform.

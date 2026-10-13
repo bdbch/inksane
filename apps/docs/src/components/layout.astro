@@ -1,0 +1,92 @@
+---
+import { ClientRouter } from "astro:transitions";
+
+const base = import.meta.env.BASE_URL;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <ClientRouter />
+    <script is:inline>
+      // Mirrors next-themes (attribute "class", default "system") so the first
+      // paint already has the right theme instead of flashing light.
+      (() => {
+        const apply = () => {
+          const stored = localStorage.getItem("theme");
+          const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          const dark = stored === "dark" || ((stored === null || stored === "system") && prefersDark);
+          document.documentElement.classList.toggle("dark", dark);
+          document.documentElement.style.colorScheme = dark ? "dark" : "light";
+        };
+
+        apply();
+
+        // View transitions swap the root element, so restore the class after each swap.
+        if (!window.__inksaneThemeListener) {
+          window.__inksaneThemeListener = true;
+          document.addEventListener("astro:after-swap", apply);
+        }
+      })();
+    </script>
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <slot />
+  </body>
+</html>
+
+<script>
+  // Astro renders the React components inside MDX statically, so the copy buttons
+  // that fumadocs puts on code blocks never get hydrated. This reimplements the
+  // click behavior for the buttons fumadocs already rendered.
+  const CHECK_ICON =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>';
+
+  const revertTimers = new WeakMap<HTMLButtonElement, number>();
+
+  async function copyCodeBlock(button: HTMLButtonElement) {
+    const code = button.closest("figure")?.querySelector("pre");
+    if (!code) return;
+
+    try {
+      await navigator.clipboard.writeText(code.textContent ?? "");
+    } catch {
+      return;
+    }
+
+    const label = button.querySelector(".sr-only");
+    const icon = button.querySelector("svg");
+    const originalIcon = icon?.outerHTML;
+
+    button.dataset.checked = "";
+    if (label) label.textContent = "Copied Text";
+    if (icon) icon.outerHTML = CHECK_ICON;
+
+    window.clearTimeout(revertTimers.get(button));
+    revertTimers.set(
+      button,
+      window.setTimeout(() => {
+        delete button.dataset.checked;
+        if (label) label.textContent = "Copy Text";
+        const current = button.querySelector("svg");
+        if (originalIcon && current) current.outerHTML = originalIcon;
+      }, 1500),
+    );
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const button = target.closest("figure button");
+    if (!(button instanceof HTMLButtonElement)) return;
+    // Skip anything that is not the copy button from the code block header.
+    if (!button.querySelector(".sr-only")) return;
+
+    void copyCodeBlock(button);
+  });
+</script>

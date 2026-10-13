@@ -1,0 +1,60 @@
+---
+title: Code
+description: "The code extension: inline code, fenced code blocks, commands, and keybindings."
+---
+
+The `code` extension renders inline code and fenced code blocks and adds the code commands.
+
+## What it adds
+
+- Decorates `InlineCode` with `.inksane-mark-inline-code` and hides the backticks.
+- Adds `.inksane-code-block` to the lines of a `FencedCode` block and hides the fence and the
+  language hint.
+- Converts pasted `<pre>` and `<code>` elements to fenced and inline code.
+
+When the pasted content contains backticks, the fence grows so the code block stays valid: the
+extension uses at least three backticks, or one more than the longest run inside the content.
+
+## Commands
+
+| Command                            | Description                                                             |
+| ---------------------------------- | ----------------------------------------------------------------------- |
+| `insertCode({ content, pos? })`    | Inserts `content` wrapped in backticks.                                 |
+| `setCode({ pos? })`                | Wraps the range in backticks.                                           |
+| `removeCode({ pos? })`             | Removes the backticks around the range.                                 |
+| `toggleCode({ pos? })`             | `setCode` or `removeCode`.                                              |
+| `setCodeBlock({ lang?, pos? })`    | Wraps the range in a fenced code block, with an optional language hint. |
+| `removeCodeBlock({ pos? })`        | Removes the fence and keeps the code.                                   |
+| `toggleCodeBlock({ lang?, pos? })` | `setCodeBlock` or `removeCodeBlock`.                                    |
+
+```js
+editor.commands.toggleCode();
+
+editor.chain().setCodeBlock({ lang: "ts" }).focus().run();
+```
+
+## Keyboard
+
+| Keys          | Action                                                                                               |
+| ------------- | ---------------------------------------------------------------------------------------------------- |
+| `Mod-.`       | Toggles inline code. At a collapsed cursor it inserts a pair of backticks and puts the caret inside. |
+| `Mod-Shift-.` | Toggles a fenced code block.                                                                         |
+| `Mod-Shift->` | Same as `Mod-Shift-.`, for keyboard layouts where the other key is awkward.                          |
+
+## Styling
+
+```css
+[data-inksane-editor-content] {
+  .inksane-mark-inline-code {
+    font-family: monospace;
+    background: #e0e0e0;
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+
+  .inksane-code-block {
+    font-family: monospace;
+    background: #e0e0e0;
+  }
+}
+```

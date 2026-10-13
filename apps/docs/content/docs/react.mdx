@@ -1,0 +1,174 @@
+---
+title: React
+description: "Use the React bindings: a provider, a component, and hooks."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Card, Cards } from "fumadocs-ui/components/card";
+
+`@inksane/react` wraps the core editor for React. It exports a provider, a component that renders
+the mount element, and hooks for the editor and its selection. React 18 and newer are supported.
+
+```sh
+pnpm add @inksane/react
+```
+
+## The pieces
+
+| Export                  | What it does                                                            |
+| ----------------------- | ----------------------------------------------------------------------- |
+| `useInksane(options)`   | Creates an editor for the component lifetime and returns it, or `null`. |
+| `<Inksane />`           | Renders the element the editor mounts into.                             |
+| `<InksaneProvider />`   | Creates one editor and shares it with the tree through context.         |
+| `useInksaneContext()`   | Reads the nearest editor from context.                                  |
+| `useInksaneSelection()` | Reads the current selection and re-renders when it changes.             |
+
+`options` is `EditorOptions` without `element`, because the binding owns the mount element.
+
+## Mount an editor
+
+`useInksane` creates the editor after the first render, so it returns `null` on that render. Pass the
+editor to `<Inksane />`, which mounts it into a `div`.
+
+```tsx
+import { Inksane, useInksane } from "@inksane/react";
+
+export function Editor() {
+  const editor = useInksane({ content: "# Hello inksane" });
+
+  return <Inksane editor={editor} className="rounded-md border" />;
+}
+```
+
+<Callout type="info" title="The editor is client-only">
+  The editor is created in an effect and needs the DOM. During server rendering it does not exist,
+  so render `<Inksane />` and let it hydrate on the client. Do not read `editor.view` during render.
+</Callout>
+
+## Share the editor with context
+
+`InksaneProvider` creates the editor and provides it. Any component below it can read the editor
+with `useInksaneContext()`, which is how you build a toolbar next to the editor.
+
+```tsx
+import { useInksaneContext, useInksaneSelection } from "@inksane/react";
+
+export function Toolbar() {
+  const editor = useInksaneContext();
+  const selection = useInksaneSelection();
+
+  return (
+    <div className="flex gap-2 border-b p-2">
+      <button
+        type="button"
+        disabled={!editor}
+        onClick={() => editor?.chain().toggleBold().focus().run()}
+      >
+        Bold
+      </button>
+      <button
+        type="button"
+        disabled={!editor}
+        onClick={() => editor?.chain().toggleItalic().focus().run()}
+      >
+        Italic
+      </button>
+      <span className="ml-auto">
+        {selection ? `${selection.main.from}–${selection.main.to}` : "no selection"}
+      </span>
+    </div>
+  );
+}
+```
+
+Put the toolbar and the editor under one provider:
+
+```tsx
+import { Inksane, InksaneProvider } from "@inksane/react";
+import { Toolbar } from "./toolbar";
+
+export function App() {
+  return (
+    <InksaneProvider content="# Hello inksane">
+      <div className="overflow-hidden rounded-md border">
+        <Toolbar />
+        <Inksane />
+      </div>
+    </InksaneProvider>
+  );
+}
+```
+
+Under a provider, `<Inksane />` uses the editor from context, so you do not pass `editor` yourself.
+
+## Options are read once
+
+`useInksane` captures its options when the editor is created. Changing `extensions`, `theme`, or
+other options later has no effect. `content` is the exception: it stays in sync with the `content`
+prop.
+
+```tsx
+// content updates the document
+const editor = useInksane({ content: markdown });
+```
+
+To replace the editor with new options, remount it with a `key`:
+
+```tsx
+<Editor key={storageKey} extensions={extensions} />
+```
+
+## Read and write content
+
+`editor.content` and the `content` option stay in sync, but the editor also emits events, so you can
+build a controlled component the other way around.
+
+```tsx
+import { useEffect, useState } from "react";
+import { Inksane, useInksane } from "@inksane/react";
+
+export function ControlledEditor() {
+  const [markdown, setMarkdown] = useState("# Start here");
+  const editor = useInksane({ content: markdown });
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleUpdate = () => setMarkdown(editor.getMarkdown());
+    editor.on("update", handleUpdate);
+    return () => editor.off("update", handleUpdate);
+  }, [editor]);
+
+  return (
+    <>
+      <Inksane editor={editor} />
+      <pre>{markdown}</pre>
+    </>
+  );
+}
+```
+
+See [Events](/introduction/events) for every event and its payload.
+
+## Selection
+
+`useInksaneSelection()` returns the editor's current selection or `null` before the editor exists. It
+subscribes to `selectionUpdate`, so the component re-renders when the user moves the cursor or
+selects text. Pass an editor to read a selection outside a provider.
+
+```tsx
+const selection = useInksaneSelection(editor);
+selection?.main.from; // anchor
+selection?.main.to; // head
+```
+
+## Next steps
+
+<Cards>
+  <Card title="Commands" href="/introduction/commands">
+    Every command the editor and its extensions expose.
+  </Card>
+  <Card title="Events" href="/introduction/events">
+    React to document, selection, and lifecycle changes.
+  </Card>
+</Cards>

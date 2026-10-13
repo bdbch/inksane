@@ -1,0 +1,165 @@
+---
+title: Commands
+description: "Run one command at a time, or chain several into a single editor update."
+---
+
+Commands change editor content or editor state. The core commands and the commands added by
+extensions are available on every editor instance.
+
+Every command returns a boolean. `true` means the command ran, `false` means it could not be
+applied, for example because the content already had the requested formatting. Commands that fail
+leave the document untouched.
+
+## Run a single command
+
+`editor.commands` exposes every registered command, bound to the editor.
+
+```js
+const inserted = editor.commands.insertContent({
+  content: "Hello, inksane!",
+  from: 0,
+});
+
+if (!inserted) {
+  console.error("Could not insert content");
+}
+```
+
+Commands that work on the current selection, such as `toggleBold`, can be called without arguments:
+
+```js
+editor.commands.toggleBold();
+editor.commands.focus();
+```
+
+Formatting commands accept a `pos` option to act on a specific position or range instead of the
+selection. A position is a number, a range is `{ from, to }`, and both are 0-based document offsets.
+
+```js
+editor.commands.setBold({ pos: { from: 0, to: 5 } });
+editor.commands.toggleItalic({ pos: 12 });
+```
+
+## Chain commands
+
+Use `editor.chain()` to collect commands and run them together with `.run()`.
+
+```js
+const applied = editor.chain().setContent("# Draft").toggleBold().focus().run();
+```
+
+Nothing changes until `.run()` is called. At that point inksane evaluates the chain against the
+current state and dispatches its changes as one update:
+
+- Each command receives the state produced by the commands before it, so positions and selections
+  stay correct as the chain progresses.
+- `.run()` returns `true` only when every command returned `true`.
+- A command that returns `false` does not stop the chain. The remaining commands still run.
+- A chain can only be run once. Create a new one to apply more commands.
+
+Build the chain before running it when the commands are not known upfront. The editor state is read
+at `.run()`, not when `editor.chain()` is called.
+
+```js
+const chain = editor.chain().setContent("# Draft").focus();
+
+await saveDraft();
+
+const applied = chain.run();
+```
+
+## Command reference
+
+`pos` is optional everywhere it appears. Without it, a formatting command uses the current
+selection.
+
+### Core
+
+| Command                                 | Description                                         |
+| --------------------------------------- | --------------------------------------------------- |
+| `clearContent()`                        | Clears the document.                                |
+| `setContent(content)`                   | Replaces the whole document.                        |
+| `insertContent({ content, from, to? })` | Inserts or replaces content at a position or range. |
+| `deleteContent(from, to)`               | Removes a document range.                           |
+| `cutContent(fromRange, toRange)`        | Moves content from one range to another.            |
+| `focus()`                               | Focuses the editor and scrolls it into view.        |
+
+### Bold
+
+| Command                         | Description                                               |
+| ------------------------------- | --------------------------------------------------------- |
+| `insertBold({ content, pos? })` | Inserts `**content**`.                                    |
+| `setBold({ pos? })`             | Wraps the range in `**`, or inserts `****` at the cursor. |
+| `removeBold({ pos? })`          | Removes the `**` around the range.                        |
+| `toggleBold({ pos? })`          | `setBold` or `removeBold`, depending on the range.        |
+
+### Italic
+
+| Command                           | Description                                            |
+| --------------------------------- | ------------------------------------------------------ |
+| `insertItalic({ content, pos? })` | Inserts `*content*`.                                   |
+| `setItalic({ pos? })`             | Wraps the range in `*`, or inserts `**` at the cursor. |
+| `removeItalic({ pos? })`          | Removes the `*` around the range.                      |
+| `toggleItalic({ pos? })`          | `setItalic` or `removeItalic`.                         |
+
+### Heading
+
+| Command                          | Description                                                  |
+| -------------------------------- | ------------------------------------------------------------ |
+| `setHeading({ level, pos? })`    | Sets the line to a heading. `level` is `1` to `6`.           |
+| `toggleHeading({ level, pos? })` | Sets the level, or converts the heading back to a paragraph. |
+| `removeHeading({ pos? })`        | Removes the heading marker from the line.                    |
+
+### List
+
+| Command                       | Description                                |
+| ----------------------------- | ------------------------------------------ |
+| `toggleBulletList({ pos? })`  | Adds or removes a `-` marker on the line.  |
+| `toggleOrderedList({ pos? })` | Adds or removes a `1.` marker on the line. |
+
+### Blockquote
+
+| Command                      | Description                            |
+| ---------------------------- | -------------------------------------- |
+| `setBlockquote({ pos? })`    | Prefixes the line with `> `.           |
+| `removeBlockquote({ pos? })` | Removes the `> ` prefix.               |
+| `toggleBlockquote({ pos? })` | `setBlockquote` or `removeBlockquote`. |
+
+### Link
+
+| Command                              | Description                      |
+| ------------------------------------ | -------------------------------- |
+| `insertLink({ content, url, pos? })` | Inserts `[content](url)`.        |
+| `setLink({ url, pos? })`             | Wraps the range in a link.       |
+| `removeLink({ pos? })`               | Replaces the link with its text. |
+| `toggleLink({ url, pos? })`          | `setLink` or `removeLink`.       |
+
+### Image
+
+| Command                           | Description                                                          |
+| --------------------------------- | -------------------------------------------------------------------- |
+| `insertImage({ src, alt, pos? })` | Inserts `![alt](src)`. Returns `false` for a URL the editor rejects. |
+
+### Code
+
+| Command                            | Description                                                        |
+| ---------------------------------- | ------------------------------------------------------------------ |
+| `insertCode({ content, pos? })`    | Inserts inline code.                                               |
+| `setCode({ pos? })`                | Wraps the range in backticks.                                      |
+| `removeCode({ pos? })`             | Removes the backticks.                                             |
+| `toggleCode({ pos? })`             | `setCode` or `removeCode`.                                         |
+| `setCodeBlock({ lang?, pos? })`    | Wraps the range in a fenced code block, with an optional language. |
+| `removeCodeBlock({ pos? })`        | Removes the fence and keeps the content.                           |
+| `toggleCodeBlock({ lang?, pos? })` | `setCodeBlock` or `removeCodeBlock`.                               |
+
+### Horizontal rule
+
+| Command                          | Description                                                         |
+| -------------------------------- | ------------------------------------------------------------------- |
+| `insertHorizontalRule({ pos? })` | Inserts `---` on its own line, padded with blank lines when needed. |
+
+## Extending the type
+
+Commands are typed through module augmentation, so `editor.commands` and `editor.chain()` know about
+the commands an extension adds. The [custom extensions](/extensions/custom) page shows the full
+pattern.

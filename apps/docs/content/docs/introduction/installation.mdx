@@ -1,0 +1,71 @@
+---
+title: Installation
+description: "Add inksane to your project and check the requirements."
+---
+
+import { Card, Cards } from "fumadocs-ui/components/card";
+import { Callout } from "fumadocs-ui/components/callout";
+
+## Requirements
+
+- **Node.js 22.12 or newer** for the tooling around your project.
+- A bundler that resolves ESM. Every inksane package is ESM-only.
+- A browser supported by CodeMirror 6, which is every current Chrome, Firefox, Safari, and Edge.
+
+## Install the core package
+
+`@inksane/core` contains the editor, the built-in extensions, and the command API. It has no
+framework dependency.
+
+```sh title="pnpm"
+pnpm add @inksane/core
+```
+
+```sh title="npm"
+npm install @inksane/core
+```
+
+```sh title="yarn"
+yarn add @inksane/core
+```
+
+```sh title="bun"
+bun add @inksane/core
+```
+
+## Install the React bindings
+
+Add the bindings next to core when you build with React. They depend on `@inksane/core`, so the
+core package is installed for you.
+
+```sh title="pnpm"
+pnpm add @inksane/react
+```
+
+```sh title="npm"
+npm install @inksane/react
+```
+
+## Install the collaboration extension
+
+`@inksane/extension-collaboration` adds Yjs-backed collaboration and remote cursors.
+
+```sh title="pnpm"
+pnpm add @inksane/extension-collaboration
+```
+
+<Callout type="info" title="No styles to import">
+  inksane is headless, so none of these packages ship a stylesheet. The editor renders without CSS,
+  and [styling](/introduction/styling) is your job.
+</Callout>
+
+## Next steps
+
+<Cards>
+  <Card title="Create your first editor" href="/introduction/quick-start">
+    Mount an editor, add content, and read it back as Markdown.
+  </Card>
+  <Card title="React" href="/react">
+    Use the provider, the component, and the hooks from the React bindings.
+  </Card>
+</Cards>

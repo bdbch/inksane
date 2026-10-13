@@ -1,0 +1,70 @@
+---
+title: Keybindings
+description: "The keybinds extension and every keyboard shortcut the editor registers."
+---
+
+The `keybinds` extension handles indentation and select-all. Its bindings, and the bindings from the
+other extensions, are listed here.
+
+## Tab and Shift+Tab
+
+Tab indents the selected lines, or the current line when nothing is selected. Shift+Tab dedents.
+Indentation uses the `tabSize` editor option, which defaults to `2`.
+
+```js
+const editor = new Editor({
+  element: mount,
+  tabSize: 4,
+});
+```
+
+The commands return `false` when there is nothing to indent, for example when a dedent would go past
+the start of a line, and the key is left to the browser.
+
+## Select all
+
+`Mod-a` selects the whole document. Note that this is the editor's own binding, not the browser's.
+
+## All default keybindings
+
+`Mod` is Cmd on macOS and Ctrl on Windows and Linux.
+
+| Keys          | Action                            | Extension                                               |
+| ------------- | --------------------------------- | ------------------------------------------------------- |
+| `Mod-a`       | Select the whole document         | `keybinds`                                              |
+| `Tab`         | Indent the selection or the line  | `keybinds`                                              |
+| `Shift-Tab`   | Dedent the selection or the line  | `keybinds`                                              |
+| `Mod-b`       | Bold                              | [`bold`](/extensions/inline/bold)                       |
+| `Mod-i`       | Italic                            | [`italic`](/extensions/inline/italic)                   |
+| `Mod-k`       | Link, when `onLinkRequest` is set | [`link`](/extensions/inline/link)                       |
+| `Mod-.`       | Inline code                       | [`code`](/extensions/inline/code)                       |
+| `Mod-Shift-.` | Code block                        | [`code`](/extensions/inline/code)                       |
+| `Mod-Shift->` | Code block                        | [`code`](/extensions/inline/code)                       |
+| `Mod-Shift--` | Horizontal rule                   | [`horizontal-rule`](/extensions/blocks/horizontal-rule) |
+| `Mod-z`       | Undo                              | [`history`](/extensions/features/history)               |
+| `Mod-y`       | Redo                              | [`history`](/extensions/features/history)               |
+| `Mod-Shift-z` | Redo                              | [`history`](/extensions/features/history)               |
+| `ArrowUp`     | Move into an adjacent HTML block  | [`html`](/extensions/blocks/html)                       |
+| `ArrowDown`   | Move into an adjacent HTML block  | [`html`](/extensions/blocks/html)                       |
+
+The arrow keys only take over when the cursor would otherwise skip past an HTML block.
+
+## Add your own
+
+Return `KeyBinding` objects from `addKeybinds`. Use CodeMirror's key syntax and return whether the
+key was handled.
+
+```ts
+addKeybinds({ editor }) {
+  return [
+    {
+      key: "Mod-Shift-t",
+      run() {
+        return editor.commands.insertTimestamp();
+      },
+    },
+  ];
+}
+```
+
+See [write your own extension](/extensions/custom#keybindings) for the full pattern.
