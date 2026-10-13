@@ -82,6 +82,49 @@ describe("default keymap", () => {
   });
 });
 
+describe("newline input", () => {
+  /** Loads content, puts the caret at the given position, and presses Enter. */
+  const typeEnter = (content: string, anchor: number | "end", times = 1) => {
+    const mount = document.createElement("div");
+    const editor = new Editor({ element: mount, content });
+    editor.view.focus();
+    editor.view.dispatch({
+      selection: { anchor: anchor === "end" ? editor.content.length : anchor },
+    });
+
+    for (let i = 0; i < times; i++) press(editor, "Enter");
+
+    const value = editor.content;
+    mount.remove();
+    editor.destroy();
+    return value;
+  };
+
+  it("adds one newline per Enter press", () => {
+    expect(typeEnter("hello", "end", 2)).toBe("hello\n\n");
+  });
+
+  it("adds consecutive newlines in the middle of a line", () => {
+    expect(typeEnter("hello", 2, 2)).toBe("he\n\nllo");
+  });
+
+  it("adds consecutive newlines in an empty document", () => {
+    expect(typeEnter("", "end", 2)).toBe("\n\n");
+  });
+
+  it("inserts a plain newline at the end of a bullet list item", () => {
+    expect(typeEnter("- item", "end", 2)).toBe("- item\n\n");
+  });
+
+  it("inserts a plain newline at the end of an ordered list item", () => {
+    expect(typeEnter("1. item", "end", 2)).toBe("1. item\n\n");
+  });
+
+  it("inserts a plain newline at the end of a blockquote", () => {
+    expect(typeEnter("> quote", "end", 2)).toBe("> quote\n\n");
+  });
+});
+
 describe("default keymap configuration", () => {
   it("can be opted out of with defaultKeymap: false", () => {
     const mount = document.createElement("div");

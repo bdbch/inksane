@@ -81,7 +81,11 @@ export class ExtensionManager {
   get cmExtensions(): CMExtension[] {
     return [
       editorFocusExtension,
-      markdown({ extensions: this._markdownSyntax }),
+      // The Markdown language binds Enter and Backspace at high precedence,
+      // which overrides the default keymap and turns Enter into markup
+      // continuation instead of a plain newline. The editor owns those keys
+      // through `defaultKeymap`, so the language keymap is left out.
+      markdown({ extensions: this._markdownSyntax, addKeymap: false }),
       createMarkdownDecorations(this._markdownDecorations),
       htmlPasteHandler(this._htmlConverters),
       ...this._keybindings,

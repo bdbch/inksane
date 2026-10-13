@@ -13,6 +13,8 @@ Standard editing keys include:
 - Home, End, page, and arrow navigation with the usual `Shift` variants for selection.
 - Select all on `Mod-a`.
 
+Enter and Backspace stay with the editor instead of the Markdown language keymap. Enter always inserts a newline and Backspace deletes a single character, even at the end of a list item or blockquote, so typing does not silently add list or quote markup.
+
 Search keys include:
 
 - `Mod-f` opens the Find panel.
