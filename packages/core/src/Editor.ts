@@ -14,6 +14,7 @@ import {
   CommandsExtension,
   HeadingExtension,
   HorizontalRuleExtension,
+  HistoryExtension,
   HtmlExtension,
   ImageExtension,
   KeybindExtension,
@@ -29,6 +30,7 @@ import {
  */
 const BUILT_IN_EXTENSIONS: InksaneExtension[] = [
   CommandsExtension,
+  HistoryExtension,
   BoldExtension,
   ItalicExtension,
   LinkExtension(),

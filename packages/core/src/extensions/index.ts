@@ -10,3 +10,4 @@ export * from "./code.ts";
 export * from "./blockquote.ts";
 export * from "./list.ts";
 export * from "./keybinds.ts";
+export * from "./history.ts";
