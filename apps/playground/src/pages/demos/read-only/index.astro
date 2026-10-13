@@ -1,0 +1,54 @@
+---
+import Base from "../../../layouts/Base.astro";
+---
+
+<Base>
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold">Read-only editor</h1>
+        <p class="text-foreground-muted">
+            Select and copy text while editing is off. Enable editing to change the document.
+            Your changes stay when you switch back to read-only mode.
+        </p>
+    </div>
+    <label class="mb-4 inline-flex cursor-pointer items-center gap-2 py-2">
+        <input id="editable-toggle" type="checkbox" aria-controls="editor-mount" />
+        Allow editing
+    </label>
+    <div id="editor-mount" class="rounded-md border"></div>
+</Base>
+
+<script>
+    import { Editor } from "@inksane/core";
+    import { EditorView } from "@codemirror/view";
+
+    const content = `# Try read-only mode
+
+This editor starts with editing turned off. You can still **select**, copy, and scroll through the text.
+
+## Enable editing
+
+Check "Allow editing" above, then change this document. Try typing, pasting, or using a formatting shortcut.
+
+## Switch back
+
+Uncheck "Allow editing". Your changes stay visible, but typing and formatting no longer change the document.
+
+- Select a word or a paragraph.
+- Copy it with your usual keyboard shortcut.
+- Toggle editing as often as you like.
+`;
+
+    const editor = new Editor({
+        element: document.getElementById("editor-mount")!,
+        content,
+        editable: false,
+        theme: EditorView.theme({
+            ".cm-content": { paddingTop: "24px", paddingBottom: "24px" },
+            ".cm-line": { paddingLeft: "24px", paddingRight: "24px" },
+        }),
+        classNames: { editable: "font-sans" },
+    });
+
+    const toggle = document.querySelector<HTMLInputElement>("#editable-toggle")!;
+    toggle.addEventListener("change", () => editor.setEditable(toggle.checked));
+</script>
