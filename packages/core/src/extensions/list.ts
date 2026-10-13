@@ -107,6 +107,13 @@ export const ListExtension: Extension = {
     ];
   },
 
+  addStateQueries() {
+    return [
+      { name: "bulletList", kind: "node", nodeNames: ["BulletList"] },
+      { name: "orderedList", kind: "node", nodeNames: ["OrderedList"] },
+    ];
+  },
+
   addHtmlConverters() {
     return [
       {

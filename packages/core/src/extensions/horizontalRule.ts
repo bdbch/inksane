@@ -35,6 +35,10 @@ export const HorizontalRuleExtension: Extension = {
     ];
   },
 
+  addStateQueries() {
+    return [{ name: "horizontalRule", kind: "node", nodeNames: ["HorizontalRule"] }];
+  },
+
   addHtmlConverters() {
     return [
       {

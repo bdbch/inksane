@@ -6,7 +6,9 @@ import type { EditorEvents, EditorOptions } from "./types/editor.ts";
 import type { Extension as InksaneExtension } from "./types/extensions.ts";
 import { ExtensionManager } from "./ExtensionManager.ts";
 import type { ChainedCommands, SingleCommands } from "./types/commands.ts";
-import { CommandChain } from "./CommandChain.ts";
+import { canRunCommand, CommandChain, createBoundCommands } from "./CommandChain.ts";
+import { getActiveMarkRange, isQueryActive } from "./helpers/stateQueries.ts";
+import type { Range } from "./types/index.ts";
 import {
   BlockquoteExtension,
   BoldExtension,
@@ -89,26 +91,46 @@ export class Editor extends EventEmitter<EditorEvents> {
 
   /** Bound commands that run immediately as one-step chains. */
   get commands(): SingleCommands {
-    return this.buildCommands();
+    return createBoundCommands(this, this._extensionManager.commands);
   }
 
-  /** Builds the bound commands object from the registry. */
-  private buildCommands(): SingleCommands {
-    const registry = this._extensionManager.commands;
-    const bound = {} as Record<string, (...args: unknown[]) => boolean>;
+  /**
+   * Whether a mark or node is active at the current selection.
+   *
+   * @param name - The logical name declared by an extension, such as `bold`,
+   * `link`, `heading`, `bulletList`, `codeBlock`, or `blockquote`.
+   * @param attrs - Optional attributes to match, such as `{ level: 1 }` for a
+   * heading or `{ href }` for a link.
+   * @returns True when a matching mark or node covers the selection.
+   */
+  public isActive(name: string, attrs?: Record<string, unknown>): boolean {
+    return isQueryActive(this.state, this._extensionManager.stateQueries, name, attrs);
+  }
 
-    for (const name of Object.keys(registry)) {
-      bound[name] = (...args: unknown[]) => {
-        const chain = CommandChain.create(this, registry);
-        // Proxy forwards unknown keys to add(name, args), returns the chain.
-        (chain as unknown as Record<string, (...args: unknown[]) => ChainedCommands>)[name](
-          ...args,
-        );
-        return chain.run();
-      };
-    }
+  /**
+   * The range of a mark around the current selection.
+   *
+   * @param name - Optional logical mark name. Without it, the innermost mark
+   * around the selection is returned.
+   * @returns The range, or null when no matching mark is active.
+   */
+  public getMarkRange(name?: string): Range | null {
+    return getActiveMarkRange(this.state, this._extensionManager.stateQueries, name);
+  }
 
-    return bound as unknown as SingleCommands;
+  /**
+   * Whether a command would succeed, evaluated against a projected copy of the
+   * current state. The editor is not changed and nothing is dispatched.
+   *
+   * @param command - The command name, such as `toggleBold`.
+   * @param args - The arguments the command would receive.
+   * @returns The boolean the command would return.
+   */
+  public canRun<K extends keyof SingleCommands>(
+    command: K,
+    ...args: Parameters<SingleCommands[K]>
+  ): boolean {
+    return canRunCommand(this, this._extensionManager.commands, command as string, args);
   }
 
   public get content(): string {

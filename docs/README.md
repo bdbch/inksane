@@ -9,4 +9,5 @@
 ## Using inksane
 
 - [Commands](./commands.md)
+- [Editor state](./editor-state.md)
 - [Extensions](./extensions.md)

@@ -102,6 +102,13 @@ export const CodeExtension: Extension = {
     ];
   },
 
+  addStateQueries() {
+    return [
+      { name: "code", nodeNames: ["InlineCode"] },
+      { name: "codeBlock", kind: "node", nodeNames: ["FencedCode", "CodeBlock"] },
+    ];
+  },
+
   addHtmlConverters() {
     return [
       {

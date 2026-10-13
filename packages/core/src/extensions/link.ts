@@ -121,6 +121,16 @@ export function LinkExtension(options: LinkOptions = {}): Extension {
       ];
     },
 
+    addStateQueries() {
+      return [
+        {
+          name: "link",
+          nodeNames: ["Link"],
+          attrs: (node, state) => ({ href: getLinkUrl(node, state) }),
+        },
+      ];
+    },
+
     addHtmlConverters() {
       return [
         {

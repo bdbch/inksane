@@ -239,3 +239,158 @@ describe("Editor", () => {
     editor.destroy();
   });
 });
+
+describe("selection and state queries", () => {
+  let editor: Editor | undefined;
+
+  const mount = (content: string, selection?: { anchor: number; head?: number }) => {
+    editor?.destroy();
+    editor = new Editor({ element: document.createElement("div"), content });
+    if (selection) editor.view.dispatch({ selection });
+    return editor;
+  };
+
+  afterEach(() => {
+    if (editor) {
+      editor.view.dom.parentElement?.remove();
+      editor.destroy();
+      editor = undefined;
+    }
+  });
+
+  describe("isActive", () => {
+    it("detects an inline mark around a collapsed selection", () => {
+      const instance = mount("**bold** text", { anchor: 3 });
+
+      expect(instance.isActive("bold")).toBe(true);
+    });
+
+    it("ignores an inline mark when the caret is outside it", () => {
+      const instance = mount("**bold** text", { anchor: 10 });
+
+      expect(instance.isActive("bold")).toBe(false);
+    });
+
+    it("detects an inline mark for a selection inside it", () => {
+      const instance = mount("**bold** text", { anchor: 2, head: 6 });
+
+      expect(instance.isActive("bold")).toBe(true);
+    });
+
+    it("detects italic and inline code separately", () => {
+      const instance = mount("*italic* and `code`", { anchor: 3 });
+
+      expect(instance.isActive("italic")).toBe(true);
+      expect(instance.isActive("code")).toBe(false);
+
+      instance.view.dispatch({ selection: { anchor: 16 } });
+
+      expect(instance.isActive("code")).toBe(true);
+      expect(instance.isActive("italic")).toBe(false);
+    });
+
+    it("matches link attributes", () => {
+      const instance = mount("[text](https://example.com) rest", { anchor: 3 });
+
+      expect(instance.isActive("link")).toBe(true);
+      expect(instance.isActive("link", { href: "https://example.com" })).toBe(true);
+      expect(instance.isActive("link", { href: "https://other.com" })).toBe(false);
+    });
+
+    it("detects headings and their level", () => {
+      const instance = mount("# Title\n\nbody", { anchor: 3 });
+
+      expect(instance.isActive("heading")).toBe(true);
+      expect(instance.isActive("heading", { level: 1 })).toBe(true);
+      expect(instance.isActive("heading", { level: 2 })).toBe(false);
+
+      instance.view.dispatch({ selection: { anchor: 10 } });
+
+      expect(instance.isActive("heading")).toBe(false);
+    });
+
+    it("tells bullet and ordered lists apart", () => {
+      const bullet = mount("- one\n- two", { anchor: 3 });
+
+      expect(bullet.isActive("bulletList")).toBe(true);
+      expect(bullet.isActive("orderedList")).toBe(false);
+
+      const ordered = mount("1. one\n2. two", { anchor: 4 });
+
+      expect(ordered.isActive("orderedList")).toBe(true);
+      expect(ordered.isActive("bulletList")).toBe(false);
+    });
+
+    it("detects code blocks and blockquotes", () => {
+      const code = mount("```js\nconst a = 1;\n```", { anchor: 8 });
+
+      expect(code.isActive("codeBlock")).toBe(true);
+      expect(code.isActive("code")).toBe(false);
+
+      const quote = mount("> quoted", { anchor: 4 });
+
+      expect(quote.isActive("blockquote")).toBe(true);
+      expect(quote.isActive("heading")).toBe(false);
+    });
+  });
+
+  describe("getMarkRange", () => {
+    it("returns the range of the active mark", () => {
+      const instance = mount("**bold** text", { anchor: 3 });
+
+      expect(instance.getMarkRange("bold")).toEqual({ from: 0, to: 8 });
+    });
+
+    it("returns the innermost mark when no name is given", () => {
+      const instance = mount("**a [b](https://example.com) c**", { anchor: 8 });
+
+      expect(instance.getMarkRange()).toEqual({ from: 4, to: 28 });
+    });
+
+    it("returns null when no mark is active", () => {
+      const instance = mount("plain text", { anchor: 3 });
+
+      expect(instance.getMarkRange("bold")).toBeNull();
+      expect(instance.getMarkRange()).toBeNull();
+    });
+  });
+
+  describe("canRun", () => {
+    it("reports true without changing the document", () => {
+      const instance = mount("hello", { anchor: 1, head: 4 });
+
+      expect(instance.canRun("toggleBold")).toBe(true);
+      expect(instance.content).toBe("hello");
+
+      expect(instance.commands.toggleBold()).toBe(true);
+      expect(instance.content).toBe("h**ell**o");
+    });
+
+    it("reports false when the command cannot apply", () => {
+      const instance = mount("plain", { anchor: 2 });
+
+      expect(instance.canRun("removeHeading")).toBe(false);
+      expect(instance.commands.removeHeading()).toBe(false);
+    });
+
+    it("accepts command arguments", () => {
+      const instance = mount("Title", { anchor: 2 });
+
+      expect(instance.canRun("setHeading", { level: 1 })).toBe(true);
+      expect(instance.content).toBe("Title");
+
+      expect(instance.commands.setHeading({ level: 1 })).toBe(true);
+      expect(instance.content).toBe("# Title");
+    });
+
+    it("matches the command result for a nested command", () => {
+      const instance = mount("**bold**", { anchor: 0, head: 8 });
+
+      expect(instance.canRun("toggleBold")).toBe(true);
+      expect(instance.content).toBe("**bold**");
+
+      expect(instance.commands.toggleBold()).toBe(true);
+      expect(instance.content).toBe("bold");
+    });
+  });
+});
