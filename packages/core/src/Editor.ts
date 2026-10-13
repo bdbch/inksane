@@ -123,16 +123,57 @@ export class Editor extends EventEmitter<EditorEvents> {
     });
   }
 
-  public get json(): string[] {
+  /**
+   * The document serialized as Markdown.
+   *
+   * This is the editor's source format, so it round-trips with
+   * {@link setMarkdown}. Use it as the primary way to read the document.
+   */
+  public getMarkdown(): string {
+    return this.content;
+  }
+
+  /**
+   * Replaces the whole document with Markdown.
+   *
+   * @param markdown - The Markdown source to load.
+   */
+  public setMarkdown(markdown: string): void {
+    this.content = markdown;
+  }
+
+  /**
+   * The document as CodeMirror's `Text` JSON shape, one string per line, for
+   * example `["# Title", "", "Body"]`.
+   *
+   * Prefer {@link getMarkdown} unless the raw line array is specifically
+   * needed. The name `json` never described this shape and is deprecated.
+   */
+  public get textJSON(): string[] {
     return this.state.doc.toJSON();
   }
 
-  public set json(newContent: string[]) {
+  public set textJSON(newContent: string[]) {
     this.applyChanges({
       from: 0,
       to: this.state.doc.length,
       insert: Text.of(newContent),
     });
+  }
+
+  /**
+   * @deprecated Use {@link getMarkdown} to read the document, or
+   * {@link textJSON} for the raw CodeMirror line array. `json` returns a
+   * `string[]` line array, not a document AST, and will be removed in a future
+   * major release.
+   */
+  public get json(): string[] {
+    return this.textJSON;
+  }
+
+  /** @deprecated Use {@link setMarkdown} or {@link textJSON}. */
+  public set json(newContent: string[]) {
+    this.textJSON = newContent;
   }
 
   public get binary(): Uint8Array<ArrayBuffer> {
