@@ -1,3 +1,5 @@
+import { defaultKeymap, indentWithTab } from "@codemirror/commands";
+import { searchKeymap } from "@codemirror/search";
 import { indentLines } from "../helpers/indent.ts";
 import type { Extension } from "../types/index.ts";
 
@@ -11,14 +13,6 @@ export const KeybindExtension: Extension = {
     const unit = " ".repeat(ctx.editor.options.tabSize ?? DEFAULT_TAB_SIZE);
 
     return [
-      {
-        key: "Mod-a",
-        run(view) {
-          const { doc } = view.state;
-          view.dispatch({ selection: { anchor: 0, head: doc.length } });
-          return true;
-        },
-      },
       {
         key: "Tab",
         run(view) {
@@ -38,5 +32,29 @@ export const KeybindExtension: Extension = {
         },
       },
     ];
+  },
+};
+
+/**
+ * Registers the standard editing keymap.
+ *
+ * `defaultKeymap` covers platform-standard editing: word and line deletion,
+ * Home/End, line and document selection, moving and copying lines, and
+ * CodeMirror's comment and indent commands. `searchKeymap` adds Find and
+ * Replace, and `indentWithTab` indents through CodeMirror's language indent
+ * unit.
+ *
+ * It ships as the last built-in extension so extension-specific bindings, such
+ * as bold or link shortcuts, take precedence. The editor's own Tab binding in
+ * {@link KeybindExtension} is registered earlier as well, so Tab keeps honoring
+ * the `tabSize` option.
+ *
+ * Undo and redo stay with the history extension, which owns `historyKeymap`.
+ */
+export const DefaultKeymapExtension: Extension = {
+  name: "defaultKeymap",
+
+  addKeybinds() {
+    return [...defaultKeymap, ...searchKeymap, indentWithTab];
   },
 };

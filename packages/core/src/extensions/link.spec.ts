@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { Editor } from "../Editor.ts";
 import type { Extension } from "../types/index.ts";
 import { LinkExtension, type LinkOptions } from "./link.ts";
@@ -164,5 +164,68 @@ describe("link Mod-k keybinding", () => {
 
     expect(instance.content).toBe("Hello world");
     expect(onLinkRequest).not.toHaveBeenCalled();
+  });
+});
+
+describe("link command URL validation", () => {
+  let editor: Editor;
+
+  beforeEach(() => {
+    editor = new Editor({ element: document.createElement("div"), content: "Hello world" });
+  });
+
+  afterEach(() => {
+    if (editor) {
+      editor.view.dom.parentElement?.remove();
+      editor.destroy();
+    }
+  });
+
+  it("rejects a javascript: URL in insertLink", () => {
+    expect(editor.commands.insertLink({ content: "click", url: "javascript:alert(1)" })).toBe(
+      false,
+    );
+    expect(editor.content).toBe("Hello world");
+  });
+
+  it("rejects a data: URL in insertLink", () => {
+    expect(
+      editor.commands.insertLink({
+        content: "click",
+        url: "data:text/html,<script>alert(1)</script>",
+      }),
+    ).toBe(false);
+    expect(editor.content).toBe("Hello world");
+  });
+
+  it("rejects a javascript: URL in setLink", () => {
+    editor.view.dispatch({ selection: { anchor: 0, head: 5 } });
+
+    expect(editor.commands.setLink({ url: "javascript:alert(1)" })).toBe(false);
+    expect(editor.content).toBe("Hello world");
+  });
+
+  it("rejects a data: URL in setLink", () => {
+    editor.view.dispatch({ selection: { anchor: 0, head: 5 } });
+
+    expect(editor.commands.setLink({ url: "data:text/html,<script>alert(1)</script>" })).toBe(
+      false,
+    );
+    expect(editor.content).toBe("Hello world");
+  });
+
+  it("still inserts safe absolute and relative links", () => {
+    expect(editor.commands.insertLink({ content: "example", url: "https://example.com" })).toBe(
+      true,
+    );
+    expect(editor.content).toContain("[example](https://example.com)");
+
+    editor.view.dispatch({
+      changes: { from: 0, to: editor.content.length, insert: "Hello world" },
+    });
+    editor.view.dispatch({ selection: { anchor: 0, head: 5 } });
+
+    expect(editor.commands.setLink({ url: "/relative/path" })).toBe(true);
+    expect(editor.content).toContain("[Hello](/relative/path)");
   });
 });

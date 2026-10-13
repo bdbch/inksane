@@ -42,7 +42,7 @@
 }
 
 :root {
-  @apply bg-background text-foreground;
+  @apply bg-background text-foreground antialiased;
 }
 
 [data-inksane-editor-content] {

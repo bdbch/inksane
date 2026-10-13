@@ -22,6 +22,15 @@ export type EditorOptions = {
    * The number of spaces Tab and Shift+Tab use when indenting. Defaults to 2.
    */
   tabSize?: number;
+  /**
+   * Whether the standard editing keymap is registered. Covers common editing
+   * keys such as word deletion, Home/End, line selection, and Find. Defaults to
+   * true. Set to false to opt out and register your own keymap.
+   *
+   * Passing an extension named `defaultKeymap` replaces the built-in instead,
+   * which is how the keymap is extended with more bindings.
+   */
+  defaultKeymap?: boolean;
   classNames?: {
     editor?: string;
     editable?: string;
