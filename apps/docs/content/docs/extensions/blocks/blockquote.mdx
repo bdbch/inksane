@@ -5,6 +5,23 @@ description: "The blockquote extension: > quotes and the blockquote commands."
 
 The `blockquote` extension renders `>` blockquotes and adds commands to set, remove, and toggle them.
 
+## Setup
+
+Import `BlockquoteExtension` and pass it through the editor's `extensions` option. Create the mount
+element before this code runs:
+
+```ts
+import { Editor } from "@inksane/core";
+import { BlockquoteExtension } from "@inksane/core/extensions/blockquote";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [BlockquoteExtension],
+});
+```
+
+Blockquote is included in [BaseKit](/kits/base-kit). Disable it with `BaseKit({ blockquote: false })`.
+
 ## What it adds
 
 - Decorates the `Blockquote` node with `.inksane-blockquote` and hides the `>` markers, including the

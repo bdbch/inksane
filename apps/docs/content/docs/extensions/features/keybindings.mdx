@@ -1,16 +1,33 @@
 ---
 title: Keybindings
-description: "The default editing keymap, every shortcut the editor registers, and how to change them."
+description: "Register editing and indentation keymaps, use feature shortcuts, and add your own bindings."
 ---
 
-inksane registers a standard editing keymap on every editor. It covers the keys users expect from any
-text field or code editor, so common actions such as deleting a word, selecting a line, or searching
-do not read as missing features.
+Two extensions provide general editing shortcuts. `DefaultKeymapExtension` adds standard editing
+and search bindings. `KeybindExtension` adds Tab indentation using the editor's `tabSize` option.
+
+## Setup
+
+Import both extensions from the keybinds subpath and register them with the editor:
+
+```ts
+import { Editor } from "@inksane/core";
+import { DefaultKeymapExtension, KeybindExtension } from "@inksane/core/extensions/keybinds";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  tabSize: 4,
+  extensions: [KeybindExtension, DefaultKeymapExtension],
+});
+```
+
+Create the mount element before this code runs. Register only `KeybindExtension` if you want Tab
+indentation without the standard editing keymap. [BaseKit](/kits/base-kit) includes both extensions.
 
 ## The default keymap
 
 The default keymap is composed from CodeMirror's `defaultKeymap`, `searchKeymap`, and
-`indentWithTab`. It ships as the built-in extension named `defaultKeymap`.
+`indentWithTab`. Register `DefaultKeymapExtension` to enable it.
 
 Standard editing keys include:
 
@@ -19,9 +36,9 @@ Standard editing keys include:
 - Home, End, page, and arrow navigation, with the usual `Shift` variants for selection.
 - Select all on `Mod-a`.
 
-Enter and Backspace stay with the editor instead of the Markdown language keymap. Enter always
-inserts a newline and Backspace deletes a single character, even at the end of a list item or
-blockquote, so typing does not silently add list or quote markup.
+Enter inserts a plain newline and Backspace deletes a character. Core leaves out the Markdown
+language keymap so it does not override registered editing shortcuts with list or quote
+continuation.
 
 Search keys include:
 
@@ -33,31 +50,25 @@ Search keys include:
 ## Indentation
 
 Tab indents the selected lines, or the current line when nothing is selected. Shift+Tab dedents. The
-`keybinds` extension owns these bindings and honors the `tabSize` option, which defaults to `2`.
-
-```js
-const editor = new Editor({
-  element: mount,
-  tabSize: 4,
-});
-```
+`KeybindExtension` owns these bindings and honors the `tabSize` option, which defaults to `2`.
 
 The commands return `false` when there is nothing to indent, for example when a dedent would go past
 the start of a line, and the key is left to the browser. `indentWithTab` from the default keymap
-stays registered as a fallback for setups that replace the built-in `keybinds` extension.
+is a fallback when `DefaultKeymapExtension` is also registered. It uses CodeMirror's language
+indentation rather than the editor's `tabSize`.
 
 ## Precedence
 
-Bindings from extensions are checked before the default keymap, so an extension can override a
-standard key. The italic extension keeps `Mod-i`, and the code extension keeps `Mod-.`, even though
-CodeMirror binds those keys too.
+Within BaseKit, feature bindings precede the default keymap. When registering individual
+extensions, put feature keymaps before `DefaultKeymapExtension` or give them a higher `priority`.
 
 Undo and redo (`Mod-z`, `Mod-y`, `Mod-Shift-z`) come from the [history](/extensions/features/history)
 extension, which owns its own keymap.
 
 ## Bindings inksane adds
 
-`Mod` is Cmd on macOS and Ctrl on Windows and Linux.
+Each binding is active only when its extension is registered. `Mod` is Cmd on macOS and Ctrl on
+Windows and Linux.
 
 | Keys          | Action                            | From                                                  |
 | ------------- | --------------------------------- | ----------------------------------------------------- |
@@ -81,67 +92,79 @@ else, such as `Mod-a`, `Mod-f`, or `Mod-d`, comes from the default keymap descri
 
 ## Opt out
 
-Pass `defaultKeymap: false` to skip the default keymap and register your own:
+The editor no longer has a `defaultKeymap` option. Disable that feature in BaseKit:
 
 ```ts
+import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
+
 const editor = new Editor({
-  element: mount,
-  defaultKeymap: false,
-  extensions: [
-    {
-      name: "my-keymap",
-      addKeybinds() {
-        return [{ key: "Mod-Shift-t", run: () => editor.commands.insertTimestamp() }];
-      },
-    },
-  ],
+  element: document.getElementById("editor")!,
+  extensions: [BaseKit({ defaultKeymap: false })],
 });
 ```
 
-The editor's own Tab indentation stays active when the default keymap is disabled. Only the
-CodeMirror defaults, the search keys, and `indentWithTab` are removed.
+The kit's Tab indentation stays enabled. Pass `BaseKit({ defaultKeymap: false, keybinds: false })`
+to disable both general keymap extensions. Individually registered editors can simply omit them.
 
 ## Replace or extend
 
-The default keymap is a built-in extension named `defaultKeymap`. A configured extension with the
-same name replaces it, the same way any built-in extension is overridden:
+Disable the kit's keymap before registering a replacement. An extension with the same name does
+not replace it automatically:
 
 ```ts
-import { defaultKeymap } from "@codemirror/commands";
+import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
+import { defaultKeymap, selectAll } from "@codemirror/commands";
 
 const editor = new Editor({
-  element: mount,
+  element: document.getElementById("editor")!,
   extensions: [
+    BaseKit({ defaultKeymap: false }),
     {
       name: "defaultKeymap",
-      addKeybinds: () => [
-        ...defaultKeymap,
-        { key: "Mod-Shift-t", run: () => editor.commands.insertTimestamp() },
-      ],
+      addKeybinds: () => [...defaultKeymap, { key: "Mod-Shift-a", run: selectAll }],
     },
   ],
 });
 ```
 
-Replacing the extension also disables the built-in, so the returned list defines the complete
-default keymap.
+The replacement defines the complete keymap. Add `searchKeymap` from `@codemirror/search` if you
+want to retain the standard search shortcuts.
 
 ## Add your own
 
-Return `KeyBinding` objects from `addKeybinds`. Use CodeMirror's key syntax and return whether the
-key was handled.
+Return CodeMirror `KeyBinding` objects from `addKeybinds`. The callback returns whether it handled
+the key. This example inserts a timestamp using a core document command:
 
 ```ts
-addKeybinds({ editor }) {
-  return [
-    {
-      key: "Mod-Shift-t",
-      run() {
-        return editor.commands.insertTimestamp();
+import { Editor, type Extension } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
+
+const TimestampShortcut: Extension = {
+  name: "timestamp-shortcut",
+  priority: 10,
+  addKeybinds({ editor }) {
+    return [
+      {
+        key: "Mod-Shift-t",
+        run() {
+          const { from, to } = editor.state.selection.main;
+          return editor.commands.insertContent({
+            content: new Date().toISOString(),
+            from,
+            to,
+          });
+        },
       },
-    },
-  ];
-}
+    ];
+  },
+};
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [BaseKit(), TimestampShortcut],
+});
 ```
 
 See [write your own extension](/extensions/custom#keybindings) for the full pattern.

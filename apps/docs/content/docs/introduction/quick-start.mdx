@@ -26,34 +26,40 @@ no height.
 }
 ```
 
-Then import `Editor`, create an instance, and pass the element:
+Import `Editor` and `BaseKit`, then create an instance and pass the element:
 
 ```js
 import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
 
 const editor = new Editor({
   element: document.getElementById("editor"),
+  extensions: [BaseKit()],
 });
 ```
 
-That is the whole setup. The element gets the `inksane-editor` class, and the editable area inside
-it gets `inksane-editor-content`.
+`BaseKit` registers the standard Markdown features, undo and redo, editing shortcuts, and
+placeholder support. Core does not register feature extensions automatically. See
+[BaseKit](/kits/base-kit) to configure the kit or [Extensions](/extensions) to choose individual
+features.
+
+The element gets the `inksane-editor` class, and the editable area inside it gets
+`inksane-editor-content`.
 
 ## Editor options
 
 `EditorOptions` is the object you pass to `new Editor(...)`:
 
-| Option          | Type                                     | Default | Description                                                                                             |
-| --------------- | ---------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------- |
-| `element`       | `HTMLElement`                            | —       | The node to mount into. Optional, so you can [mount later](#mount-later).                               |
-| `content`       | `string`                                 | `""`    | Initial Markdown.                                                                                       |
-| `extensions`    | `Extension[]`                            | `[]`    | Extra extensions. An extension replaces the built-in with the same name.                                |
-| `theme`         | CodeMirror `Extension`                   | —       | A CodeMirror theme. See [styling](/introduction/styling).                                               |
-| `lineWrapping`  | `boolean`                                | `true`  | Wrap long lines instead of overflowing horizontally.                                                    |
-| `placeholder`   | `string`                                 | —       | Text shown while the document is empty. See [placeholder](#placeholder).                                |
-| `tabSize`       | `number`                                 | `2`     | Spaces used by Tab and Shift+Tab.                                                                       |
-| `defaultKeymap` | `boolean`                                | `true`  | Whether the standard editing keymap is registered. See [keybindings](/extensions/features/keybindings). |
-| `classNames`    | `{ editor?: string; editable?: string }` | —       | Extra classes for the mount element and the editable element.                                           |
+| Option         | Type                                     | Default | Description                                                                                            |
+| -------------- | ---------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------ |
+| `element`      | `HTMLElement`                            | —       | The node to mount into. Optional, so you can [mount later](#mount-later).                              |
+| `content`      | `string`                                 | `""`    | Initial Markdown.                                                                                      |
+| `extensions`   | `Extension[]`                            | `[]`    | Features to register. Pass `BaseKit()` for the standard setup or choose individual extensions.         |
+| `theme`        | CodeMirror `Extension`                   | —       | A CodeMirror theme. See [styling](/introduction/styling).                                              |
+| `lineWrapping` | `boolean`                                | `true`  | Wrap long lines instead of overflowing horizontally.                                                   |
+| `placeholder`  | `string`                                 | —       | Text shown while empty. Requires `PlaceholderExtension` or `BaseKit`. See [placeholder](#placeholder). |
+| `tabSize`      | `number`                                 | `2`     | Spaces used by Tab and Shift+Tab. Requires `KeybindExtension` or `BaseKit`.                            |
+| `classNames`   | `{ editor?: string; editable?: string }` | —       | Extra classes for the mount element and the editable element.                                          |
 
 ## Reading and writing content
 
@@ -102,7 +108,7 @@ Framework bindings create the editor before the DOM node exists. You can do the 
 editor without `element` and call `mount()` once the node is available.
 
 ```js
-const editor = new Editor({ content: "# Draft" });
+const editor = new Editor({ content: "# Draft", extensions: [BaseKit()] });
 
 editor.isMounted; // false
 editor.mount(document.getElementById("editor"));
@@ -127,19 +133,21 @@ When you copy content from a web page or another editor, the clipboard usually h
 into inksane and the HTML is converted to Markdown before it is inserted at your cursor or over your
 selection.
 
-Headings, paragraphs, emphasis, links, images, lists, blockquotes, and code are converted. The HTML
-is cleaned first, so scripts and unsafe URLs are dropped. Each extension teaches the editor how its
-own HTML becomes Markdown, which is documented on the [extension pages](/extensions).
+With `BaseKit`, headings, paragraphs, emphasis, links, images, lists, blockquotes, and code are
+converted. The HTML is cleaned first, so scripts and unsafe URLs are dropped. Each registered
+extension teaches the editor how its own HTML becomes Markdown. Disabling a feature also removes
+its HTML converter. See the [extension pages](/extensions).
 
 ## Placeholder
 
-Pass a `placeholder` to show example text while the document is empty. It disappears as soon as any
-content exists:
+With `BaseKit` or `PlaceholderExtension` registered, pass a `placeholder` to show example text while
+the document is empty. It disappears as soon as any content exists:
 
 ```js
 const editor = new Editor({
   element: mount,
   placeholder: "Write something…",
+  extensions: [BaseKit()],
 });
 ```
 
@@ -147,17 +155,22 @@ The placeholder is not part of the document, so it never appears in `getMarkdown
 the cursor. Change how it looks with `placeholderTheme`, which merges your styles over the defaults:
 
 ```js
-import { Editor, placeholderTheme } from "@inksane/core";
+import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
+import { placeholderTheme } from "@inksane/core/extensions/placeholder";
 
 const editor = new Editor({
   element: mount,
   placeholder: "Write something…",
   theme: placeholderTheme({ color: "#999", fontStyle: "italic" }),
+  extensions: [BaseKit()],
 });
 ```
 
 It styles `.inksane-placeholder::before`, so you can target that class from CSS too. The empty line
-also carries an `aria-placeholder` attribute.
+also carries a `data-inksane-placeholder` attribute. The editable area has an `aria-placeholder`
+attribute. See [Placeholder](/extensions/features/placeholder) for individual registration and
+the theme API.
 
 ## Next steps
 
@@ -169,6 +182,9 @@ also carries an `aria-placeholder` attribute.
     Change content and state from your own UI.
   </Card>
   <Card title="Extensions" href="/extensions">
-    Every built-in extension, and how to write your own.
+    Choose individual features or write your own extension.
+  </Card>
+  <Card title="BaseKit" href="/kits/base-kit">
+    Configure the standard Markdown features and editor shortcuts.
   </Card>
 </Cards>

@@ -6,6 +6,23 @@ description: "The heading extension: # to ###### headings and the heading comman
 The `heading` extension renders ATX headings, `#` through `######`, and adds commands to set, toggle,
 and remove them.
 
+## Setup
+
+Import `HeadingExtension` and pass it through the editor's `extensions` option. Create the mount
+element before this code runs:
+
+```ts
+import { Editor } from "@inksane/core";
+import { HeadingExtension } from "@inksane/core/extensions/heading";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [HeadingExtension],
+});
+```
+
+[BaseKit](/kits/base-kit) includes headings. Use `BaseKit({ heading: false })` to disable them.
+
 ## What it adds
 
 - Decorates the `ATXHeading1` to `ATXHeading6` nodes with `.inksane-mark-heading` and

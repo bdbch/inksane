@@ -6,6 +6,23 @@ description: "The horizontal rule extension: --- separators and the insertHorizo
 The `horizontalRule` extension renders `---` separators as a line and adds the
 `insertHorizontalRule` command.
 
+## Setup
+
+Import `HorizontalRuleExtension` and pass it through the editor's `extensions` option. Create the mount
+element before this code runs:
+
+```ts
+import { Editor } from "@inksane/core";
+import { HorizontalRuleExtension } from "@inksane/core/extensions/horizontal-rule";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [HorizontalRuleExtension],
+});
+```
+
+The kit option is `horizontalRule`, while the import path uses `horizontal-rule`. [BaseKit](/kits/base-kit) includes this feature. Disable it with `BaseKit({ horizontalRule: false })`.
+
 ## What it adds
 
 - Hides the whole `HorizontalRule` node and replaces it with an `<hr class="inksane-hr">` widget.

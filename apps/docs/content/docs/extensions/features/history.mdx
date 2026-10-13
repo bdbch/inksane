@@ -3,8 +3,27 @@ title: History
 description: "The history extension: undo and redo for typing and commands."
 ---
 
-The `history` extension adds undo and redo. It ships as a built-in extension, so history is part of
-the default setup.
+The `history` extension adds undo and redo. Register it individually or through BaseKit.
+
+## Setup
+
+Import `HistoryExtension` and register it with the editor:
+
+```ts
+import { Editor } from "@inksane/core";
+import { HistoryExtension } from "@inksane/core/extensions/history";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [HistoryExtension],
+});
+```
+
+Create the mount element before this code runs. [BaseKit](/kits/base-kit) includes history, so no
+separate registration is needed with the kit. Disable it with `BaseKit({ history: false })`.
+
+For [Yjs collaboration](/introduction/collaboration), keep this extension disabled. The
+collaboration extension owns its own undo history.
 
 ## What it adds
 

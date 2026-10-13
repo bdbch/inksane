@@ -4,15 +4,18 @@ description: "The link extension: [text](url), the external-link icon, commands,
 ---
 
 The `link` extension renders `[text](url)` links, adds a small external-link icon next to them, and
-adds the link commands. It is the only built-in extension that ships as a factory.
+adds the link commands. `LinkExtension` is a factory, so call it when registering the extension.
 
-## Usage
+## Setup
+
+Import the factory from the link subpath and pass its result through `extensions`:
 
 ```ts
-import { Editor, LinkExtension } from "@inksane/core";
+import { Editor } from "@inksane/core";
+import { LinkExtension } from "@inksane/core/extensions/link";
 
 const editor = new Editor({
-  element: mount,
+  element: document.getElementById("editor")!,
   extensions: [
     LinkExtension({
       onLinkRequest: ({ text }) => window.prompt(`Link for "${text}"`),
@@ -20,6 +23,33 @@ const editor = new Editor({
   ],
 });
 ```
+
+The element with the ID `editor` must already exist. Call `LinkExtension()` without options if
+you only need rendering and commands. The URL handler above enables the `Mod-k` shortcut.
+
+### With BaseKit
+
+[BaseKit](/kits/base-kit) already includes links. Configure them through the kit's `link`
+option instead of adding a second link extension:
+
+```ts
+import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [
+    BaseKit({
+      link: {
+        onLinkRequest: ({ text }) => window.prompt(`Link for "${text}"`),
+      },
+    }),
+  ],
+});
+```
+
+Use `BaseKit({ link: false })` to disable links or before registering a separate replacement.
+`LinkOptions` and `LinkRequestContext` are exported from `@inksane/core/extensions/link`.
 
 ## Options
 

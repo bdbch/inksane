@@ -5,6 +5,23 @@ description: "The code extension: inline code, fenced code blocks, commands, and
 
 The `code` extension renders inline code and fenced code blocks and adds the code commands.
 
+## Setup
+
+`CodeExtension` enables both inline code and code blocks. Import it and register it with the editor:
+
+```ts
+import { Editor } from "@inksane/core";
+import { CodeExtension } from "@inksane/core/extensions/code";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [CodeExtension],
+});
+```
+
+The element with the ID `editor` must already exist. If you use [BaseKit](/kits/base-kit),
+code is already included. `BaseKit({ code: false })` disables both inline code and code blocks.
+
 ## What it adds
 
 - Decorates `InlineCode` with `.inksane-mark-inline-code` and hides the backticks.

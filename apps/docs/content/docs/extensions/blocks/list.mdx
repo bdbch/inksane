@@ -5,6 +5,23 @@ description: "The list extension: bullet and ordered lists, with rendered marker
 
 The `list` extension renders bullet and ordered lists and adds commands to toggle them.
 
+## Setup
+
+Import `ListExtension` and pass it through the editor's `extensions` option. Create the mount
+element before this code runs:
+
+```ts
+import { Editor } from "@inksane/core";
+import { ListExtension } from "@inksane/core/extensions/list";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [ListExtension],
+});
+```
+
+`ListExtension` handles both bullet and ordered lists. It is included in [BaseKit](/kits/base-kit). Disable both with `BaseKit({ list: false })`.
+
 ## What it adds
 
 - Hides the `ListMark` of every `ListItem` and replaces it with a widget: `•` for bullet lists, and

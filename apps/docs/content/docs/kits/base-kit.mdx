@@ -1,0 +1,132 @@
+---
+title: BaseKit
+description: "The standard Markdown features, editing shortcuts, history, and placeholder support."
+---
+
+`BaseKit` bundles the standard editor extensions. It uses the same extension API as individual
+features and lives in `@inksane/core`, so you do not need to install another package.
+
+Core does not load the kit automatically. Register it through the editor's `extensions` option.
+
+## Setup
+
+Create a mount element, then import `Editor` and `BaseKit`:
+
+```html
+<div id="editor"></div>
+```
+
+```ts
+import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  content: "# Hello inksane",
+  extensions: [BaseKit()],
+});
+```
+
+The kit supplies Markdown formatting, commands, and keyboard shortcuts. It also enables history
+and the editor's `placeholder` and `tabSize` options. It does not provide typography or a toolbar.
+See [Styling](/introduction/styling) for themes and content styles.
+
+React bindings accept the same `extensions: [BaseKit()]` option through `useInksane` or
+`InksaneProvider`.
+
+## Options
+
+All features are enabled by default. Set an option to `false` to disable it. The `link` option also
+accepts a configuration object. `BaseKitOptions` is exported from
+`@inksane/core/extensions/base-kit`, and `LinkOptions` from `@inksane/core/extensions/link`.
+
+| Option           | Type                     | Default | Feature                                                                             |
+| ---------------- | ------------------------ | ------- | ----------------------------------------------------------------------------------- |
+| `bold`           | `boolean`                | `true`  | [Bold](/extensions/inline/bold)                                                     |
+| `italic`         | `boolean`                | `true`  | [Italic](/extensions/inline/italic)                                                 |
+| `link`           | `boolean \| LinkOptions` | `true`  | [Link](/extensions/inline/link)                                                     |
+| `image`          | `boolean`                | `true`  | [Image](/extensions/inline/image)                                                   |
+| `code`           | `boolean`                | `true`  | [Inline code and code blocks](/extensions/inline/code)                              |
+| `heading`        | `boolean`                | `true`  | [Headings](/extensions/blocks/heading)                                              |
+| `list`           | `boolean`                | `true`  | [Bullet and ordered lists](/extensions/blocks/list)                                 |
+| `blockquote`     | `boolean`                | `true`  | [Blockquotes](/extensions/blocks/blockquote)                                        |
+| `horizontalRule` | `boolean`                | `true`  | [Horizontal rules](/extensions/blocks/horizontal-rule)                              |
+| `html`           | `boolean`                | `true`  | [HTML rendering](/extensions/blocks/html)                                           |
+| `history`        | `boolean`                | `true`  | [Undo and redo](/extensions/features/history)                                       |
+| `keybinds`       | `boolean`                | `true`  | [Tab indentation](/extensions/features/keybindings#indentation)                     |
+| `defaultKeymap`  | `boolean`                | `true`  | [Editing and search shortcuts](/extensions/features/keybindings#the-default-keymap) |
+| `placeholder`    | `boolean`                | `true`  | [Placeholder support](/extensions/features/placeholder)                             |
+
+### Configure links
+
+Pass link options directly through the kit. `onLinkRequest` supplies the URL when `Mod-k` creates a
+link. Return `null` to cancel. Without this handler, `Mod-k` stays unbound.
+
+```ts
+import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [
+    BaseKit({
+      bold: false,
+      link: {
+        onLinkRequest: ({ text }) => window.prompt(`Link for "${text}"`),
+      },
+    }),
+  ],
+});
+```
+
+### Placeholder and indentation
+
+The kit options enable the features. The editor options set the placeholder text and indentation
+size:
+
+```ts
+import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  placeholder: "Write some Markdown",
+  tabSize: 4,
+  extensions: [BaseKit()],
+});
+```
+
+`BaseKit({ defaultKeymap: false })` disables standard editing and search shortcuts while keeping
+the kit's Tab indentation. To disable both keymap extensions, pass
+`BaseKit({ defaultKeymap: false, keybinds: false })`.
+
+### Collaboration history
+
+When using the [collaboration extension](/introduction/collaboration), pass
+`BaseKit({ history: false })`. Yjs owns undo and redo, so the standard CodeMirror history must stay
+disabled.
+
+## Replace a feature
+
+Disable a feature in the kit before registering its replacement separately. Extensions do not
+replace each other by name. For example, to provide a separate link extension:
+
+```ts
+import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
+import { LinkExtension } from "@inksane/core/extensions/link";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [
+    BaseKit({ link: false }),
+    LinkExtension({
+      onLinkRequest: () => window.prompt("Link URL"),
+    }),
+  ],
+});
+```
+
+To build an editor without a kit, choose [individual extensions](/extensions#individual-imports).
+See the extension overview for [command types](/extensions#commands-and-types) and
+[migration from automatic defaults](/extensions#migrate-from-automatic-defaults).
