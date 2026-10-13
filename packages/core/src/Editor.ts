@@ -12,6 +12,7 @@ import {
   BoldExtension,
   CodeExtension,
   CommandsExtension,
+  DefaultKeymapExtension,
   HeadingExtension,
   HorizontalRuleExtension,
   HistoryExtension,
@@ -42,6 +43,7 @@ const BUILT_IN_EXTENSIONS: InksaneExtension[] = [
   BlockquoteExtension,
   ListExtension,
   KeybindExtension,
+  DefaultKeymapExtension,
 ];
 
 export class Editor extends EventEmitter<EditorEvents> {
@@ -202,10 +204,12 @@ export class Editor extends EventEmitter<EditorEvents> {
     const configured = this.options.extensions ?? [];
     const overridden = new Set(configured.map((extension) => extension.name));
 
-    return [
-      ...BUILT_IN_EXTENSIONS.filter((extension) => !overridden.has(extension.name)),
-      ...configured,
-    ];
+    const builtIns =
+      this.options.defaultKeymap === false
+        ? BUILT_IN_EXTENSIONS.filter((extension) => extension.name !== "defaultKeymap")
+        : BUILT_IN_EXTENSIONS;
+
+    return [...builtIns.filter((extension) => !overridden.has(extension.name)), ...configured];
   }
 
   constructor(options: EditorOptions) {

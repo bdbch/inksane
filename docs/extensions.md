@@ -93,6 +93,8 @@ The setup hooks below run once while the editor is being created. They do not ru
 
 `addKeybinds(ctx)` returns CodeMirror `KeyBinding` objects, or `undefined` when it has no bindings. Each binding uses CodeMirror's key syntax, such as `Mod-Shift-t`, and its `run` callback must return whether it handled the key.
 
+Bindings from extensions are checked before the [default keymap](./keybindings.md), so an extension can override a standard key.
+
 ```ts
 addKeybinds({ editor }) {
   return [

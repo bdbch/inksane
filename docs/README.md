@@ -9,4 +9,5 @@
 ## Using inksane
 
 - [Commands](./commands.md)
+- [Keybindings](./keybindings.md)
 - [Extensions](./extensions.md)
