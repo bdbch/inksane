@@ -5,7 +5,8 @@
   "scripts": {
     "ready": "vp check && vp test && vp run build",
     "dev": "vp run playground#dev",
-    "build": "vp run --filter \"!@inksane/playground\" --filter \"@inksane/*\" build",
+    "dev:docs": "vp run docs#dev",
+    "build": "vp run --filter \"!@inksane/playground\" --filter \"!@inksane/docs\" --filter \"@inksane/*\" build",
     "prepare": "vp config",
     "release:add": "bumpy add",
     "release:check": "bumpy check --strict",

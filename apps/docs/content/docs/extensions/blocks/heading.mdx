@@ -1,0 +1,67 @@
+---
+title: Heading
+description: "The heading extension: # to ###### headings and the heading commands."
+---
+
+The `heading` extension renders ATX headings, `#` through `######`, and adds commands to set, toggle,
+and remove them.
+
+## What it adds
+
+- Decorates the `ATXHeading1` to `ATXHeading6` nodes with `.inksane-mark-heading` and
+  `.inksane-heading-1` to `.inksane-heading-6`.
+- Hides the `#` markers and the whitespace after them while the selection is outside the heading.
+- Converts pasted `<h1>` to `<h6>` elements to `# text` lines.
+
+## Commands
+
+| Command                          | Description                                                                                              |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `setHeading({ level, pos? })`    | Sets the line to a heading. `level` is `1` to `6`. Returns `false` when the line already has that level. |
+| `toggleHeading({ level, pos? })` | Sets the level, or removes the heading when the line already has it.                                     |
+| `removeHeading({ pos? })`        | Removes the heading marker from the line.                                                                |
+
+The commands work on the whole line that contains the position, not just the selected range.
+
+```js
+editor.commands.toggleHeading({ level: 2 });
+```
+
+Invalid levels, so anything outside `1` to `6`, make the command return `false`.
+
+There is no default keybinding for headings. Bind your own with
+[`addKeybinds`](/extensions/custom#keybindings).
+
+## Styling
+
+```css
+[data-inksane-editor-content] {
+  .inksane-mark-heading {
+    font-weight: bold;
+  }
+
+  .inksane-heading-1 {
+    font-size: 40px;
+  }
+
+  .inksane-heading-2 {
+    font-size: 32px;
+  }
+
+  .inksane-heading-3 {
+    font-size: 28px;
+  }
+
+  .inksane-heading-4 {
+    font-size: 24px;
+  }
+
+  .inksane-heading-5 {
+    font-size: 20px;
+  }
+
+  .inksane-heading-6 {
+    font-size: 16px;
+  }
+}
+```

@@ -8,7 +8,18 @@
 
 ## Documentation
 
-- [Browse the documentation](./docs/README.md)
+The documentation site lives in [`apps/docs`](./apps/docs). It is built with
+[Astro](https://astro.build/) and [Fumadocs](https://fumadocs.dev/), and is published at
+**https://bdbch.github.io/inksane/docs/**.
+
+Run it locally:
+
+```sh
+pnpm dev:docs
+```
+
+The content is written in Markdown and MDX under
+[`apps/docs/content/docs`](./apps/docs/content/docs).
 
 ## Getting Started
 
@@ -35,7 +46,7 @@ new Editor({
 });
 ```
 
-See [Create your first editor](./docs/create-your-first-editor.md) for the full setup guide.
+See [Create your first editor](./apps/docs/content/docs/introduction/quick-start.mdx) for the full setup guide.
 
 ## License
 

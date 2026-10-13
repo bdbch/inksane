@@ -1,0 +1,129 @@
+---
+title: Styling
+description: "Bring a CodeMirror theme and style the editor content with the classes inksane adds."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+After [creating your editor](/introduction/quick-start) you will notice that it looks very plain.
+That is intended: inksane is **headless** and you bring the UI.
+
+Because inksane is built on [CodeMirror 6](https://codemirror.net/), there are two layers to style:
+
+1. **CodeMirror itself**, through a CodeMirror theme. This covers padding, caret color, and anything
+   inside the editable element.
+2. **The Markdown content**, through the CSS classes inksane puts on decorated nodes.
+
+## Theme the editor
+
+Create a theme with `EditorView.theme` and pass it as the `theme` option.
+
+```js
+import { Editor } from "@inksane/core";
+import { EditorView } from "@codemirror/view";
+
+const theme = EditorView.theme({
+  ".cm-content": { paddingTop: "24px", paddingBottom: "24px" },
+  ".cm-line": { paddingLeft: "24px", paddingRight: "24px" },
+});
+
+const editor = new Editor({
+  element: mount,
+  theme,
+});
+```
+
+<Callout type="info">
+  Theming through CodeMirror directly is the current API. A dedicated theming layer is planned.
+</Callout>
+
+## Style the content
+
+By default, bold text, headings, lists, code, and everything else look like plain text, because
+CodeMirror does not use their real HTML elements. The built-in extensions decorate the syntax tree
+with classes instead.
+
+The editable element is `[data-inksane-editor-content]`, and its class is `inksane-editor-content`.
+Scope your content styles to it:
+
+```css
+[data-inksane-editor-content] {
+  font-family: sans-serif;
+
+  .inksane-mark-bold {
+    font-weight: bold;
+  }
+
+  .inksane-mark-italic {
+    font-style: italic;
+  }
+
+  .inksane-mark-heading {
+    font-weight: bold;
+  }
+
+  .inksane-heading-1 {
+    font-size: 40px;
+  }
+
+  .inksane-heading-2 {
+    font-size: 32px;
+  }
+
+  .inksane-mark-inline-code {
+    font-family: monospace;
+    background: #e0e0e0;
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+
+  .inksane-code-block {
+    font-family: monospace;
+    background: #e0e0e0;
+  }
+
+  .inksane-blockquote {
+    border-left: 3px solid #303030;
+    padding-left: 8px;
+    color: #999;
+  }
+
+  .inksane-list-marker {
+    display: inline-block;
+    color: #999;
+    padding-right: 6px;
+    user-select: none;
+  }
+
+  .inksane-list-marker--ordered {
+    min-width: 1.75em;
+    text-align: right;
+  }
+
+  /* placeholder while the document is empty */
+  .inksane-placeholder::before {
+    color: #999;
+  }
+}
+```
+
+### Classes by extension
+
+Every extension documents the classes it adds. The complete set:
+
+| Class                                                                                   | Added by                                              |
+| --------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `.inksane-mark-bold`                                                                    | [Bold](/extensions/inline/bold)                       |
+| `.inksane-mark-italic`                                                                  | [Italic](/extensions/inline/italic)                   |
+| `.inksane-mark-heading`, `.inksane-heading-1` … `.inksane-heading-6`                    | [Heading](/extensions/blocks/heading)                 |
+| `.inksane-list-marker`, `.inksane-list-marker--bullet`, `.inksane-list-marker--ordered` | [List](/extensions/blocks/list)                       |
+| `.inksane-blockquote`                                                                   | [Blockquote](/extensions/blocks/blockquote)           |
+| `.inksane-mark-link`, `.inksane-mark-link-open`                                         | [Link](/extensions/inline/link)                       |
+| `.inksane-image`, `.inksane-mark-image`                                                 | [Image](/extensions/inline/image)                     |
+| `.inksane-mark-inline-code`, `.inksane-code-block`                                      | [Code](/extensions/inline/code)                       |
+| `.inksane-mark-horizontal-rule`, `.inksane-hr`                                          | [Horizontal rule](/extensions/blocks/horizontal-rule) |
+| `.inksane-mark-html`, `.inksane-html-block`                                             | [HTML](/extensions/blocks/html)                       |
+| `.inksane-placeholder`, `.inksane-placeholder::before`                                  | [Placeholder](/introduction/quick-start#placeholder)  |
+
+Custom extensions add classes the same way through
+[markdown decorations](/extensions/custom#decorations).

@@ -1,0 +1,58 @@
+---
+title: List
+description: "The list extension: bullet and ordered lists, with rendered markers."
+---
+
+The `list` extension renders bullet and ordered lists and adds commands to toggle them.
+
+## What it adds
+
+- Hides the `ListMark` of every `ListItem` and replaces it with a widget: `•` for bullet lists, and
+  the computed number for ordered lists.
+- Converts pasted `<ul>` and `<ol>` elements to `-` and `1.` lines. The `start` attribute of an
+  ordered list is preserved, and multi-line items are indented to line up under the marker.
+
+The rendered marker is not the source text. The document keeps the Markdown marker, and the list
+extension renders the bullet or number in its place.
+
+Ordered numbers are computed from the list itself: the first item sets the starting number, following
+items count up, and a block separated by a blank line restarts at its own marker.
+
+## Commands
+
+| Command                       | Description                                |
+| ----------------------------- | ------------------------------------------ |
+| `toggleBulletList({ pos? })`  | Adds or removes a `-` marker on the line.  |
+| `toggleOrderedList({ pos? })` | Adds or removes a `1.` marker on the line. |
+
+Both work on the line that contains the position. Toggling a bullet list on a line that is already an
+ordered list replaces the marker instead of stacking them.
+
+```js
+editor.commands.toggleBulletList();
+
+editor.chain().toggleOrderedList().focus().run();
+```
+
+There is no default keybinding. Bind your own with
+[`addKeybinds`](/extensions/custom#keybindings).
+
+## Styling
+
+```css
+[data-inksane-editor-content] {
+  .inksane-list-marker {
+    display: inline-block;
+    color: #999;
+    padding-right: 6px;
+    user-select: none;
+  }
+
+  .inksane-list-marker--ordered {
+    min-width: 1.75em;
+    text-align: right;
+  }
+}
+```
+
+`.inksane-list-marker--bullet` is available on bullet markers if you want to target them separately.

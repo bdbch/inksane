@@ -39,7 +39,7 @@ pnpm install
 pnpm ready
 ```
 
-`pnpm ready` runs type checks, tests, and the production build. Use `pnpm dev` to run the playground locally.
+`pnpm ready` runs type checks, tests, and the production build. Use `pnpm dev` to run the playground locally, and `pnpm dev:docs` to run the documentation site in `apps/docs`.
 
 ## How to Contribute
 

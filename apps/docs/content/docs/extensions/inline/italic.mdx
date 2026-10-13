@@ -1,0 +1,42 @@
+---
+title: Italic
+description: "The italic extension: * syntax, commands, HTML pasting, and Mod-i."
+---
+
+The `italic` extension renders `*italic*` and `_italic_` as italic text and adds the italic commands.
+
+## What it adds
+
+- Decorates the `Emphasis` node with `.inksane-mark-italic` and hides the `*` markers.
+- Converts pasted `<em>` and `<i>` elements to `*text*`.
+- Registers the commands below and the `Mod-i` binding.
+
+## Commands
+
+| Command                           | Description                                                                       |
+| --------------------------------- | --------------------------------------------------------------------------------- |
+| `insertItalic({ content, pos? })` | Inserts `*content*` at the range.                                                 |
+| `setItalic({ pos? })`             | Wraps the range. At a collapsed cursor it inserts `**` and puts the caret inside. |
+| `removeItalic({ pos? })`          | Removes the `*` around the range.                                                 |
+| `toggleItalic({ pos? })`          | Removes italic when the range is italic, adds it otherwise.                       |
+
+The extension ignores ranges that are bold. `**text**` is not converted to italic, so the two
+commands do not interfere with each other.
+
+```js
+editor.commands.toggleItalic();
+```
+
+## Keyboard
+
+| Keys    | Action                             |
+| ------- | ---------------------------------- |
+| `Mod-i` | `toggleItalic()` on the selection. |
+
+## Styling
+
+```css
+[data-inksane-editor-content] .inksane-mark-italic {
+  font-style: italic;
+}
+```

@@ -1,0 +1,6 @@
+---
+// The docs have no page at the site root, so send visitors into the docs.
+import { basePath } from "@/lib/base";
+
+return Astro.redirect(`${basePath}introduction`);
+---

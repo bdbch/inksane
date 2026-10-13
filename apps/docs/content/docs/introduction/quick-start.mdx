@@ -1,0 +1,174 @@
+---
+title: Create your first editor
+description: "Mount the editor, add content, and read and write the document."
+---
+
+import { Card, Cards } from "fumadocs-ui/components/card";
+import { Callout } from "fumadocs-ui/components/callout";
+
+After you [installed inksane](/introduction/installation), you can add an editor to a page. The
+editor is headless, so it needs an element to mount into and a bit of CSS to look like anything.
+
+## Mount the editor
+
+Create an element to mount into. Give it a size somewhere in your styles, otherwise the editor has
+no height.
+
+```html
+<div id="editor" class="editor"></div>
+```
+
+```css
+.editor {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  min-height: 240px;
+}
+```
+
+Then import `Editor`, create an instance, and pass the element:
+
+```js
+import { Editor } from "@inksane/core";
+
+const editor = new Editor({
+  element: document.getElementById("editor"),
+});
+```
+
+That is the whole setup. The element gets the `inksane-editor` class, and the editable area inside
+it gets `inksane-editor-content`.
+
+## Editor options
+
+`EditorOptions` is the object you pass to `new Editor(...)`:
+
+| Option          | Type                                     | Default | Description                                                                                             |
+| --------------- | ---------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------- |
+| `element`       | `HTMLElement`                            | —       | The node to mount into. Optional, so you can [mount later](#mount-later).                               |
+| `content`       | `string`                                 | `""`    | Initial Markdown.                                                                                       |
+| `extensions`    | `Extension[]`                            | `[]`    | Extra extensions. An extension replaces the built-in with the same name.                                |
+| `theme`         | CodeMirror `Extension`                   | —       | A CodeMirror theme. See [styling](/introduction/styling).                                               |
+| `lineWrapping`  | `boolean`                                | `true`  | Wrap long lines instead of overflowing horizontally.                                                    |
+| `placeholder`   | `string`                                 | —       | Text shown while the document is empty. See [placeholder](#placeholder).                                |
+| `tabSize`       | `number`                                 | `2`     | Spaces used by Tab and Shift+Tab.                                                                       |
+| `defaultKeymap` | `boolean`                                | `true`  | Whether the standard editing keymap is registered. See [keybindings](/extensions/features/keybindings). |
+| `classNames`    | `{ editor?: string; editable?: string }` | —       | Extra classes for the mount element and the editable element.                                           |
+
+## Reading and writing content
+
+The document is Markdown. `setMarkdown()` replaces it and `getMarkdown()` reads it back. The editor
+in the example above was created without content, so it starts empty.
+
+```js
+editor.setMarkdown("# Hello inksane\n\nHave a lot of **fun**.");
+
+editor.getMarkdown(); // "# Hello inksane\n\nHave a lot of **fun**."
+```
+
+`editor.content` is the same value, just as a property:
+
+```js
+editor.content; // same string as getMarkdown()
+
+editor.content = "# Replaced\n\nNew content.";
+```
+
+<Callout type="info" title="Rendering your own output">
+  inksane edits Markdown, it does not render it to HTML for display. Render the value of
+  `getMarkdown()` with the Markdown renderer you already use.
+</Callout>
+
+### Raw CodeMirror lines
+
+If you specifically need CodeMirror's line array instead of a Markdown string, use `textJSON`. It
+returns one string per line and accepts the same shape when writing.
+
+```js
+editor.textJSON; // ["# Hello inksane", "", "Have a lot of **fun**."]
+
+editor.textJSON = ["# Replaced", "", "New content."];
+```
+
+<Callout type="warning" title="Deprecated: json">
+  `editor.json` returns the same line array as `textJSON`, but its name promised a document AST. Use
+  `getMarkdown()` to read the document or `textJSON` for the raw array instead. `json` will be
+  removed in a future major release.
+</Callout>
+
+## Mount later
+
+Framework bindings create the editor before the DOM node exists. You can do the same: create the
+editor without `element` and call `mount()` once the node is available.
+
+```js
+const editor = new Editor({ content: "# Draft" });
+
+editor.isMounted; // false
+editor.mount(document.getElementById("editor"));
+editor.isMounted; // true
+```
+
+`mount()` is ignored when the editor is already mounted. `editor.view` throws until the editor is
+mounted, so check `isMounted` first.
+
+## Destroy the editor
+
+Call `destroy()` when the element goes away, for example in the cleanup of a component effect. It
+destroys the CodeMirror view and clears the reference.
+
+```js
+editor.destroy();
+```
+
+## Pasting HTML
+
+When you copy content from a web page or another editor, the clipboard usually holds HTML. Paste it
+into inksane and the HTML is converted to Markdown before it is inserted at your cursor or over your
+selection.
+
+Headings, paragraphs, emphasis, links, images, lists, blockquotes, and code are converted. The HTML
+is cleaned first, so scripts and unsafe URLs are dropped. Each extension teaches the editor how its
+own HTML becomes Markdown, which is documented on the [extension pages](/extensions).
+
+## Placeholder
+
+Pass a `placeholder` to show example text while the document is empty. It disappears as soon as any
+content exists:
+
+```js
+const editor = new Editor({
+  element: mount,
+  placeholder: "Write something…",
+});
+```
+
+The placeholder is not part of the document, so it never appears in `getMarkdown()` and never moves
+the cursor. Change how it looks with `placeholderTheme`, which merges your styles over the defaults:
+
+```js
+import { Editor, placeholderTheme } from "@inksane/core";
+
+const editor = new Editor({
+  element: mount,
+  placeholder: "Write something…",
+  theme: placeholderTheme({ color: "#999", fontStyle: "italic" }),
+});
+```
+
+It styles `.inksane-placeholder::before`, so you can target that class from CSS too. The empty line
+also carries an `aria-placeholder` attribute.
+
+## Next steps
+
+<Cards>
+  <Card title="Styling" href="/introduction/styling">
+    Bring a theme and style the editor content.
+  </Card>
+  <Card title="Commands" href="/introduction/commands">
+    Change content and state from your own UI.
+  </Card>
+  <Card title="Extensions" href="/extensions">
+    Every built-in extension, and how to write your own.
+  </Card>
+</Cards>

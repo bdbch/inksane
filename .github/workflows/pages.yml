@@ -1,14 +1,16 @@
-name: Deploy Playground
+name: Deploy Pages
 
 on:
   push:
     branches: [main]
     paths:
       - apps/playground/**
+      - apps/docs/**
+      - packages/**
       - package.json
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
-      - .github/workflows/playground-pages.yml
+      - .github/workflows/pages.yml
   workflow_dispatch:
 
 env:
@@ -21,7 +23,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: playground-pages
+  group: pages
   cancel-in-progress: true
 
 jobs:
@@ -44,12 +46,25 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # A Pages deployment replaces the whole site, so both apps build here and are
+      # assembled into one artifact: the playground at the root, the docs under /docs.
       - name: Build playground
         run: pnpm --filter @inksane/playground exec astro build --base "${{ steps.pages.outputs.base_path }}"
 
+      - name: Build docs
+        run: pnpm --filter @inksane/docs exec astro build
+        env:
+          DOCS_BASE_PATH: ${{ steps.pages.outputs.base_path }}/docs
+
+      - name: Assemble the site
+        run: |
+          mkdir -p _site/docs
+          cp -R apps/playground/dist/. _site/
+          cp -R apps/docs/dist/. _site/docs/
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/playground/dist
+          path: _site
 
   deploy:
     needs: build

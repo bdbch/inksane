@@ -1,0 +1,86 @@
+---
+title: Collaboration
+description: "Sync a document between clients with Yjs and render remote cursors."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+`@inksane/extension-collaboration` connects an editor to a shared Yjs document. Document changes
+sync through a `Y.Text`, and remote cursors render through Yjs awareness with the user's name next
+to the caret.
+
+```sh
+pnpm add @inksane/extension-collaboration yjs
+```
+
+## Usage
+
+```js
+import { Editor } from "@inksane/core";
+import { CollaborationExtension } from "@inksane/extension-collaboration";
+import * as Y from "yjs";
+
+const ydoc = new Y.Doc();
+
+const editor = new Editor({
+  element: document.getElementById("editor"),
+  content: "# Shared document",
+  extensions: [
+    CollaborationExtension({
+      ydoc,
+      user: { name: "Alice", color: "#30bced" },
+    }),
+  ],
+});
+```
+
+## Options
+
+| Option      | Type                         | Default           | Description                                        |
+| ----------- | ---------------------------- | ----------------- | -------------------------------------------------- |
+| `ydoc`      | `Y.Doc`                      | required          | The document shared by every collaborator.         |
+| `field`     | `string`                     | `"content"`       | Name of the shared `Y.Text` field.                 |
+| `awareness` | `Awareness`                  | new one on `ydoc` | Broadcasts cursors. Pass your provider's instance. |
+| `user`      | `Partial<CollaborationUser>` | anonymous         | Identity shown on your cursor to everyone else.    |
+
+`user` accepts `name`, `color`, and an optional `colorLight` for the selection highlight. When you
+omit them, the extension derives a color from the awareness client id and uses it for the caret and
+the `colorLight` tint.
+
+## Transport is up to you
+
+The extension only connects the editor to a `Y.Doc` and an `Awareness`. Sending updates over the
+network is the job of a provider, for example `y-websocket`, `y-webrtc`, or your own server:
+
+```js
+import { WebsocketProvider } from "y-websocket";
+
+const ydoc = new Y.Doc();
+const provider = new WebsocketProvider("wss://example.com", "my-room", ydoc);
+
+const editor = new Editor({
+  element: document.getElementById("editor"),
+  extensions: [
+    CollaborationExtension({
+      ydoc,
+      awareness: provider.awareness,
+      user: { name: "Alice", color: "#30bced" },
+    }),
+  ],
+});
+```
+
+<Callout type="info" title="Who seeds the document">
+  The `Y.Doc` owns the document. When the shared text is still empty and the editor was created with
+  `content`, the extension seeds the shared text with it, so the first client creates the document.
+  A client joining an existing room should pass the current shared text as `content`.
+</Callout>
+
+## Local checks
+
+Two editors in the same page that share a `Y.Doc` sync immediately, which is a quick way to try the
+extension without a server. The extension tests in the repository do exactly that: they link two
+documents and two awareness instances.
+
+Also note that the extension sets `priority: 100`, so it initializes before the built-in
+extensions.

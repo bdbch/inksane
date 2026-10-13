@@ -1,0 +1,52 @@
+---
+title: Overview
+description: "inksane is a modular, extensible Markdown editor for the web, built on CodeMirror 6."
+---
+
+import { Card, Cards } from "fumadocs-ui/components/card";
+import { Callout } from "fumadocs-ui/components/callout";
+
+inksane is a **headless, extensible Markdown editor** for the web. It renders Markdown in place
+while you type and keeps the document as Markdown the whole time, so the same content can go to a
+file, a database, or an API without a conversion step.
+
+The editor is built on [CodeMirror 6](https://codemirror.net/) and is headless by design: it does
+not ship a visual theme, so the look of your editor is up to you.
+
+<Callout type="info" title="Early development">
+  inksane is under active development and has not reached a first release yet. The API can change
+  between releases.
+</Callout>
+
+## Why inksane
+
+- **Markdown first** — the document _is_ Markdown. Read it with `getMarkdown()` and replace it with
+  `setMarkdown()`.
+- **Headless** — no bundled theme. [Style the editor](/introduction/styling) to match the rest of your
+  app.
+- **Extensible** — every feature, including bold, lists, and links, is an
+  [extension](/extensions) built from the same public API you can use.
+- **Typed commands** — [commands](/introduction/commands) return a boolean, chain, and are typed through
+  module augmentation.
+
+## What ships today
+
+| Package                            | What it adds                                  |
+| ---------------------------------- | --------------------------------------------- |
+| `@inksane/core`                    | The editor, built-in extensions, and commands |
+| `@inksane/react`                   | A provider, a component, and hooks for React  |
+| `@inksane/extension-collaboration` | Yjs collaboration and remote cursors          |
+
+## Next steps
+
+<Cards>
+  <Card title="Installation" href="/introduction/installation">
+    Add the packages and check the requirements.
+  </Card>
+  <Card title="Create your first editor" href="/introduction/quick-start">
+    Mount an editor and start editing Markdown.
+  </Card>
+  <Card title="Extensions" href="/extensions">
+    See every built-in extension and write your own.
+  </Card>
+</Cards>

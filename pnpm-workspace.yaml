@@ -25,10 +25,14 @@ catalog:
   y-protocols: ^1.0.7
   "@tailwindcss/vite": ^4.3.3
   tailwindcss: ^4.3.3
-  astro: ^7.2.0
+  astro: ^7.3.5
   "@fontsource/hanken-grotesk": ^5.3.0
   "@tailwindcss/typography": ^0.5.20
   "@astrojs/react": ^7.0.1
+  "@astrojs/mdx": ^8.0.3
+  "@astrojs/markdown-remark": ^7.3.2
+  fumadocs-core: ^16.17.2
+  fumadocs-ui: ^16.17.2
   react: ^19.2.0
   react-dom: ^19.2.0
   "@types/react": ^19.2.0
@@ -45,3 +49,6 @@ peerDependencyRules:
     vitest: "*"
 allowBuilds:
   esbuild: true
+minimumReleaseAgeExclude:
+  - fumadocs-core@16.17.2
+  - fumadocs-ui@16.17.2

@@ -1,0 +1,57 @@
+---
+title: Image
+description: "The image extension: ![alt](src) with a safe-URL check and a rendered preview."
+---
+
+The `image` extension renders `![alt](src)` as an image and adds the `insertImage` command.
+
+## What it adds
+
+- Replaces the image syntax with an `<img class="inksane-image">` while the selection is outside the
+  node.
+- Adds a block-level preview below the source line while the source is visible.
+- Converts pasted `<img>` elements to Markdown.
+- Clicking a rendered image places the cursor at the end of the image range, so the source can be
+  edited.
+
+Images whose `src` is empty or fails the safe-URL check stay as plain source text and are not
+rendered. The check allows `http:`, `https:`, `mailto:`, and relative URLs.
+
+## Commands
+
+| Command                           | Description                                                    |
+| --------------------------------- | -------------------------------------------------------------- |
+| `insertImage({ src, alt, pos? })` | Inserts `![alt](src)`. Returns `false` when `src` is not safe. |
+
+Brackets in the alt text and parentheses in the URL are escaped, so the Markdown stays valid.
+
+```js
+editor.commands.insertImage({
+  src: "https://example.com/cat.png",
+  alt: "A cat",
+});
+```
+
+## Pasting
+
+A pasted `<img>` with a safe `src` becomes `![alt](src)`. Images without a usable source are dropped.
+
+## Styling
+
+```css
+[data-inksane-editor-content] {
+  .inksane-image {
+    display: inline-block;
+    max-width: 100%;
+    max-height: 320px;
+    object-fit: contain;
+    border-radius: 8px;
+    vertical-align: middle;
+    cursor: text;
+  }
+
+  .inksane-mark-image {
+    color: #999;
+  }
+}
+```
