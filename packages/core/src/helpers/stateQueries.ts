@@ -26,7 +26,9 @@ function forEachMatch(
 /** Whether a selection range counts as sitting on a matched node. */
 function isActiveAt(config: StateQueryConfig, node: SyntaxNode, from: number, to: number): boolean {
   if (config.kind === "node") {
-    return node.from <= from && to <= node.to;
+    const nodeFrom =
+      node.name === "Task" && node.parent?.name === "ListItem" ? node.parent.from : node.from;
+    return nodeFrom <= from && to <= node.to;
   }
 
   // A collapsed selection only counts inside a mark, not on its edge, so a

@@ -17,6 +17,7 @@ export default defineConfig({
       "extensions/code": "src/extensions/code.ts",
       "extensions/blockquote": "src/extensions/blockquote.ts",
       "extensions/list": "src/extensions/list.ts",
+      "extensions/task-list": "src/extensions/taskList.ts",
       "extensions/keybinds": "src/extensions/keybinds.ts",
       "extensions/history": "src/extensions/history.ts",
     },

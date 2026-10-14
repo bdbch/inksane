@@ -1,0 +1,74 @@
+---
+title: Task list
+description: "GFM task list syntax, interactive checkboxes, commands, and HTML pasting."
+---
+
+The `task-list` extension parses GFM task list items (`- [ ]` and `- [x]`), renders a clickable
+checkbox in place of the list and task markers, and adds commands to create or remove task items.
+
+## Setup
+
+Import `TaskListExtension` and register it with the editor. Create the mount element before this
+code runs:
+
+```ts
+import { Editor } from "@inksane/core";
+import { TaskListExtension } from "@inksane/core/extensions/task-list";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  content: "- [ ] Buy milk",
+  extensions: [TaskListExtension],
+});
+```
+
+[BaseKit](/kits/base-kit) includes task lists. If you use the kit, no separate registration is
+needed. Disable the feature with `BaseKit({ taskList: false })`.
+
+## What it adds
+
+- Parses GFM task list items (`- [ ]`, `- [x]`, and `- [X]`) inside bullet and ordered lists.
+- Hides the list marker and task brackets while the selection is outside the item, and renders an
+  `<input class="inksane-task-checkbox" type="checkbox">` inside `.inksane-list-marker--task`.
+- Clicking the checkbox toggles the Markdown source between `[ ]` and `[x]`.
+- Converts pasted `<input type="checkbox">` elements inside `<li>` into `[ ]` and `[x]`.
+- Registers the `setTaskList`, `removeTaskList`, and `toggleTaskList` commands, plus the `taskList`
+  state query.
+
+## Commands
+
+| Command                           | Description                                                                |
+| --------------------------------- | -------------------------------------------------------------------------- |
+| `setTaskList({ checked?, pos? })` | Converts the line or selection into a task list item.                      |
+| `removeTaskList({ pos? })`        | Removes the task list prefix from the line or selection.                   |
+| `toggleTaskList({ pos? })`        | Removes task list syntax when every target line has it, otherwise sets it. |
+
+All three commands accept an optional `pos` as a number or a `{ from, to }` range. Without `pos`,
+they use the current selection. Converting a bullet or ordered list item replaces its marker
+instead of stacking markers.
+
+```js
+editor.commands.toggleTaskList();
+
+editor.chain().setTaskList({ checked: true }).focus().run();
+```
+
+Use `editor.isActive("taskList")` to check whether the selection is on a task item, or
+`editor.isActive("taskList", { checked: true })` to match its state.
+
+## Styling
+
+```css
+[data-inksane-editor-content] {
+  .inksane-list-marker--task {
+    display: inline-block;
+    padding-right: 6px;
+    user-select: none;
+  }
+
+  .inksane-task-checkbox {
+    cursor: pointer;
+    vertical-align: middle;
+  }
+}
+```

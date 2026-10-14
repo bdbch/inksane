@@ -74,6 +74,7 @@ function createRenderer(converters: HtmlConverter[]): (parent: Node) => string {
       if (child.nodeType === TEXT_NODE) {
         let text = escapeText(child.nodeValue ?? "");
         if (!out.trim()) text = escapeBlockStart(text);
+        if (out.endsWith(" ") && text.startsWith(" ")) text = text.slice(1);
         out += text;
         continue;
       }
