@@ -34,6 +34,7 @@ const ALLOWED_TAGS = new Set([
   "hr",
   "i",
   "img",
+  "input",
   "ins",
   "kbd",
   "li",
@@ -73,7 +74,6 @@ const REMOVED_TAGS = new Set([
   "embed",
   "form",
   "iframe",
-  "input",
   "link",
   "math",
   "meta",
@@ -92,10 +92,12 @@ const REMOVED_TAGS = new Set([
 const ALLOWED_ATTRIBUTES = new Set([
   "align",
   "alt",
+  "checked",
   "cite",
   "class",
   "colspan",
   "datetime",
+  "disabled",
   "height",
   "href",
   "id",
@@ -150,8 +152,10 @@ function sanitizeChildren(parent: ParentNode): void {
 
     const element = node as Element;
     const tag = element.tagName.toLowerCase();
+    const isCheckboxInput =
+      tag === "input" && element.getAttribute("type")?.trim().toLowerCase() === "checkbox";
 
-    if (REMOVED_TAGS.has(tag)) {
+    if (REMOVED_TAGS.has(tag) || (tag === "input" && !isCheckboxInput)) {
       element.remove();
       continue;
     }

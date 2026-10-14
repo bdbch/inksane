@@ -14,6 +14,7 @@ import type { LinkOptions } from "./link.ts";
 import { ListExtension } from "./list.ts";
 import { PlaceholderExtension } from "./placeholder.ts";
 import { StrikethroughExtension } from "./strikethrough.ts";
+import { TaskListExtension } from "./taskList.ts";
 
 // Kit imports must also load the command types declared by its children.
 import "./blockquote.ts";
@@ -25,6 +26,7 @@ import "./image.ts";
 import "./italic.ts";
 import "./list.ts";
 import "./strikethrough.ts";
+import "./taskList.ts";
 
 /** Standard editor features. All are enabled unless set to false. */
 export type BaseKitOptions = {
@@ -58,6 +60,8 @@ export type BaseKitOptions = {
   placeholder?: boolean;
   /** Enable strikethrough text. */
   strikethrough?: boolean;
+  /** Enable GFM task lists. */
+  taskList?: boolean;
 };
 
 /**
@@ -86,6 +90,7 @@ export function BaseKit(options: BaseKitOptions = {}): Extension {
         ["code", CodeExtension],
         ["blockquote", BlockquoteExtension],
         ["list", ListExtension],
+        ["taskList", TaskListExtension],
         ["keybinds", KeybindExtension],
         ["defaultKeymap", DefaultKeymapExtension],
       ];

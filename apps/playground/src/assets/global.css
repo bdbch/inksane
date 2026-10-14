@@ -162,6 +162,11 @@
     text-align: right;
   }
 
+  .inksane-task-checkbox {
+    cursor: pointer;
+    vertical-align: middle;
+  }
+
   .inksane-html-block {
     @apply py-4;
   }

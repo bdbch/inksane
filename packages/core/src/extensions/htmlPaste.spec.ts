@@ -86,6 +86,13 @@ describe("html paste", () => {
     expect(editor.content).toBe("~~gone **now**~~");
   });
 
+  it("converts task list items with checkboxes", () => {
+    pasteHtml(
+      '<ul><li><input type="checkbox" checked> Done <strong>now</strong></li><li><input type="checkbox"> Later</li></ul>',
+    );
+    expect(editor.content).toBe("- [x] Done **now**\n- [ ] Later");
+  });
+
   it("leaves plain text pastes to the editor", () => {
     editor.view.dispatch({ selection: { anchor: editor.content.length } });
     paste(editor.view, { "text/plain": "plain" });

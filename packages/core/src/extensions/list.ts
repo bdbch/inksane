@@ -29,9 +29,11 @@ declare module "@inksane/core" {
 
 const bulletMarker = /^[-*+]/;
 const orderedMarker = /^\d+[.)]/;
+const taskMarker = /^(?:[-*+]|\d+[.)])\s+\[[ xX]\]\s?/;
 
 const stripBulletMarker = (text: string) => text.replace(/^[-*+]\s?/, "");
 const stripOrderedMarker = (text: string) => text.replace(/^\d+[.)]\s?/, "");
+const stripTaskMarker = (text: string) => text.replace(taskMarker, "");
 
 const listMarkerClass = (ordered: boolean) =>
   `inksane-list-marker ${ordered ? "inksane-list-marker--ordered" : "inksane-list-marker--bullet"}`;
@@ -92,11 +94,13 @@ export const ListExtension: Extension = {
       {
         nodeName: "ListItem",
         hideSyntax: true,
-        markup: (node, state) => markRangesWithWhitespace(node, state, "ListMark"),
+        markup: (node, state) =>
+          node.getChild("Task") ? [] : markRangesWithWhitespace(node, state, "ListMark"),
         widgets: [
           {
             kind: "replace",
             type: (node, state) => {
+              if (node.getChild("Task")) return null;
               const ordered = node.parent?.name === "OrderedList";
               const label = ordered ? `${orderedItemNumber(node, state)}.` : "•";
               return htmlWidget(escapeHtml(label), { className: listMarkerClass(ordered) });
@@ -143,9 +147,11 @@ export const ListExtension: Extension = {
         const { from } = resolveFromTo(ctx.state, options?.pos);
         const line = ctx.state.doc.lineAt(from);
 
-        const content = bulletMarker.test(line.text)
-          ? stripBulletMarker(line.text)
-          : `- ${stripOrderedMarker(line.text)}`;
+        const content = taskMarker.test(line.text)
+          ? `- ${stripTaskMarker(line.text)}`
+          : bulletMarker.test(line.text)
+            ? stripBulletMarker(line.text)
+            : `- ${stripOrderedMarker(line.text)}`;
 
         return insertContent(ctx)({ content, from: line.from, to: line.to });
       },
@@ -154,9 +160,11 @@ export const ListExtension: Extension = {
         const { from } = resolveFromTo(ctx.state, options?.pos);
         const line = ctx.state.doc.lineAt(from);
 
-        const content = orderedMarker.test(line.text)
-          ? stripOrderedMarker(line.text)
-          : `1. ${stripBulletMarker(line.text)}`;
+        const content = taskMarker.test(line.text)
+          ? `1. ${stripTaskMarker(line.text)}`
+          : orderedMarker.test(line.text)
+            ? stripOrderedMarker(line.text)
+            : `1. ${stripBulletMarker(line.text)}`;
 
         return insertContent(ctx)({ content, from: line.from, to: line.to });
       },

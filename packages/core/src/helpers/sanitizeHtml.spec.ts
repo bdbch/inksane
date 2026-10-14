@@ -29,4 +29,12 @@ describe("sanitizeHtml", () => {
   it("removes comments", () => {
     expect(sanitizeHtml("<div><!-- hidden -->shown</div>")).toBe("<div>shown</div>");
   });
+
+  it("keeps checkbox inputs and drops other inputs", () => {
+    expect(
+      sanitizeHtml(
+        '<li><input type="checkbox" checked disabled><input type="text" value="x"></li>',
+      ),
+    ).toBe('<li><input type="checkbox" checked="" disabled=""></li>');
+  });
 });

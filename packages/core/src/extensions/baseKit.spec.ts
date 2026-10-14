@@ -51,6 +51,7 @@ describe("BaseKit", () => {
           list: false,
           placeholder: false,
           strikethrough: false,
+          taskList: false,
         }),
       ],
     });
