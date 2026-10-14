@@ -46,6 +46,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Build packages
+        run: pnpm run build
+
       # A Pages deployment replaces the whole site, so both apps build here and are
       # assembled into one artifact: the playground at the root, the docs under /docs.
       - name: Build playground
