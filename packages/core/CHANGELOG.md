@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.7.0
+
+<sub>2026-10-14</sub>
+
+- _(minor)_
+  Added the `editable` option and `editor.setEditable()` to control read-only mode. Read-only editors keep rendering, selection, and scrolling while a transaction filter blocks local edits. Commands and `canRun()` return false while read-only. Programmatic content setters and remote collaboration updates still work.
+- _(minor)_ Added `focus` and `blur` events with an `{ editor }` payload. Listeners receive the updated `editor.focused` state.
+- _(minor)_
+  Feature extensions are now explicit. Import `BaseKit` from `@inksane/core/extensions/base-kit` and pass `BaseKit()` in the editor's `extensions` option to keep the standard setup. Individual features are available under `@inksane/core/extensions/*`.
+
+  Import `LinkExtension` from `@inksane/core/extensions/link` and `placeholderTheme` from `@inksane/core/extensions/placeholder`. Move the editor's `defaultKeymap` option into `BaseKit({ defaultKeymap: false })`. Document commands remain available without a kit.
+
+- _(minor)_
+  Added the strikethrough extension with GFM syntax, HTML paste support, setStrike, removeStrike, toggleStrike, and the Mod-Shift-x shortcut. BaseKit includes it by default and accepts strikethrough: false to disable it.
+- _(patch)_
+  Fixed editor destruction to release DOM references, pending state, and event listeners. Repeated destruction is safe. Destroyed editors cannot mount again, but a new editor can reuse the same element.
+- _(patch)_ Fixed `beforeTransaction` and `transaction` events to fire for each transaction dispatched to the mounted editor view.
+- _(patch)_
+  Fixed extension event handlers so root and child extensions receive editor events in priority order. Handlers are removed when the editor is destroyed.
+
 ## 0.6.0
 
 <sub>2026-10-13</sub>
