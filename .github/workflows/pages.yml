@@ -49,10 +49,10 @@ jobs:
       # A Pages deployment replaces the whole site, so both apps build here and are
       # assembled into one artifact: the playground at the root, the docs under /docs.
       - name: Build playground
-        run: pnpm --filter @inksane/playground exec astro build --base "${{ steps.pages.outputs.base_path }}"
+        run: pnpm --filter @inksane-internal/playground --fail-if-no-match exec astro build --base "${{ steps.pages.outputs.base_path }}"
 
       - name: Build docs
-        run: pnpm --filter @inksane/docs exec astro build
+        run: pnpm --filter @inksane-internal/docs --fail-if-no-match exec astro build
         env:
           DOCS_BASE_PATH: ${{ steps.pages.outputs.base_path }}/docs
 
