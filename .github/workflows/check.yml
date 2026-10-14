@@ -25,10 +25,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Generates the Astro content types so the docs app is type checked against its
-      # real collections instead of Astro's `any` fallback.
-      - name: Sync docs types
-        run: pnpm --filter @inksane/docs run sync
+      - name: Build packages
+        run: pnpm run build
+
+      # Generated types give Astro its collection schemas and React JSX namespace.
+      - name: Sync Astro types
+        run: |
+          pnpm --filter @inksane-internal/docs --fail-if-no-match run sync
+          pnpm --filter @inksane-internal/playground --fail-if-no-match exec astro sync
 
       - name: Lint
         run: pnpm exec vp check
