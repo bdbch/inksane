@@ -76,9 +76,14 @@ describe("html paste", () => {
   });
 
   it("keeps text for a tag no extension owns", () => {
-    pasteHtml("<p><del>gone</del></p>");
+    pasteHtml("<p><u>underlined</u></p>");
 
-    expect(editor.content).toBe("gone");
+    expect(editor.content).toBe("underlined");
+  });
+
+  it.each(["del", "s"])("converts %s to strikethrough", (tag) => {
+    pasteHtml(`<p><${tag}>gone <strong>now</strong></${tag}></p>`);
+    expect(editor.content).toBe("~~gone **now**~~");
   });
 
   it("leaves plain text pastes to the editor", () => {

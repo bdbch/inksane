@@ -54,6 +54,10 @@
     @apply italic;
   }
 
+  .inksane-mark-strikethrough {
+    @apply line-through;
+  }
+
   .inksane-mark-link {
     @apply underline;
   }

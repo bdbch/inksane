@@ -50,6 +50,7 @@ describe("BaseKit", () => {
           link: false,
           list: false,
           placeholder: false,
+          strikethrough: false,
         }),
       ],
     });

@@ -1,0 +1,83 @@
+---
+title: Strikethrough
+description: "GFM strikethrough syntax, commands, HTML pasting, and Mod-Shift-x."
+---
+
+The `strikethrough` extension renders `~~text~~` as struck text and adds commands to apply or
+remove the formatting.
+
+## Setup
+
+Import `StrikethroughExtension` and register it with the editor. Create the mount element before
+this code runs:
+
+```ts
+import { Editor } from "@inksane/core";
+import { StrikethroughExtension } from "@inksane/core/extensions/strikethrough";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  content: "hello",
+  extensions: [StrikethroughExtension],
+});
+```
+
+[BaseKit](/kits/base-kit) includes strikethrough. If you use the kit, no separate registration is
+needed. Disable the feature with `BaseKit({ strikethrough: false })`.
+
+## What it adds
+
+- Parses GFM strikethrough using paired `~~` markers.
+- Decorates the `Strikethrough` node with `.inksane-mark-strikethrough` and hides the markers.
+  The markers become visible when the focused selection touches the node.
+- Converts pasted `<del>` and `<s>` elements to `~~text~~`.
+- Registers the commands below and the `Mod-Shift-x` binding.
+
+The editor keeps the markers in its Markdown source. Escaped markers and markers inside code
+remain literal text.
+
+## Commands
+
+| Command                  | Description                                                                               |
+| ------------------------ | ----------------------------------------------------------------------------------------- |
+| `setStrike({ pos? })`    | Wraps the range in `~~`. At a caret, inserts `~~~~` and places the caret between markers. |
+| `removeStrike({ pos? })` | Removes the strikethrough enclosing the selection or caret.                               |
+| `toggleStrike({ pos? })` | Removes enclosing strikethrough or adds it when none is present.                          |
+
+All three commands accept an optional `pos` as a number or a `{ from, to }` range. Without `pos`,
+they use the current selection.
+
+`setStrike` returns `false` when the range is already struck through. `removeStrike` returns
+`false` when no strikethrough encloses the range. Removing strikethrough from a caret or a partial
+selection removes the surrounding pair of markers and preserves the text and selection.
+
+```js
+editor.commands.toggleStrike();
+
+editor
+  .chain()
+  .setStrike({ pos: { from: 0, to: 5 } })
+  .focus()
+  .run();
+```
+
+Use `editor.isActive("strikethrough")` to check the selection and
+`editor.getMarkRange("strikethrough")` to find the surrounding mark.
+
+## Keyboard
+
+| Keys          | Action                                      |
+| ------------- | ------------------------------------------- |
+| `Mod-Shift-x` | `toggleStrike()` on the selection or caret. |
+
+`Mod` is Cmd on macOS and Ctrl on Windows and Linux.
+
+## Styling
+
+Add this rule to your editor styles:
+
+```css
+[data-inksane-editor-content] .inksane-mark-strikethrough {
+  text-decoration: line-through;
+}
+```

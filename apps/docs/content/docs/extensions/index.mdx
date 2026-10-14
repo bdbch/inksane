@@ -43,6 +43,7 @@ All feature imports use the prefix `@inksane/core/extensions/`:
 | ----------------------------------------------------------------------------------- | ----------------- | ------------------------- |
 | [Bold](/extensions/inline/bold)                                                     | `bold`            | `BoldExtension`           |
 | [Italic](/extensions/inline/italic)                                                 | `italic`          | `ItalicExtension`         |
+| [Strikethrough](/extensions/inline/strikethrough)                                   | `strikethrough`   | `StrikethroughExtension`  |
 | [Link](/extensions/inline/link)                                                     | `link`            | `LinkExtension`           |
 | [Image](/extensions/inline/image)                                                   | `image`           | `ImageExtension`          |
 | [Code](/extensions/inline/code)                                                     | `code`            | `CodeExtension`           |
@@ -56,9 +57,10 @@ All feature imports use the prefix `@inksane/core/extensions/`:
 | [Editing and search shortcuts](/extensions/features/keybindings#the-default-keymap) | `keybinds`        | `DefaultKeymapExtension`  |
 | [Placeholder](/extensions/features/placeholder)                                     | `placeholder`     | `PlaceholderExtension`    |
 
-Disabling a feature removes its commands, keybindings, decorations, state queries, and HTML
-converters. It does not remove that syntax from the underlying Markdown parser. For example,
-`bold: false` leaves `**text**` in the document but removes the bold feature's editor behavior.
+Disabling a feature removes its commands, keybindings, decorations, state queries, HTML converters,
+and parser additions. Standard Markdown syntax remains available in the underlying parser. For
+example, `bold: false` leaves `**text**` in the document but removes the bold feature's editor
+behavior. Disabling strikethrough also removes its GFM parser support, so `~~text~~` stays literal.
 
 ### Commands and types
 
