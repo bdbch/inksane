@@ -56,6 +56,7 @@
     "./extensions/link": "./dist/extensions/link.mjs",
     "./extensions/list": "./dist/extensions/list.mjs",
     "./extensions/placeholder": "./dist/extensions/placeholder.mjs",
+    "./extensions/strikethrough": "./dist/extensions/strikethrough.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {

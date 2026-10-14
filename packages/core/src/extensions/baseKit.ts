@@ -13,6 +13,7 @@ import { LinkExtension } from "./link.ts";
 import type { LinkOptions } from "./link.ts";
 import { ListExtension } from "./list.ts";
 import { PlaceholderExtension } from "./placeholder.ts";
+import { StrikethroughExtension } from "./strikethrough.ts";
 
 // Kit imports must also load the command types declared by its children.
 import "./blockquote.ts";
@@ -23,6 +24,7 @@ import "./horizontalRule.ts";
 import "./image.ts";
 import "./italic.ts";
 import "./list.ts";
+import "./strikethrough.ts";
 
 /** Standard editor features. All are enabled unless set to false. */
 export type BaseKitOptions = {
@@ -54,6 +56,8 @@ export type BaseKitOptions = {
   list?: boolean;
   /** Enable the editor's placeholder option. */
   placeholder?: boolean;
+  /** Enable strikethrough text. */
+  strikethrough?: boolean;
 };
 
 /**
@@ -72,6 +76,7 @@ export function BaseKit(options: BaseKitOptions = {}): Extension {
         ["history", HistoryExtension],
         ["bold", BoldExtension],
         ["italic", ItalicExtension],
+        ["strikethrough", StrikethroughExtension],
         ["link", LinkExtension(typeof options.link === "object" ? options.link : {})],
         ["placeholder", PlaceholderExtension],
         ["heading", HeadingExtension],

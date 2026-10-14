@@ -7,6 +7,7 @@ export default defineConfig({
       "extensions/base-kit": "src/extensions/baseKit.ts",
       "extensions/bold": "src/extensions/bold.ts",
       "extensions/italic": "src/extensions/italic.ts",
+      "extensions/strikethrough": "src/extensions/strikethrough.ts",
       "extensions/link": "src/extensions/link.ts",
       "extensions/placeholder": "src/extensions/placeholder.ts",
       "extensions/heading": "src/extensions/heading.ts",
