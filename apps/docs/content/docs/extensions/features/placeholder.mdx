@@ -1,0 +1,53 @@
+---
+title: Placeholder
+description: "Register the placeholder extension and style the hint shown in an empty document."
+---
+
+`PlaceholderExtension` displays the editor's `placeholder` text while the document is empty.
+The hint is not document content and does not appear in `getMarkdown()`.
+
+## Setup
+
+Create a mount element, then register the extension and set the text:
+
+```ts
+import { Editor } from "@inksane/core";
+import { PlaceholderExtension } from "@inksane/core/extensions/placeholder";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  placeholder: "Start writing",
+  extensions: [PlaceholderExtension],
+});
+```
+
+[BaseKit](/kits/base-kit) already includes placeholder support. To disable it in the kit, pass
+`BaseKit({ placeholder: false })`. The kit option is a boolean. The editor's `placeholder` option
+sets the text.
+
+An omitted or empty placeholder string shows no hint. The hint disappears when content is added
+and returns when the document is cleared.
+
+## Styling
+
+Import `placeholderTheme` from the same subpath. It merges your styles with the default placeholder
+styles:
+
+```ts
+import { Editor } from "@inksane/core";
+import { PlaceholderExtension, placeholderTheme } from "@inksane/core/extensions/placeholder";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  placeholder: "Start writing",
+  extensions: [PlaceholderExtension],
+  theme: placeholderTheme({ color: "#999", fontStyle: "italic" }),
+});
+```
+
+`PlaceholderThemeStyles` is exported from `@inksane/core/extensions/placeholder`. It maps CSS
+property names to string, number, or `null` values.
+
+The empty line has the `.inksane-placeholder` class and a `data-inksane-placeholder` attribute.
+Its `::before` content displays the hint without moving the caret. The editable area also has an
+`aria-placeholder` attribute.

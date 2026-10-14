@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { Editor } from "./Editor.ts";
+import { HorizontalRuleExtension } from "./extensions/horizontalRule.ts";
 
 describe("CommandChain", () => {
   let editor: Editor;
@@ -12,7 +13,11 @@ describe("CommandChain", () => {
   });
 
   it("inserts a horizontal rule after a prior chain insertion, preserving positions and selection", () => {
-    editor = new Editor({ element: document.createElement("div"), content: "" });
+    editor = new Editor({
+      element: document.createElement("div"),
+      content: "",
+      extensions: [HorizontalRuleExtension],
+    });
 
     const ok = editor
       .chain()

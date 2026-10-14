@@ -145,8 +145,9 @@ addKeybinds({ editor }) {
 }
 ```
 
-Bindings from extensions are checked before the [default keymap](/extensions/features/keybindings),
-so an extension can override a standard key.
+BaseKit registers its feature bindings before the [default keymap](/extensions/features/keybindings).
+To override a standard key with your own extension, give it a higher `priority` or register it
+before the default keymap.
 
 ## CodeMirror extensions
 
@@ -263,7 +264,7 @@ addStateQueries() {
 A mark requires a collapsed selection to sit inside the node, while `kind: "node"` also counts when
 the selection sits on the node's edge, which is what block nodes such as headings or lists need.
 
-`attrs` is how a query gets attributes to match. The built-in heading extension reads the level from
+`attrs` is how a query gets attributes to match. The heading extension reads the level from
 the matched node, so `editor.isActive("heading", { level: 1 })` only matches first-level headings.
 The link extension reads the `href` the same way.
 

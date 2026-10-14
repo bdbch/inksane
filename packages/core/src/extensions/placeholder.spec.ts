@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { Editor } from "../Editor.ts";
-import { placeholderTheme } from "./placeholder.ts";
+import { PlaceholderExtension, placeholderTheme } from "./placeholder.ts";
 
 const queryPlaceholder = (editor: Editor) =>
   editor.view.dom.querySelector<HTMLElement>(".cm-line.inksane-placeholder");
@@ -17,7 +17,11 @@ describe("placeholder", () => {
   });
 
   it("marks the empty line with the placeholder text", () => {
-    editor = new Editor({ element: document.createElement("div"), placeholder: "Start writing…" });
+    editor = new Editor({
+      element: document.createElement("div"),
+      placeholder: "Start writing…",
+      extensions: [PlaceholderExtension],
+    });
 
     expect(queryPlaceholder(editor)?.getAttribute("data-inksane-placeholder")).toBe(
       "Start writing…",
@@ -25,7 +29,11 @@ describe("placeholder", () => {
   });
 
   it("hides the placeholder as soon as content exists", () => {
-    editor = new Editor({ element: document.createElement("div"), placeholder: "Start writing…" });
+    editor = new Editor({
+      element: document.createElement("div"),
+      placeholder: "Start writing…",
+      extensions: [PlaceholderExtension],
+    });
     expect(queryPlaceholder(editor)).not.toBeNull();
 
     editor.content = "hello";
@@ -38,6 +46,7 @@ describe("placeholder", () => {
       element: document.createElement("div"),
       content: "hello",
       placeholder: "Start writing…",
+      extensions: [PlaceholderExtension],
     });
     expect(queryPlaceholder(editor)).toBeNull();
 
@@ -47,13 +56,20 @@ describe("placeholder", () => {
   });
 
   it("renders no placeholder without the option", () => {
-    editor = new Editor({ element: document.createElement("div") });
+    editor = new Editor({
+      element: document.createElement("div"),
+      extensions: [PlaceholderExtension],
+    });
 
     expect(queryPlaceholder(editor)).toBeNull();
   });
 
   it("treats an empty placeholder as no placeholder", () => {
-    editor = new Editor({ element: document.createElement("div"), placeholder: "" });
+    editor = new Editor({
+      element: document.createElement("div"),
+      placeholder: "",
+      extensions: [PlaceholderExtension],
+    });
 
     expect(queryPlaceholder(editor)).toBeNull();
   });
@@ -63,6 +79,7 @@ describe("placeholder", () => {
       element: document.createElement("div"),
       placeholder: "Start writing…",
       theme: placeholderTheme({ color: "#123456", fontStyle: "italic" }),
+      extensions: [PlaceholderExtension],
     });
 
     const css = [...document.querySelectorAll("style")]

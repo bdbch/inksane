@@ -15,7 +15,9 @@ const markdown = rawContent()
 </Base>
 
 <script>
-    import { Editor, LinkExtension, placeholderTheme, type Extension } from "@inksane/core";
+    import { Editor, type Extension } from "@inksane/core";
+    import { BaseKit } from "@inksane/core/extensions/base-kit";
+    import { placeholderTheme } from "@inksane/core/extensions/placeholder";
     import { EditorView } from "@codemirror/view";
 
     const buttons = document.querySelectorAll("button[data-action]");
@@ -65,13 +67,15 @@ const markdown = rawContent()
 
         extensions: [
             TestExtension,
-            LinkExtension({
-                // Ask for a URL when Mod-K is pressed. Returning null cancels the link.
-                onLinkRequest: ({ text }) =>
-                    window.prompt(
-                        "Link URL",
-                        text ? `https://example.com/${encodeURIComponent(text)}` : "https://",
-                    ),
+            BaseKit({
+                link: {
+                    // Ask for a URL when Mod-K is pressed. Returning null cancels the link.
+                    onLinkRequest: ({ text }) =>
+                        window.prompt(
+                            "Link URL",
+                            text ? `https://example.com/${encodeURIComponent(text)}` : "https://",
+                        ),
+                },
             }),
         ],
         theme: [theme, placeholderStyle],

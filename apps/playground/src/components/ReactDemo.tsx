@@ -1,4 +1,5 @@
 import { EditorView } from "@codemirror/view";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
 import {
   Inksane,
   InksaneProvider,
@@ -28,6 +29,7 @@ const theme = EditorView.theme({
 });
 
 const options = {
+  extensions: [BaseKit()],
   theme,
   classNames: { editable: "font-sans" },
 };

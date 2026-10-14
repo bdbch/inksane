@@ -25,16 +25,20 @@ pnpm add @inksane/react
 
 `options` is `EditorOptions` without `element`, because the binding owns the mount element.
 
+React bindings do not add feature extensions automatically. Pass [BaseKit](/kits/base-kit) for the
+standard setup, or register [individual extensions](/extensions#individual-imports).
+
 ## Mount an editor
 
 `useInksane` creates the editor after the first render, so it returns `null` on that render. Pass the
 editor to `<Inksane />`, which mounts it into a `div`.
 
 ```tsx
+import { BaseKit } from "@inksane/core/extensions/base-kit";
 import { Inksane, useInksane } from "@inksane/react";
 
 export function Editor() {
-  const editor = useInksane({ content: "# Hello inksane" });
+  const editor = useInksane({ content: "# Hello inksane", extensions: [BaseKit()] });
 
   return <Inksane editor={editor} className="rounded-md border" />;
 }
@@ -49,6 +53,8 @@ export function Editor() {
 
 `InksaneProvider` creates the editor and provides it. Any component below it can read the editor
 with `useInksaneContext()`, which is how you build a toolbar next to the editor.
+
+This toolbar uses bold and italic commands. Its provider must register those extensions or BaseKit.
 
 ```tsx
 import { useInksaneContext, useInksaneSelection } from "@inksane/react";
@@ -84,12 +90,13 @@ export function Toolbar() {
 Put the toolbar and the editor under one provider:
 
 ```tsx
+import { BaseKit } from "@inksane/core/extensions/base-kit";
 import { Inksane, InksaneProvider } from "@inksane/react";
 import { Toolbar } from "./toolbar";
 
 export function App() {
   return (
-    <InksaneProvider content="# Hello inksane">
+    <InksaneProvider content="# Hello inksane" extensions={[BaseKit()]}>
       <div className="overflow-hidden rounded-md border">
         <Toolbar />
         <Inksane />
@@ -109,9 +116,10 @@ prop.
 
 ```tsx
 import type { Extension } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
 import { Inksane, useInksane } from "@inksane/react";
 
-function Editor({ extensions }: { extensions?: Extension[] }) {
+function Editor({ extensions = [BaseKit()] }: { extensions?: Extension[] }) {
   const editor = useInksane({ extensions });
 
   return <Inksane editor={editor} />;
@@ -131,11 +139,12 @@ build a controlled component the other way around.
 
 ```tsx
 import { useEffect, useState } from "react";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
 import { Inksane, useInksane } from "@inksane/react";
 
 export function ControlledEditor() {
   const [markdown, setMarkdown] = useState("# Start here");
-  const editor = useInksane({ content: markdown });
+  const editor = useInksane({ content: markdown, extensions: [BaseKit()] });
 
   useEffect(() => {
     if (!editor) return;

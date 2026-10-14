@@ -44,7 +44,7 @@ export const KeybindExtension: Extension = {
  * Replace, and `indentWithTab` indents through CodeMirror's language indent
  * unit.
  *
- * It ships as the last built-in extension so extension-specific bindings, such
+ * BaseKit registers it last so extension-specific bindings, such
  * as bold or link shortcuts, take precedence. The editor's own Tab binding in
  * {@link KeybindExtension} is registered earlier as well, so Tab keeps honoring
  * the `tabSize` option.

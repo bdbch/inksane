@@ -425,6 +425,7 @@ import Base from "../../../layouts/Base.astro";
 
 <script>
     import { Editor } from "@inksane/core";
+    import { BaseKit } from "@inksane/core/extensions/base-kit";
     import { EditorView, placeholder } from "@codemirror/view";
     import { renderMarkdown } from "../../../lib/renderMarkdown";
 
@@ -564,6 +565,7 @@ import Base from "../../../layouts/Base.astro";
             theme: boxTheme(options.minHeight),
             classNames: { editable: "font-sans" },
             extensions: [
+                BaseKit({ placeholder: false }),
                 {
                     name: "mdbox",
                     addCodeMirrorExtensions: () => [

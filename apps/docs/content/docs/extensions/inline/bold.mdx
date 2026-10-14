@@ -5,6 +5,24 @@ description: "The bold extension: ** syntax, commands, HTML pasting, and Mod-b."
 
 The `bold` extension renders `**bold**` and `__bold__` as bold text and adds the bold commands.
 
+## Setup
+
+Import `BoldExtension` and register it with the editor. This example mounts into an existing
+element with the ID `editor`:
+
+```ts
+import { Editor } from "@inksane/core";
+import { BoldExtension } from "@inksane/core/extensions/bold";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [BoldExtension],
+});
+```
+
+[BaseKit](/kits/base-kit) already includes bold. If you use the kit, no separate registration
+is needed. Disable bold with `BaseKit({ bold: false })`.
+
 ## What it adds
 
 - Decorates the `StrongEmphasis` node with `.inksane-mark-bold` and hides the `**` markers.

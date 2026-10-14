@@ -1,10 +1,5 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "compilerOptions": {
-    "paths": {
-      "@inksane/*": ["../../packages/*/src"]
-    }
-  },
   "include": [".astro/types.d.ts", "**/*"],
   "exclude": ["dist"]
 }

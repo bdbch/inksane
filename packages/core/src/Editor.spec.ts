@@ -3,6 +3,7 @@ import { Editor } from "./Editor.ts";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { LinkExtension } from "./extensions/link.ts";
+import { BaseKit } from "./extensions/baseKit.ts";
 
 function createEditor() {
   const mount = document.createElement("div");
@@ -27,6 +28,13 @@ describe("Editor", () => {
   it("creates the editor and mounts the dom", () => {
     expect(editor).toBeDefined();
     expect(editor).toBeInstanceOf(Editor);
+  });
+
+  it("registers only document commands without feature extensions", () => {
+    expect(editor.commands).toHaveProperty("insertContent");
+    expect(editor.commands).not.toHaveProperty("toggleBold");
+    expect(editor.commands).not.toHaveProperty("setLink");
+    expect(editor.isActive("bold")).toBe(false);
   });
 
   it("correctly creates the view and state", () => {
@@ -59,7 +67,7 @@ describe("Editor", () => {
   it("decorates Markdown bold syntax", () => {
     const mount = document.createElement("div");
     document.body.append(mount);
-    const editor = new Editor({ element: mount, content: "**bold**" });
+    const editor = new Editor({ element: mount, content: "**bold**", extensions: [BaseKit()] });
     editor.view.focus();
 
     expect(editor.view.dom.querySelector(".inksane-mark-bold")?.textContent).toBe("**bold**");
@@ -221,7 +229,7 @@ describe("Editor", () => {
     });
   });
 
-  it("lets a configured extension replace the built-in with the same name", () => {
+  it("registers a configured feature without a kit", () => {
     const mount = document.createElement("div");
     const editor = new Editor({
       element: mount,
@@ -245,7 +253,11 @@ describe("selection and state queries", () => {
 
   const mount = (content: string, selection?: { anchor: number; head?: number }) => {
     editor?.destroy();
-    editor = new Editor({ element: document.createElement("div"), content });
+    editor = new Editor({
+      element: document.createElement("div"),
+      content,
+      extensions: [BaseKit()],
+    });
     if (selection) editor.view.dispatch({ selection });
     return editor;
   };

@@ -1,7 +1,7 @@
 import * as commands from "../commands/index.ts";
 import type { Extension } from "../types/extensions.ts";
 
-/** Built-in commands shipped with core. Registered by default. */
+/** Registers the document commands available in every editor. */
 export const CommandsExtension: Extension = {
   name: "__tiptap_commands",
   addCommands: () => ({

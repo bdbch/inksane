@@ -8,6 +8,23 @@ import { Callout } from "fumadocs-ui/components/callout";
 The `html` extension renders block-level HTML from the document, such as `<div>`, `<details>`, or
 `<table>`, and hides HTML comments.
 
+## Setup
+
+Import `HtmlExtension` and pass it through the editor's `extensions` option. Create the mount
+element before this code runs:
+
+```ts
+import { Editor } from "@inksane/core";
+import { HtmlExtension } from "@inksane/core/extensions/html";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [HtmlExtension],
+});
+```
+
+[BaseKit](/kits/base-kit) includes HTML rendering. Use `BaseKit({ html: false })` to leave document HTML as source text.
+
 ## What it adds
 
 - Replaces an `HTMLBlock` with a block widget that contains the cleaned markup. The wrapper gets

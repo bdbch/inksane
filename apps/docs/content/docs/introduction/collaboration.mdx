@@ -17,6 +17,7 @@ pnpm add @inksane/extension-collaboration yjs
 
 ```js
 import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
 import { CollaborationExtension } from "@inksane/extension-collaboration";
 import * as Y from "yjs";
 
@@ -26,6 +27,7 @@ const editor = new Editor({
   element: document.getElementById("editor"),
   content: "# Shared document",
   extensions: [
+    BaseKit({ history: false }),
     CollaborationExtension({
       ydoc,
       user: { name: "Alice", color: "#30bced" },
@@ -33,6 +35,10 @@ const editor = new Editor({
   ],
 });
 ```
+
+`BaseKit` provides the Markdown features and standard editing shortcuts. Disable its `history`
+feature because Yjs owns undo and redo. You can also choose individual extensions, leaving out
+`HistoryExtension`.
 
 ## Options
 
@@ -61,6 +67,7 @@ const provider = new WebsocketProvider("wss://example.com", "my-room", ydoc);
 const editor = new Editor({
   element: document.getElementById("editor"),
   extensions: [
+    BaseKit({ history: false }),
     CollaborationExtension({
       ydoc,
       awareness: provider.awareness,
@@ -82,5 +89,4 @@ Two editors in the same page that share a `Y.Doc` sync immediately, which is a q
 extension without a server. The extension tests in the repository do exactly that: they link two
 documents and two awareness instances.
 
-Also note that the extension sets `priority: 100`, so it initializes before the built-in
-extensions.
+The extension sets `priority: 100`, so it initializes before BaseKit's default-priority features.

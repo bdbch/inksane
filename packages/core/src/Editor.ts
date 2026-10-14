@@ -3,52 +3,12 @@ import { EditorView } from "@codemirror/view";
 import { editorFocusField } from "./editorFocus.ts";
 import { EventEmitter } from "./EventEmitter.ts";
 import type { EditorEvents, EditorOptions } from "./types/editor.ts";
-import type { Extension as InksaneExtension } from "./types/extensions.ts";
 import { ExtensionManager } from "./ExtensionManager.ts";
 import type { ChainedCommands, SingleCommands } from "./types/commands.ts";
 import { canRunCommand, CommandChain, createBoundCommands } from "./CommandChain.ts";
 import { getActiveMarkRange, isQueryActive } from "./helpers/stateQueries.ts";
 import type { Range } from "./types/index.ts";
-import {
-  BlockquoteExtension,
-  BoldExtension,
-  CodeExtension,
-  CommandsExtension,
-  DefaultKeymapExtension,
-  HeadingExtension,
-  HorizontalRuleExtension,
-  HistoryExtension,
-  HtmlExtension,
-  ImageExtension,
-  KeybindExtension,
-  ItalicExtension,
-  LinkExtension,
-  ListExtension,
-  PlaceholderExtension,
-} from "./extensions/index.ts";
-
-/**
- * Extensions every editor starts with, in setup order. A configured extension
- * with the same name replaces the built-in, so a feature can be set up with its
- * own options.
- */
-const BUILT_IN_EXTENSIONS: InksaneExtension[] = [
-  CommandsExtension,
-  HistoryExtension,
-  BoldExtension,
-  ItalicExtension,
-  LinkExtension(),
-  PlaceholderExtension,
-  HeadingExtension,
-  HorizontalRuleExtension,
-  HtmlExtension,
-  ImageExtension,
-  CodeExtension,
-  BlockquoteExtension,
-  ListExtension,
-  KeybindExtension,
-  DefaultKeymapExtension,
-];
+import { CommandsExtension } from "./extensions/commands.ts";
 
 export class Editor extends EventEmitter<EditorEvents> {
   private _te: TextEncoder = new TextEncoder();
@@ -240,28 +200,14 @@ export class Editor extends EventEmitter<EditorEvents> {
     }
   }
 
-  /**
-   * Combines the built-in extensions with the configured ones. Configured
-   * extensions win by name, which is how a built-in feature, such as links, is
-   * given options.
-   */
-  private resolveExtensions(): InksaneExtension[] {
-    const configured = this.options.extensions ?? [];
-    const overridden = new Set(configured.map((extension) => extension.name));
-
-    const builtIns =
-      this.options.defaultKeymap === false
-        ? BUILT_IN_EXTENSIONS.filter((extension) => extension.name !== "defaultKeymap")
-        : BUILT_IN_EXTENSIONS;
-
-    return [...builtIns.filter((extension) => !overridden.has(extension.name)), ...configured];
-  }
-
   constructor(options: EditorOptions) {
     super();
     this.options = options;
     const { element, content } = this.options;
-    this._extensionManager = new ExtensionManager(this, this.resolveExtensions());
+    this._extensionManager = new ExtensionManager(this, [
+      CommandsExtension,
+      ...(options.extensions ?? []),
+    ]);
 
     this.emit("beforeCreate", { editor: this });
 

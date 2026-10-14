@@ -19,6 +19,7 @@ import Base from "../../../layouts/Base.astro";
 
 <script>
     import { Editor } from "@inksane/core";
+    import { BaseKit } from "@inksane/core/extensions/base-kit";
     import { EditorView } from "@codemirror/view";
 
     const content = `# Try read-only mode
@@ -42,6 +43,7 @@ Uncheck "Allow editing". Your changes stay visible, but typing and formatting no
         element: document.getElementById("editor-mount")!,
         content,
         editable: false,
+        extensions: [BaseKit()],
         theme: EditorView.theme({
             ".cm-content": { paddingTop: "24px", paddingBottom: "24px" },
             ".cm-line": { paddingLeft: "24px", paddingRight: "24px" },

@@ -39,12 +39,19 @@ Then create and mount the editor:
 
 ```js
 import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
 
 new Editor({
   element: document.getElementById("editor"),
   content: "# Hello, inksane!",
+  extensions: [BaseKit()],
 });
 ```
+
+[`BaseKit`](./apps/docs/content/docs/kits/base-kit.mdx) adds the standard Markdown features, history,
+editing shortcuts, and placeholder support.
+Core does not load feature extensions automatically. You can also import individual features,
+such as `BoldExtension` from `@inksane/core/extensions/bold`.
 
 See [Create your first editor](./apps/docs/content/docs/introduction/quick-start.mdx) for the full setup guide.
 

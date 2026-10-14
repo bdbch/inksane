@@ -20,6 +20,7 @@ Create a theme with `EditorView.theme` and pass it as the `theme` option.
 
 ```js
 import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
 import { EditorView } from "@codemirror/view";
 
 const theme = EditorView.theme({
@@ -30,6 +31,7 @@ const theme = EditorView.theme({
 const editor = new Editor({
   element: mount,
   theme,
+  extensions: [BaseKit()],
 });
 ```
 
@@ -40,8 +42,9 @@ const editor = new Editor({
 ## Style the content
 
 By default, bold text, headings, lists, code, and everything else look like plain text, because
-CodeMirror does not use their real HTML elements. The built-in extensions decorate the syntax tree
-with classes instead.
+CodeMirror does not use their real HTML elements. Registered extensions decorate the syntax tree
+with classes instead. Register [BaseKit](/kits/base-kit) or the relevant individual extensions
+before applying their content styles.
 
 The editable element is `[data-inksane-editor-content]`, and its class is `inksane-editor-content`.
 Scope your content styles to it:

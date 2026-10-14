@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { undoDepth, redoDepth } from "@codemirror/commands";
 import { Editor } from "../Editor.ts";
+import { BaseKit } from "./baseKit.ts";
 
 function press(editor: Editor, key: string, modifiers: KeyboardEventInit = {}) {
   editor.view.contentDOM.dispatchEvent(
@@ -12,7 +13,11 @@ describe("history", () => {
   let editor: Editor;
 
   beforeEach(() => {
-    editor = new Editor({ element: document.createElement("div"), content: "hello" });
+    editor = new Editor({
+      element: document.createElement("div"),
+      content: "hello",
+      extensions: [BaseKit()],
+    });
   });
 
   afterEach(() => {
@@ -20,7 +25,7 @@ describe("history", () => {
     editor.destroy();
   });
 
-  it("registers history in the default editor setup", () => {
+  it("registers history through BaseKit", () => {
     editor.view.dispatch({ changes: { from: 5, insert: " world" } });
 
     expect(undoDepth(editor.state)).toBeGreaterThan(0);
@@ -48,7 +53,7 @@ describe("history", () => {
   });
 
   it("groups a burst of typing into one undo step", () => {
-    const editor2 = new Editor({ element: document.createElement("div") });
+    const editor2 = new Editor({ element: document.createElement("div"), extensions: [BaseKit()] });
     for (let i = 0; i < "hello".length; i++) {
       editor2.view.dispatch({ changes: { from: i, insert: "hello"[i] } });
     }

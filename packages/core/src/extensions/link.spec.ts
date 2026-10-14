@@ -7,7 +7,11 @@ describe("link decorations", () => {
   let editor: Editor;
 
   const mount = (content: string) => {
-    editor = new Editor({ element: document.createElement("div"), content });
+    editor = new Editor({
+      element: document.createElement("div"),
+      content,
+      extensions: [LinkExtension()],
+    });
   };
 
   afterEach(() => {
@@ -95,7 +99,7 @@ describe("link Mod-k keybinding", () => {
     editor = new Editor({
       element: document.createElement("div"),
       content,
-      ...(extensions ? { extensions } : {}),
+      extensions: extensions ?? [LinkExtension()],
     });
     editor.view.dispatch({ selection });
     return editor;
@@ -171,7 +175,11 @@ describe("link command URL validation", () => {
   let editor: Editor;
 
   beforeEach(() => {
-    editor = new Editor({ element: document.createElement("div"), content: "Hello world" });
+    editor = new Editor({
+      element: document.createElement("div"),
+      content: "Hello world",
+      extensions: [LinkExtension()],
+    });
   });
 
   afterEach(() => {

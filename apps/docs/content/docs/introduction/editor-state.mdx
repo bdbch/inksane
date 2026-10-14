@@ -23,7 +23,8 @@ A collapsed selection only counts inside an inline mark, so a caret just after `
 bold. A block node, such as a heading, list, code block, or blockquote, counts when the selection
 sits on its line or inside it.
 
-The built-in names:
+These names are provided by registered extensions or [BaseKit](/kits/base-kit). A query for an
+unregistered feature returns `false`, and its mark range is `null`:
 
 | Name             | Kind | Active for                | Attributes |
 | ---------------- | ---- | ------------------------- | ---------- |
