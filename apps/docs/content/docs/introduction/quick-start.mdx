@@ -96,12 +96,6 @@ editor.textJSON; // ["# Hello inksane", "", "Have a lot of **fun**."]
 editor.textJSON = ["# Replaced", "", "New content."];
 ```
 
-<Callout type="warning" title="Deprecated: json">
-  `editor.json` returns the same line array as `textJSON`, but its name promised a document AST. Use
-  `getMarkdown()` to read the document or `textJSON` for the raw array instead. `json` will be
-  removed in a future major release.
-</Callout>
-
 ## Mount later
 
 Framework bindings create the editor before the DOM node exists. You can do the same: create the
