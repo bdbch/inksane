@@ -32,16 +32,16 @@ needed. Disable the feature with `BaseKit({ taskList: false })`.
   `<input class="inksane-task-checkbox" type="checkbox">` inside `.inksane-list-marker--task`.
 - Clicking the checkbox toggles the Markdown source between `[ ]` and `[x]`.
 - Converts pasted `<input type="checkbox">` elements inside `<li>` into `[ ]` and `[x]`.
-- Registers the `setTaskList`, `removeTaskList`, and `toggleTaskList` commands, plus the `taskList`
+- Registers the `insertTaskList`, `removeTaskList`, and `toggleTaskList` commands, plus the `taskList`
   state query.
 
 ## Commands
 
-| Command                           | Description                                                                |
-| --------------------------------- | -------------------------------------------------------------------------- |
-| `setTaskList({ checked?, pos? })` | Converts the line or selection into a task list item.                      |
-| `removeTaskList({ pos? })`        | Removes the task list prefix from the line or selection.                   |
-| `toggleTaskList({ pos? })`        | Removes task list syntax when every target line has it, otherwise sets it. |
+| Command                              | Description                                                                |
+| ------------------------------------ | -------------------------------------------------------------------------- |
+| `insertTaskList({ checked?, pos? })` | Converts the line or selection into a task list item.                      |
+| `removeTaskList({ pos? })`           | Removes the task list prefix from the line or selection.                   |
+| `toggleTaskList({ pos? })`           | Removes task list syntax when every target line has it, otherwise sets it. |
 
 All three commands accept an optional `pos` as a number or a `{ from, to }` range. Without `pos`,
 they use the current selection. Converting a bullet or ordered list item replaces its marker
@@ -50,7 +50,7 @@ instead of stacking markers.
 ```js
 editor.commands.toggleTaskList();
 
-editor.chain().setTaskList({ checked: true }).focus().run();
+editor.chain().insertTaskList({ checked: true }).focus().run();
 ```
 
 Use `editor.isActive("taskList")` to check whether the selection is on a task item, or

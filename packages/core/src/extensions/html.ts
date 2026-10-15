@@ -93,6 +93,10 @@ export const HtmlExtension: Extension = {
     ];
   },
 
+  addStateQueries() {
+    return [{ name: "htmlBlock", kind: "node", nodeNames: ["HTMLBlock"] }];
+  },
+
   addKeybinds({ editor }) {
     return [
       {

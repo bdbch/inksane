@@ -106,4 +106,15 @@ describe("image decorations", () => {
     expect(editor.view.dom.querySelectorAll(".inksane-image")).toHaveLength(1);
     expect(editor.view.dom.textContent).not.toContain("![image](image.png)");
   });
+
+  it("reports the image as active at the selection", () => {
+    const imageStart = editor.content.indexOf("![");
+    editor.view.dispatch({ selection: { anchor: imageStart + 2 } });
+
+    expect(editor.isActive("image")).toBe(true);
+
+    editor.view.dispatch({ selection: { anchor: 0 } });
+
+    expect(editor.isActive("image")).toBe(false);
+  });
 });

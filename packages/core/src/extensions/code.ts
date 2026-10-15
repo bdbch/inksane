@@ -6,18 +6,12 @@ declare module "@inksane/core" {
   interface Commands<ReturnType> {
     code: {
       /**
-       * Inserts inline code syntax around the specified content in the document.
-       * @param options An object containing the content, and optionally the position or range.
+       * Wraps the selection or range in backticks, or inserts `` `content` ``
+       * when `content` is given.
+       * @param options An object containing the optional content, and the position or range.
        * @returns A boolean indicating whether the command was executed successfully.
        */
-      insertCode: (options: { content: string; pos?: PosOrRange }) => ReturnType;
-
-      /**
-       * Wraps existing content with inline code syntax at the specified position or range, otherwise uses the current selection.
-       * @param options An object containing the position or range.
-       * @returns A boolean indicating whether the command was executed successfully.
-       */
-      setCode: (options?: { pos?: PosOrRange }) => ReturnType;
+      setCode: (options?: { content?: string; pos?: PosOrRange }) => ReturnType;
 
       /**
        * Removes inline code syntax from the specified position or range, otherwise uses the current selection.
@@ -38,7 +32,7 @@ declare module "@inksane/core" {
        * @param options An object containing the optional language, and the position or range.
        * @returns A boolean indicating whether the command was executed successfully.
        */
-      setCodeBlock: (options?: { lang?: string; pos?: PosOrRange }) => ReturnType;
+      insertCodeBlock: (options?: { lang?: string; pos?: PosOrRange }) => ReturnType;
 
       /**
        * Removes a fenced code block for the specified position or range in the document, otherwise uses the current selection.
@@ -136,15 +130,13 @@ export const CodeExtension: Extension = {
 
   addCommands() {
     return {
-      insertCode:
-        (ctx) =>
-        ({ content, pos }) => {
-          const { from, to } = resolveFromTo(ctx.state, pos);
-          return insertContent(ctx)({ content: `\`${content}\``, from, to });
-        },
-
       setCode: (ctx) => (options) => {
         const { from, to } = resolveFromTo(ctx.state, options?.pos);
+
+        if (options?.content !== undefined) {
+          return insertContent(ctx)({ content: `\`${options.content}\``, from, to });
+        }
+
         const selectedText = ctx.state.sliceDoc(from, to);
 
         if (isAlreadyCode(selectedText)) {
@@ -177,7 +169,7 @@ export const CodeExtension: Extension = {
         }
       },
 
-      setCodeBlock: (ctx) => (options) => {
+      insertCodeBlock: (ctx) => (options) => {
         const { from, to } = resolveFromTo(ctx.state, options?.pos);
         const selectedText = ctx.state.sliceDoc(from, to);
 
@@ -213,7 +205,7 @@ export const CodeExtension: Extension = {
         if (isAlreadyCodeBlock(selectedText)) {
           return ctx.editor.commands.removeCodeBlock({ pos: { from, to } });
         } else {
-          return ctx.editor.commands.setCodeBlock({ pos: { from, to }, lang: options?.lang });
+          return ctx.editor.commands.insertCodeBlock({ pos: { from, to }, lang: options?.lang });
         }
       },
     };

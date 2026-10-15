@@ -13,18 +13,18 @@ declare module "@inksane/core" {
        * @param options - Optional position or range. Defaults to the selection.
        * @returns False when the range is already struck through.
        */
-      setStrike: (options?: { pos?: PosOrRange }) => ReturnType;
+      setStrikethrough: (options?: { pos?: PosOrRange }) => ReturnType;
       /**
        * Removes the strikethrough enclosing the selection or caret.
        * @param options - Optional position or range. Defaults to the selection.
        * @returns False when no strikethrough encloses the range.
        */
-      removeStrike: (options?: { pos?: PosOrRange }) => ReturnType;
+      removeStrikethrough: (options?: { pos?: PosOrRange }) => ReturnType;
       /**
        * Adds strikethrough or removes it around the selection or caret.
        * @param options - Optional position or range. Defaults to the selection.
        */
-      toggleStrike: (options?: { pos?: PosOrRange }) => ReturnType;
+      toggleStrikethrough: (options?: { pos?: PosOrRange }) => ReturnType;
     };
   }
 }
@@ -57,7 +57,7 @@ export const StrikethroughExtension: Extension = {
   },
 
   addCommands() {
-    const setStrike: NamedCommand<"setStrike"> = (ctx) => (options) => {
+    const setStrikethrough: NamedCommand<"setStrikethrough"> = (ctx) => (options) => {
       const { from, to } = resolveFromTo(ctx.state, options?.pos);
       if (getStrikeRange(ctx.state, from, to)) return false;
 
@@ -71,7 +71,7 @@ export const StrikethroughExtension: Extension = {
       return insertContent(ctx)({ content: `~~${ctx.state.sliceDoc(from, to)}~~`, from, to });
     };
 
-    const removeStrike: NamedCommand<"removeStrike"> = (ctx) => (options) => {
+    const removeStrikethrough: NamedCommand<"removeStrikethrough"> = (ctx) => (options) => {
       const { from, to } = resolveFromTo(ctx.state, options?.pos);
       const range = getStrikeRange(ctx.state, from, to);
       if (!range) return false;
@@ -86,13 +86,14 @@ export const StrikethroughExtension: Extension = {
     };
 
     return {
-      setStrike,
-      removeStrike,
-      toggleStrike: (ctx) => (options) => removeStrike(ctx)(options) || setStrike(ctx)(options),
+      setStrikethrough,
+      removeStrikethrough,
+      toggleStrikethrough: (ctx) => (options) =>
+        removeStrikethrough(ctx)(options) || setStrikethrough(ctx)(options),
     };
   },
 
   addKeybinds(ctx) {
-    return [{ key: "Mod-Shift-x", run: () => ctx.editor.commands.toggleStrike() }];
+    return [{ key: "Mod-Shift-x", run: () => ctx.editor.commands.toggleStrikethrough() }];
   },
 };

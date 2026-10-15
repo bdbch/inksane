@@ -32,9 +32,9 @@ Blockquote is included in [BaseKit](/kits/base-kit). Disable it with `BaseKit({ 
 
 | Command                      | Description                                                                    |
 | ---------------------------- | ------------------------------------------------------------------------------ |
-| `setBlockquote({ pos? })`    | Prefixes the line with `> `. Returns `false` when the line is already a quote. |
+| `insertBlockquote({ pos? })` | Prefixes the line with `> `. Returns `false` when the line is already a quote. |
 | `removeBlockquote({ pos? })` | Removes the `> ` prefix. Returns `false` when there is none.                   |
-| `toggleBlockquote({ pos? })` | `setBlockquote` or `removeBlockquote`.                                         |
+| `toggleBlockquote({ pos? })` | `insertBlockquote` or `removeBlockquote`.                                      |
 
 The commands work on the line that contains the position.
 

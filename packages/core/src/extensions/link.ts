@@ -12,18 +12,12 @@ declare module "@inksane/core" {
   interface Commands<ReturnType> {
     link: {
       /**
-       * Inserts a link with the given content and url into the document.
-       * @param options An object containing the content and url, and optionally the position or range.
+       * Wraps the selection or range in a link. When `content` is given, it is
+       * used as the link text instead of the selected text.
+       * @param options An object containing the url, optional content, and the position or range.
        * @returns A boolean indicating whether the command was executed successfully. Returns `false` for empty or unsafe URLs.
        */
-      insertLink: (options: { content: string; url: string; pos?: PosOrRange }) => ReturnType;
-
-      /**
-       * Wraps existing content with a link at the specified position or range in the document, otherwise uses the current selection.
-       * @param options An object containing the url, and optionally the position or range.
-       * @returns A boolean indicating whether the command was executed successfully. Returns `false` for empty or unsafe URLs.
-       */
-      setLink: (options: { url: string; pos?: PosOrRange }) => ReturnType;
+      setLink: (options: { url: string; content?: string; pos?: PosOrRange }) => ReturnType;
 
       /**
        * Removes link syntax from the specified position or range in the document, otherwise uses the current selection.
@@ -147,23 +141,22 @@ export function LinkExtension(options: LinkOptions = {}): Extension {
 
     addCommands() {
       return {
-        insertLink:
-          (ctx) =>
-          ({ content, url, pos }) => {
-            if (!url || !isSafeUrl(url)) {
-              return false;
-            }
-            const { from, to } = resolveFromTo(ctx.state, pos);
-            return insertContent(ctx)({ content: `[${content}](${url})`, from, to });
-          },
-
         setLink: (ctx) => (options) => {
-          const { from, to } = resolveFromTo(ctx.state, options.pos);
-          const selectedText = ctx.state.sliceDoc(from, to);
-
           if (!options.url || !isSafeUrl(options.url)) {
             return false;
           }
+
+          const { from, to } = resolveFromTo(ctx.state, options.pos);
+
+          if (options.content !== undefined) {
+            return insertContent(ctx)({
+              content: `[${options.content}](${options.url})`,
+              from,
+              to,
+            });
+          }
+
+          const selectedText = ctx.state.sliceDoc(from, to);
 
           if (isAlreadyLink(selectedText)) {
             return false;

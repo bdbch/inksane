@@ -6,28 +6,22 @@ declare module "@inksane/core" {
   interface Commands<ReturnType> {
     bold: {
       /**
-       * Inserts bold syntax around the specified content in the document.
-       * @param content The content to be wrapped in bold syntax.
-       * @returns A boolean indicating whether the command was executed successfully.
+       * Wraps the selection or range in `**`, or inserts `**content**` when
+       * `content` is given.
+       * @param options - Optional content to wrap, and the position or range.
+       * @returns False when the range is already bold.
        */
-      insertBold: (options: { content: string; pos?: PosOrRange }) => ReturnType;
+      setBold: (options?: { content?: string; pos?: PosOrRange }) => ReturnType;
 
       /**
-       * Wraps existing content with bold syntax at the specified position or range in the document, otherwise uses the current selection.
-       * @param options An object containing the position or range to apply bold syntax to.
-       * @returns A boolean indicating whether the command was executed successfully.
-       */
-      setBold: (options?: { pos?: PosOrRange }) => ReturnType;
-
-      /**
-       * Removes bold syntax from the specified position or range in the document, otherwise uses the current selection.
+       * Removes bold syntax from the given position or range, otherwise the current selection.
        * @param options An object containing the position or range to remove bold syntax from.
        * @returns A boolean indicating whether the command was executed successfully.
        */
       removeBold: (options?: { pos?: PosOrRange }) => ReturnType;
 
       /**
-       * Toggles bold syntax for the specified position or range in the document, otherwise uses the current selection.
+       * Toggles bold syntax for the given position or range, otherwise the current selection.
        * If the content is already bold, it will be unbolded; otherwise, it will be wrapped in bold syntax.
        * @param options An object containing the position or range to toggle bold syntax for.
        * @returns A boolean indicating whether the command was executed successfully.
@@ -67,15 +61,13 @@ export const BoldExtension: Extension = {
 
   addCommands() {
     return {
-      insertBold:
-        (ctx) =>
-        ({ content, pos }) => {
-          const { from, to } = resolveFromTo(ctx.state, pos);
-          return insertContent(ctx)({ content: `**${content}**`, from, to });
-        },
-
       setBold: (ctx) => (options) => {
         const { from, to } = resolveFromTo(ctx.state, options?.pos);
+
+        if (options?.content !== undefined) {
+          return insertContent(ctx)({ content: `**${options.content}**`, from, to });
+        }
+
         const selectedText = ctx.state.sliceDoc(from, to);
 
         if (isAlreadyBold(selectedText)) {

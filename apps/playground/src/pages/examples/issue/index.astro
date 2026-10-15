@@ -489,7 +489,7 @@ import Base from "../../../layouts/Base.astro";
             run: (editor) => {
                 const { from, to } = editor.state.selection.main;
                 const url = "https://example.com";
-                if (from === to) editor.chain().insertLink({ content: "link text", url }).focus().run();
+                if (from === to) editor.chain().setLink({ content: "link text", url }).focus().run();
                 else editor.chain().setLink({ url }).focus().run();
             },
         },

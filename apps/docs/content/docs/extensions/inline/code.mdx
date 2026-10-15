@@ -34,20 +34,19 @@ extension uses at least three backticks, or one more than the longest run inside
 
 ## Commands
 
-| Command                            | Description                                                             |
-| ---------------------------------- | ----------------------------------------------------------------------- |
-| `insertCode({ content, pos? })`    | Inserts `content` wrapped in backticks.                                 |
-| `setCode({ pos? })`                | Wraps the range in backticks.                                           |
-| `removeCode({ pos? })`             | Removes the backticks around the range.                                 |
-| `toggleCode({ pos? })`             | `setCode` or `removeCode`.                                              |
-| `setCodeBlock({ lang?, pos? })`    | Wraps the range in a fenced code block, with an optional language hint. |
-| `removeCodeBlock({ pos? })`        | Removes the fence and keeps the code.                                   |
-| `toggleCodeBlock({ lang?, pos? })` | `setCodeBlock` or `removeCodeBlock`.                                    |
+| Command                            | Description                                                                    |
+| ---------------------------------- | ------------------------------------------------------------------------------ |
+| `setCode({ content?, pos? })`      | Wraps the range in backticks. With `content`, inserts it wrapped in backticks. |
+| `removeCode({ pos? })`             | Removes the backticks around the range.                                        |
+| `toggleCode({ pos? })`             | `setCode` or `removeCode`.                                                     |
+| `insertCodeBlock({ lang?, pos? })` | Wraps the range in a fenced code block, with an optional language hint.        |
+| `removeCodeBlock({ pos? })`        | Removes the fence and keeps the code.                                          |
+| `toggleCodeBlock({ lang?, pos? })` | `insertCodeBlock` or `removeCodeBlock`.                                        |
 
 ```js
 editor.commands.toggleCode();
 
-editor.chain().setCodeBlock({ lang: "ts" }).focus().run();
+editor.chain().insertCodeBlock({ lang: "ts" }).focus().run();
 ```
 
 ## Keyboard

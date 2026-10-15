@@ -37,6 +37,12 @@ describe("Editor", () => {
     expect(editor.isActive("bold")).toBe(false);
   });
 
+  it("throws a clear error for an unknown command", () => {
+    const commands = editor.commands as unknown as Record<string, () => boolean>;
+
+    expect(() => commands.doesNotExist()).toThrow('Command "doesNotExist" is not registered.');
+  });
+
   it("correctly creates the view and state", () => {
     const mount = document.createElement("div");
     const editor = new Editor({ element: mount });
@@ -356,6 +362,24 @@ describe("selection and state queries", () => {
   });
 
   describe("canRun", () => {
+    it("reports false when the editor is not mounted", () => {
+      const instance = new Editor({ content: "hello" });
+
+      expect(instance.canRun("clearContent")).toBe(false);
+
+      instance.destroy();
+    });
+
+    it("reports the command result once mounted", () => {
+      const instance = new Editor({ content: "hello" });
+
+      instance.mount(document.createElement("div"));
+      expect(instance.canRun("clearContent")).toBe(true);
+
+      instance.view.dom.parentElement?.remove();
+      instance.destroy();
+    });
+
     it("reports true without changing the document", () => {
       const instance = mount("hello", { anchor: 1, head: 4 });
 
@@ -376,10 +400,10 @@ describe("selection and state queries", () => {
     it("accepts command arguments", () => {
       const instance = mount("Title", { anchor: 2 });
 
-      expect(instance.canRun("setHeading", { level: 1 })).toBe(true);
+      expect(instance.canRun("insertHeading", { level: 1 })).toBe(true);
       expect(instance.content).toBe("Title");
 
-      expect(instance.commands.setHeading({ level: 1 })).toBe(true);
+      expect(instance.commands.insertHeading({ level: 1 })).toBe(true);
       expect(instance.content).toBe("# Title");
     });
 
@@ -392,5 +416,53 @@ describe("selection and state queries", () => {
       expect(instance.commands.toggleBold()).toBe(true);
       expect(instance.content).toBe("bold");
     });
+  });
+});
+
+describe("setOptions", () => {
+  it("updates line wrapping after creation", () => {
+    const mount = document.createElement("div");
+    const editor = new Editor({ element: mount });
+
+    expect(editor.view.contentDOM.classList.contains("cm-lineWrapping")).toBe(true);
+
+    editor.setOptions({ lineWrapping: false });
+    expect(editor.view.contentDOM.classList.contains("cm-lineWrapping")).toBe(false);
+
+    editor.setOptions({ lineWrapping: true });
+    expect(editor.view.contentDOM.classList.contains("cm-lineWrapping")).toBe(true);
+
+    editor.destroy();
+    mount.remove();
+  });
+
+  it("updates content and editable after creation", () => {
+    const mount = document.createElement("div");
+    const editor = new Editor({ element: mount, content: "old" });
+
+    editor.setOptions({ content: "new", editable: false });
+
+    expect(editor.content).toBe("new");
+    expect(editor.state.readOnly).toBe(true);
+
+    editor.destroy();
+    mount.remove();
+  });
+
+  it("uses a new tabSize on later indentations", () => {
+    const mount = document.createElement("div");
+    document.body.append(mount);
+    const editor = new Editor({ element: mount, content: "a", extensions: [BaseKit()] });
+    editor.view.focus();
+
+    editor.setOptions({ tabSize: 4 });
+    editor.view.contentDOM.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Tab", bubbles: true }),
+    );
+
+    expect(editor.content).toBe("    a");
+
+    editor.destroy();
+    mount.remove();
   });
 });

@@ -134,4 +134,14 @@ describe("html decorations", () => {
 
     expect(editor.view.dom.querySelector(".inksane-html-block")).not.toBeNull();
   });
+
+  it("reports the html block as active inside it", () => {
+    editor.view.dispatch({ selection: { anchor: 1 } });
+
+    expect(editor.isActive("htmlBlock")).toBe(true);
+
+    editor.view.dispatch({ selection: { anchor: editor.content.length } });
+
+    expect(editor.isActive("htmlBlock")).toBe(false);
+  });
 });

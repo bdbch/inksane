@@ -1,6 +1,6 @@
 import { EditorState, StateField } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { ExtensionManager } from "./ExtensionManager.ts";
 import type { Extension } from "./types/extensions.ts";
 import type { Editor } from "./Editor.ts";
@@ -68,5 +68,26 @@ describe("ExtensionManager", () => {
     const state = EditorState.create({ extensions: manager.cmExtensions });
 
     expect(state.facet(keymap)).toContainEqual([binding]);
+  });
+
+  it("warns and keeps the higher-priority command on a name collision", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const highCommand = () => () => true;
+    const low: Extension = {
+      name: "low",
+      addCommands: () => ({ insertContent: () => () => false }),
+    };
+    const high: Extension = {
+      name: "high",
+      priority: 10,
+      addCommands: () => ({ insertContent: highCommand }),
+    };
+
+    const manager = new ExtensionManager(editor, [low, high]);
+
+    expect(manager.commands.insertContent).toBe(highCommand);
+    expect(warn).toHaveBeenCalledOnce();
+
+    warn.mockRestore();
   });
 });

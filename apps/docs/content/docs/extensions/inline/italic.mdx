@@ -31,12 +31,11 @@ extension. To turn it off in the kit, pass `BaseKit({ italic: false })`.
 
 ## Commands
 
-| Command                           | Description                                                                       |
-| --------------------------------- | --------------------------------------------------------------------------------- |
-| `insertItalic({ content, pos? })` | Inserts `*content*` at the range.                                                 |
-| `setItalic({ pos? })`             | Wraps the range. At a collapsed cursor it inserts `**` and puts the caret inside. |
-| `removeItalic({ pos? })`          | Removes the `*` around the range.                                                 |
-| `toggleItalic({ pos? })`          | Removes italic when the range is italic, adds it otherwise.                       |
+| Command                         | Description                                                                                                            |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `setItalic({ content?, pos? })` | Wraps the range. With `content`, inserts `*content*`. At a collapsed cursor it inserts `**` and puts the caret inside. |
+| `removeItalic({ pos? })`        | Removes the `*` around the range.                                                                                      |
+| `toggleItalic({ pos? })`        | Removes italic when the range is italic, adds it otherwise.                                                            |
 
 The extension ignores ranges that are bold. `**text**` is not converted to italic, so the two
 commands do not interfere with each other.

@@ -132,6 +132,12 @@ export type Extension = ExtensionEventHandlers & {
   addCodeMirrorExtensions?: (ctx: EditorContext) => CMExtension[];
   addExtensions?: (ctx: EditorContext) => Extension[];
 
-  // TODO: define addKeybinds correctly
+  /**
+   * Keybindings this extension contributes. They merge into one keymap with
+   * the bindings from the other extensions. Extensions with a higher priority
+   * register first, so their bindings take precedence over the default keymap.
+   *
+   * Return `undefined` or an empty array when there is nothing to bind.
+   */
   addKeybinds?: (ctx: EditorContext) => readonly KeyBinding[] | undefined;
 };

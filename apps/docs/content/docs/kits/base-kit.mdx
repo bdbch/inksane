@@ -111,8 +111,9 @@ disabled.
 
 ## Replace a feature
 
-Disable a feature in the kit before registering its replacement separately. Extensions do not
-replace each other by name. For example, to provide a separate link extension:
+Disable a feature in the kit before registering its replacement separately. Extensions are
+deduplicated by name, so an extension whose name is already registered is skipped. For example, to
+provide a separate link extension:
 
 ```ts
 import { Editor } from "@inksane/core";

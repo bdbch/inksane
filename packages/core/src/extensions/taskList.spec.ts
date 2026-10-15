@@ -114,15 +114,15 @@ describe("taskList", () => {
     expect(editor.isActive("taskList")).toBe(false);
   });
 
-  it("sets and updates task items with setTaskList and removeTaskList", () => {
-    expect(editor.commands.setTaskList()).toBe(true);
+  it("sets and updates task items with insertTaskList and removeTaskList", () => {
+    expect(editor.commands.insertTaskList()).toBe(true);
     expect(editor.content).toBe("- [ ] buy milk");
-    expect(editor.commands.setTaskList()).toBe(false);
+    expect(editor.commands.insertTaskList()).toBe(false);
 
-    expect(editor.commands.setTaskList({ checked: true })).toBe(true);
+    expect(editor.commands.insertTaskList({ checked: true })).toBe(true);
     expect(editor.content).toBe("- [x] buy milk");
     expect(editor.isActive("taskList", { checked: true })).toBe(true);
-    expect(editor.commands.setTaskList({ checked: true })).toBe(false);
+    expect(editor.commands.insertTaskList({ checked: true })).toBe(false);
 
     expect(editor.commands.removeTaskList()).toBe(true);
     expect(editor.content).toBe("buy milk");
@@ -143,7 +143,7 @@ describe("taskList", () => {
     expect(editor.commands.toggleOrderedList()).toBe(true);
     expect(editor.content).toBe("1. item");
 
-    expect(editor.commands.setTaskList()).toBe(true);
+    expect(editor.commands.insertTaskList()).toBe(true);
     expect(editor.content).toBe("- [ ] item");
 
     expect(editor.commands.toggleBulletList()).toBe(true);
@@ -165,7 +165,7 @@ describe("taskList", () => {
 
   it("uses projected state in chains", () => {
     expect(
-      editor.chain().setContent("ship it").setTaskList({ checked: true }).toggleTaskList().run(),
+      editor.chain().setContent("ship it").insertTaskList({ checked: true }).toggleTaskList().run(),
     ).toBe(true);
     expect(editor.content).toBe("ship it");
   });
@@ -194,7 +194,7 @@ describe("taskList", () => {
       extensions: [BaseKit()],
     });
     expect(editor.commands).toHaveProperty("toggleTaskList");
-    expect(editor.commands).toHaveProperty("setTaskList");
+    expect(editor.commands).toHaveProperty("insertTaskList");
     expect(editor.view.contentDOM.querySelector(".inksane-task-checkbox")).not.toBeNull();
     expect(editor.view.contentDOM.querySelector(".inksane-mark-link-open")).toBeNull();
 

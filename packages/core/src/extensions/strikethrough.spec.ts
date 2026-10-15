@@ -44,25 +44,25 @@ describe("strikethrough", () => {
 
   it("toggles a selected range on and off", () => {
     editor.view.dispatch({ selection: { anchor: 0, head: 5 } });
-    expect(editor.commands.toggleStrike()).toBe(true);
+    expect(editor.commands.toggleStrikethrough()).toBe(true);
     expect(editor.content).toBe("~~hello~~");
-    expect(editor.commands.toggleStrike()).toBe(true);
+    expect(editor.commands.toggleStrikethrough()).toBe(true);
     expect(editor.content).toBe("hello");
   });
 
   it("places the caret between empty markers and toggles them off", () => {
     editor.view.dispatch({ selection: { anchor: 2 } });
-    expect(editor.commands.toggleStrike()).toBe(true);
+    expect(editor.commands.toggleStrikethrough()).toBe(true);
     expect(editor.content).toBe("he~~~~llo");
     expect(editor.state.selection.main.from).toBe(4);
-    expect(editor.commands.setStrike()).toBe(false);
-    expect(editor.commands.toggleStrike()).toBe(true);
+    expect(editor.commands.setStrikethrough()).toBe(false);
+    expect(editor.commands.toggleStrikethrough()).toBe(true);
     expect(editor.content).toBe("hello");
     expect(editor.state.selection.main.from).toBe(2);
   });
 
   it("strikes text typed between empty markers", () => {
-    editor.commands.setStrike({ pos: 5 });
+    editor.commands.setStrikethrough({ pos: 5 });
     editor.view.dispatch(editor.state.replaceSelection("world"));
     expect(editor.content).toBe("hello~~world~~");
     expect(editor.isActive("strikethrough")).toBe(true);
@@ -77,8 +77,8 @@ describe("strikethrough", () => {
     editor.setMarkdown("~~hello~~");
     editor.view.dispatch({ selection: { anchor: from, head: to } });
     expect(editor.isActive("strikethrough")).toBe(true);
-    expect(editor.commands.setStrike()).toBe(false);
-    expect(editor.commands.removeStrike()).toBe(true);
+    expect(editor.commands.setStrikethrough()).toBe(false);
+    expect(editor.commands.removeStrikethrough()).toBe(true);
     expect(editor.content).toBe("hello");
     expect(editor.state.selection.main.from).toBe(Math.max(0, from - 2));
     expect(editor.state.selection.main.to).toBe(Math.min(5, to - 2));
@@ -86,20 +86,20 @@ describe("strikethrough", () => {
 
   it("does not remove adjacent strikethrough at its boundary", () => {
     editor.setMarkdown("~~hello~~");
-    expect(editor.commands.removeStrike({ pos: 9 })).toBe(false);
+    expect(editor.commands.removeStrikethrough({ pos: 9 })).toBe(false);
     expect(editor.content).toBe("~~hello~~");
   });
 
   it("wraps an explicit range and keeps nested formatting", () => {
     editor.setMarkdown("**hello**");
-    expect(editor.commands.setStrike({ pos: { from: 0, to: 9 } })).toBe(true);
+    expect(editor.commands.setStrikethrough({ pos: { from: 0, to: 9 } })).toBe(true);
     expect(editor.content).toBe("~~**hello**~~");
-    expect(editor.commands.removeStrike({ pos: 5 })).toBe(true);
+    expect(editor.commands.removeStrikethrough({ pos: 5 })).toBe(true);
     expect(editor.content).toBe("**hello**");
   });
 
   it("returns false when removing unformatted text", () => {
-    expect(editor.commands.removeStrike()).toBe(false);
+    expect(editor.commands.removeStrikethrough()).toBe(false);
     expect(editor.content).toBe("hello");
   });
 
@@ -108,8 +108,8 @@ describe("strikethrough", () => {
       editor
         .chain()
         .setContent("world")
-        .setStrike({ pos: { from: 0, to: 5 } })
-        .toggleStrike({ pos: 4 })
+        .setStrikethrough({ pos: { from: 0, to: 5 } })
+        .toggleStrikethrough({ pos: 4 })
         .run(),
     ).toBe(true);
     expect(editor.content).toBe("world");
@@ -137,7 +137,7 @@ describe("strikethrough", () => {
       content: "~~hello~~",
       extensions: [BaseKit()],
     });
-    expect(editor.commands).toHaveProperty("toggleStrike");
+    expect(editor.commands).toHaveProperty("toggleStrikethrough");
     expect(editor.view.contentDOM.querySelector(".inksane-mark-strikethrough")).not.toBeNull();
     editor.destroy();
     editor = new Editor({
@@ -145,7 +145,7 @@ describe("strikethrough", () => {
       content: "~~hello~~",
       extensions: [BaseKit({ strikethrough: false })],
     });
-    expect(editor.commands).not.toHaveProperty("toggleStrike");
+    expect(editor.commands).not.toHaveProperty("toggleStrikethrough");
     expect(editor.isActive("strikethrough")).toBe(false);
     expect(editor.view.contentDOM.textContent).toBe("~~hello~~");
   });

@@ -10,13 +10,14 @@ export const KeybindExtension: Extension = {
   name: "keybinds",
 
   addKeybinds(ctx) {
-    const unit = " ".repeat(ctx.editor.options.tabSize ?? DEFAULT_TAB_SIZE);
+    // Read tabSize at press time so setOptions can change it at runtime.
+    const indentUnit = () => " ".repeat(ctx.editor.options.tabSize ?? DEFAULT_TAB_SIZE);
 
     return [
       {
         key: "Tab",
         run(view) {
-          const transaction = indentLines(view.state, 1, unit);
+          const transaction = indentLines(view.state, 1, indentUnit());
           if (!transaction) return false;
           view.dispatch(transaction);
           return true;
@@ -25,7 +26,7 @@ export const KeybindExtension: Extension = {
       {
         key: "Shift-Tab",
         run(view) {
-          const transaction = indentLines(view.state, -1, unit);
+          const transaction = indentLines(view.state, -1, indentUnit());
           if (!transaction) return false;
           view.dispatch(transaction);
           return true;

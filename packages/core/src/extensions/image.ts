@@ -108,6 +108,10 @@ export const ImageExtension: Extension = {
     ];
   },
 
+  addStateQueries() {
+    return [{ name: "image", nodeNames: ["Image"] }];
+  },
+
   addHtmlConverters() {
     return [
       {

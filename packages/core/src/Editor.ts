@@ -1,4 +1,5 @@
 import { Compartment, EditorState, Prec, Text, Transaction } from "@codemirror/state";
+import type { StateEffect } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { editorFocusField } from "./editorFocus.ts";
 import { EventEmitter } from "./EventEmitter.ts";
@@ -15,6 +16,8 @@ export class Editor extends EventEmitter<EditorEvents> {
   private _td: TextDecoder = new TextDecoder();
   private _extensionManager: ExtensionManager;
   private _editable = new Compartment();
+  private _theme = new Compartment();
+  private _lineWrapping = new Compartment();
 
   /** Holds the editor state until the view is created on mount. */
   private _state: EditorState | null;
@@ -67,6 +70,35 @@ export class Editor extends EventEmitter<EditorEvents> {
   /** Whether the editor currently has DOM focus. */
   get focused(): boolean {
     return this.state.field(editorFocusField);
+  }
+
+  /**
+   * Updates editor options after creation.
+   *
+   * Applies the options that can change at runtime: `content`, `editable`,
+   * `theme`, `lineWrapping`, and `tabSize`. Options fixed at creation are
+   * ignored: `extensions`, `element`, `placeholder`, and `classNames`.
+   *
+   * @param options - The options to update. Omitted options keep their value.
+   */
+  public setOptions(options: Partial<EditorOptions>): void {
+    if (options.content !== undefined) this.content = options.content;
+    if (options.editable !== undefined) this.setEditable(options.editable);
+
+    if (options.theme !== undefined) this.options.theme = options.theme;
+    if (options.lineWrapping !== undefined) this.options.lineWrapping = options.lineWrapping;
+    if (options.tabSize !== undefined) this.options.tabSize = options.tabSize;
+
+    const effects: StateEffect<unknown>[] = [];
+    if (options.theme !== undefined) {
+      effects.push(this._theme.reconfigure(options.theme));
+    }
+    if (options.lineWrapping !== undefined) {
+      effects.push(
+        this._lineWrapping.reconfigure(options.lineWrapping ? EditorView.lineWrapping : []),
+      );
+    }
+    this.applyEffects(effects);
   }
 
   /** Starts a command chain. State is snapshotted at run(), not here. */
@@ -186,6 +218,17 @@ export class Editor extends EventEmitter<EditorEvents> {
     }
   }
 
+  /** Applies state effects to the view, or to the pending state before mount. */
+  private applyEffects(effects: StateEffect<unknown>[]): void {
+    if (effects.length === 0) return;
+
+    if (this._view) {
+      this._view.dispatch({ effects });
+    } else {
+      this._state = this.state.update({ effects }).state;
+    }
+  }
+
   constructor(options: EditorOptions) {
     super();
     this.options = options;
@@ -197,15 +240,10 @@ export class Editor extends EventEmitter<EditorEvents> {
 
     this.emit("beforeCreate", { editor: this });
 
-    const editorViewExtensions = [];
-
-    if (this.options.theme) {
-      editorViewExtensions.push(this.options.theme);
-    }
-
-    if (this.options.lineWrapping !== false) {
-      editorViewExtensions.push(EditorView.lineWrapping);
-    }
+    const editorViewExtensions = [
+      this._theme.of(this.options.theme ?? []),
+      this._lineWrapping.of(this.options.lineWrapping !== false ? EditorView.lineWrapping : []),
+    ];
 
     editorViewExtensions.push(
       this._editable.of(EditorState.readOnly.of(this.options.editable === false)),

@@ -30,7 +30,7 @@ type SpeculativeEditor = {
 
 /** Builds the bound commands object from a registry. */
 export function createBoundCommands(editor: Editor, registry: CommandRegistry): SingleCommands {
-  const bound = {} as Record<string, (...args: unknown[]) => boolean>;
+  const bound: Record<string, (...args: unknown[]) => boolean> = {};
 
   for (const name of Object.keys(registry)) {
     bound[name] = (...args: unknown[]) => {
@@ -41,7 +41,18 @@ export function createBoundCommands(editor: Editor, registry: CommandRegistry): 
     };
   }
 
-  return bound as unknown as SingleCommands;
+  // Unknown names throw the same error as canRun and chain(), instead of a
+  // raw "not a function". `then` stays undefined so the object is not thenable.
+  return new Proxy(bound, {
+    get(target, prop, receiver) {
+      if (typeof prop === "string" && prop !== "then" && !(prop in target)) {
+        return () => {
+          throw new Error(`Command "${prop}" is not registered.`);
+        };
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+  }) as unknown as SingleCommands;
 }
 
 /**
@@ -74,8 +85,9 @@ function createSpeculativeEditor(editor: Editor, registry: CommandRegistry): Edi
 }
 
 /**
- * Evaluates a command against a projected copy of the current state.
- * Returns false when the command could not apply, without changing the editor.
+ * Evaluates a command against a projected copy of the current state, without
+ * changing the editor. Returns false when the editor is not mounted or the
+ * command cannot apply.
  */
 export function canRunCommand(
   editor: Editor,
@@ -86,6 +98,9 @@ export function canRunCommand(
   if (!registry[name]) {
     throw new Error(`Command "${name}" is not registered.`);
   }
+
+  // Commands need the mounted view, so an unmounted editor cannot run them.
+  if (!editor.isMounted) return false;
 
   const sandbox = createSpeculativeEditor(editor, registry);
   const commands = createBoundCommands(sandbox, registry) as Record<
