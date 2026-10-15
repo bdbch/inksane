@@ -1,4 +1,4 @@
 {
   "title": "Block syntax",
-  "pages": ["heading", "list", "task-list", "blockquote", "horizontal-rule", "html"]
+  "pages": ["heading", "list", "task-list", "footnotes", "blockquote", "horizontal-rule", "html"]
 }

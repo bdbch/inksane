@@ -1,0 +1,74 @@
+---
+title: Footnotes
+description: "Footnote references, definitions, reference jumping, and HTML pasting."
+---
+
+The `footnotes` extension parses footnote references (`[^1]`) and definitions (`[^1]: note`).
+References render as superscript markers and definitions render as a distinct block with an
+identifier. Clicking a reference moves the selection to its definition.
+
+## Setup
+
+Import `FootnoteExtension` and register it with the editor. Create the mount element before this
+code runs:
+
+```ts
+import { Editor } from "@inksane/core";
+import { FootnoteExtension } from "@inksane/core/extensions/footnotes";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  content: "Body text[^1]\n\n[^1]: The note.",
+  extensions: [FootnoteExtension],
+});
+```
+
+[BaseKit](/kits/base-kit) includes footnotes. If you use the kit, no separate registration is
+needed. Disable the feature with `BaseKit({ footnotes: false })`.
+
+## What it adds
+
+- Parses footnote references (`[^1]`) and single-line definitions (`[^1]: note`).
+- Hides the reference syntax while the selection is outside it and renders a
+  `<sup class="inksane-footnote-ref" role="doc-noteref">` marker.
+- Hides the `[^1]:` definition marker and renders a `<sup class="inksane-footnote-marker">`
+  identifier at the start of the definition block.
+- Moves the selection to the matching definition when a reference is clicked.
+- Converts pasted footnote HTML that uses the `doc-noteref` and `doc-endnote` roles.
+- Registers the `footnoteReference` and `footnoteDefinition` state queries.
+
+## Links and references
+
+A reference followed by a link target stays a normal link. `[^x](url)` parses as a link, not a
+footnote reference, so caret labels keep working with Markdown links.
+
+## State queries
+
+Use `editor.isActive("footnoteReference")` when the selection is inside a reference. Use
+`editor.isActive("footnoteDefinition")` when the selection is inside a definition.
+
+## Styling
+
+```css
+[data-inksane-editor-content] {
+  .inksane-footnote-ref {
+    cursor: pointer;
+    color: var(--foreground-muted);
+  }
+
+  .inksane-footnote-definition {
+    color: var(--foreground-muted);
+    font-size: 0.9em;
+  }
+
+  .inksane-footnote-definition-line {
+    border-left: 2px solid var(--border-muted);
+    padding-left: 8px;
+  }
+
+  .inksane-footnote-marker {
+    color: var(--foreground-muted);
+    font-weight: 600;
+  }
+}
+```

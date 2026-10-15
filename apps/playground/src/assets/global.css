@@ -167,6 +167,26 @@
     vertical-align: middle;
   }
 
+  .inksane-footnote-ref {
+    cursor: pointer;
+    color: var(--foreground-muted);
+  }
+
+  .inksane-footnote-definition {
+    color: var(--foreground-muted);
+    font-size: 0.9em;
+  }
+
+  .inksane-footnote-definition-line {
+    border-left: 2px solid var(--border-muted);
+    padding-left: 8px;
+  }
+
+  .inksane-footnote-marker {
+    color: var(--foreground-muted);
+    font-weight: 600;
+  }
+
   .inksane-html-block {
     @apply py-4;
   }

@@ -2,6 +2,7 @@ import type { Extension } from "../types/extensions.ts";
 import { BlockquoteExtension } from "./blockquote.ts";
 import { BoldExtension } from "./bold.ts";
 import { CodeExtension } from "./code.ts";
+import { FootnoteExtension } from "./footnotes.ts";
 import { HeadingExtension } from "./heading.ts";
 import { HistoryExtension } from "./history.ts";
 import { HorizontalRuleExtension } from "./horizontalRule.ts";
@@ -38,6 +39,8 @@ export type BaseKitOptions = {
   code?: boolean;
   /** Enable standard editing and search shortcuts. */
   defaultKeymap?: boolean;
+  /** Enable footnote references and definitions. */
+  footnotes?: boolean;
   /** Enable headings. */
   heading?: boolean;
   /** Enable undo and redo. Disable when another extension owns history. */
@@ -90,6 +93,7 @@ export function BaseKit(options: BaseKitOptions = {}): Extension {
         ["code", CodeExtension],
         ["blockquote", BlockquoteExtension],
         ["list", ListExtension],
+        ["footnotes", FootnoteExtension],
         ["taskList", TaskListExtension],
         ["keybinds", KeybindExtension],
         ["defaultKeymap", DefaultKeymapExtension],

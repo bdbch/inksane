@@ -46,6 +46,7 @@
     "./extensions/blockquote": "./dist/extensions/blockquote.mjs",
     "./extensions/bold": "./dist/extensions/bold.mjs",
     "./extensions/code": "./dist/extensions/code.mjs",
+    "./extensions/footnotes": "./dist/extensions/footnotes.mjs",
     "./extensions/heading": "./dist/extensions/heading.mjs",
     "./extensions/history": "./dist/extensions/history.mjs",
     "./extensions/horizontal-rule": "./dist/extensions/horizontal-rule.mjs",
