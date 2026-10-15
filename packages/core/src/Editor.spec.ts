@@ -37,6 +37,12 @@ describe("Editor", () => {
     expect(editor.isActive("bold")).toBe(false);
   });
 
+  it("throws a clear error for an unknown command", () => {
+    const commands = editor.commands as unknown as Record<string, () => boolean>;
+
+    expect(() => commands.doesNotExist()).toThrow('Command "doesNotExist" is not registered.');
+  });
+
   it("correctly creates the view and state", () => {
     const mount = document.createElement("div");
     const editor = new Editor({ element: mount });
