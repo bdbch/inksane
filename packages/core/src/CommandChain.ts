@@ -74,8 +74,9 @@ function createSpeculativeEditor(editor: Editor, registry: CommandRegistry): Edi
 }
 
 /**
- * Evaluates a command against a projected copy of the current state.
- * Returns false when the command could not apply, without changing the editor.
+ * Evaluates a command against a projected copy of the current state, without
+ * changing the editor. Returns false when the editor is not mounted or the
+ * command cannot apply.
  */
 export function canRunCommand(
   editor: Editor,
@@ -86,6 +87,9 @@ export function canRunCommand(
   if (!registry[name]) {
     throw new Error(`Command "${name}" is not registered.`);
   }
+
+  // Commands need the mounted view, so an unmounted editor cannot run them.
+  if (!editor.isMounted) return false;
 
   const sandbox = createSpeculativeEditor(editor, registry);
   const commands = createBoundCommands(sandbox, registry) as Record<

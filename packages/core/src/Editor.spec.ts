@@ -356,6 +356,24 @@ describe("selection and state queries", () => {
   });
 
   describe("canRun", () => {
+    it("reports false when the editor is not mounted", () => {
+      const instance = new Editor({ content: "hello" });
+
+      expect(instance.canRun("clearContent")).toBe(false);
+
+      instance.destroy();
+    });
+
+    it("reports the command result once mounted", () => {
+      const instance = new Editor({ content: "hello" });
+
+      instance.mount(document.createElement("div"));
+      expect(instance.canRun("clearContent")).toBe(true);
+
+      instance.view.dom.parentElement?.remove();
+      instance.destroy();
+    });
+
     it("reports true without changing the document", () => {
       const instance = mount("hello", { anchor: 1, head: 4 });
 
