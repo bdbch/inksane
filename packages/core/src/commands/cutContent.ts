@@ -12,7 +12,7 @@ declare module "@inksane/core" {
       cutContent: (
         fromRange: { from: number; to: number },
         toRange: { from: number; to: number },
-      ) => boolean;
+      ) => ReturnType;
     };
   }
 }

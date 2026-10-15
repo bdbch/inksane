@@ -1,7 +1,7 @@
 import type { NamedCommand } from "../types/commands.ts";
 
 declare module "@inksane/core" {
-  interface Commands {
+  interface Commands<ReturnType> {
     deleteContent: {
       /**
        * Deletes content from the document at the specified range.
@@ -9,7 +9,7 @@ declare module "@inksane/core" {
        * @param to The end position to delete the content.
        * @returns A boolean indicating whether the command was executed successfully.
        */
-      deleteContent: (from: number, to: number) => boolean;
+      deleteContent: (from: number, to: number) => ReturnType;
     };
   }
 }
