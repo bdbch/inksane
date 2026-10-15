@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.0.0
+
+<sub>2026-10-15</sub>
+
+- _(major)_
+  Removed the deprecated `editor.json` accessor. Use `editor.getMarkdown()` to read the document, or `editor.textJSON` for the raw CodeMirror line array.
+- _(minor)_
+  Added the task list extension with GFM task item parsing, interactive checkbox widgets, HTML paste support for checkboxes in list items, and the setTaskList, removeTaskList, and toggleTaskList commands. BaseKit includes it by default and accepts taskList: false to disable it.
+- _(minor)_
+  Added the footnotes extension. It parses footnote references (`[^1]`) and definitions (`[^1]: note`), renders references as superscript markers, renders definitions as a distinct block with an identifier, and lets a reference click jump to its definition. It also converts pasted footnote HTML and is included in BaseKit. Pass `footnotes: false` to BaseKit to disable it.
+- _(minor)_
+  Added the `image` and `htmlBlock` state queries, so `editor.isActive("image")` and `editor.isActive("htmlBlock")` report the selection position.
+- _(minor)_
+  Added `editor.setOptions()` to update `content`, `editable`, `theme`, `lineWrapping`, and `tabSize` after creation. The `tabSize` option now applies to later indentations instead of only to the initial keymap.
+- _(minor)_
+  Aligned command names with the mark and block rules.
+
+  Marks now use `setBold`, `setItalic`, `setCode`, `setLink`, and `setStrikethrough`. The removed `insertBold`, `insertItalic`, `insertCode`, and `insertLink` behavior is an optional `content` option on those `set` commands. Strikethrough uses the full name, so `setStrike` is now `setStrikethrough`, and `removeStrike` and `toggleStrike` follow.
+
+  Block features use the `insert` verb: `insertHeading`, `insertBlockquote`, `insertCodeBlock`, and `insertTaskList` replace `setHeading`, `setBlockquote`, `setCodeBlock`, and `setTaskList`.
+
+- _(minor)_
+  Exported more helpers from the package root: `isSafeUrl` and `htmlToMarkdown` for HTML handling, and `markRangesWithWhitespace` for writing Markdown decorations.
+- _(patch)_
+  Fixed `cutContent` so it moves content to the correct range instead of throwing. Made `cutContent` and `deleteContent` chainable by returning the chain type like the other commands. Allowed the `focus` command to run in read-only editors.
+- _(patch)_
+  `editor.canRun(name)` now returns `false` when the editor is not mounted, matching the fact that commands need the mounted view.
+- _(patch)_
+  Extensions that register an already registered command name now log a warning. The higher-priority extension keeps its command, and the colliding command from the lower-priority extension is skipped.
+- _(patch)_
+  Extensions with a duplicate name are now deduplicated instead of throwing. The first registered extension with a given name wins.
+- _(patch)_ The placeholder no longer sets a default text color. Style it with CSS or with `placeholderTheme({ color })`.
+- _(patch)_
+  Calling a command that is not registered, such as `editor.commands.unknown()`, now throws the same `Command "unknown" is not registered.` error as `editor.canRun` and `editor.chain()`.
+
 ## 0.7.0
 
 <sub>2026-10-14</sub>
