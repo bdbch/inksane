@@ -133,8 +133,10 @@ export class CommandChain {
     this.done = true;
 
     const state = this.snapshotState();
-    if (state.readOnly) return false;
     const { specs, allSucceeded } = this.runSteps(state);
+    // Read-only blocks document changes. Commands that only move the selection
+    // or focus stay available, so a read-only editor can still be navigated.
+    if (state.readOnly && specs.some((spec) => spec.changes)) return false;
     this.dispatchAll(specs);
 
     return allSucceeded;

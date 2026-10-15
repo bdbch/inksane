@@ -86,6 +86,24 @@ describe("read-only mode", () => {
     expect(editor.content).toBe("hello");
   });
 
+  it("keeps commands that do not change the document available while read-only", () => {
+    const mount = document.createElement("div");
+    document.body.append(mount);
+    editor = new Editor({
+      extensions: [BaseKit()],
+      element: mount,
+      content: "hello",
+      editable: false,
+    });
+
+    expect(editor.canRun("focus")).toBe(true);
+    expect(editor.commands.focus()).toBe(true);
+    expect(editor.focused).toBe(true);
+    expect(editor.content).toBe("hello");
+
+    mount.remove();
+  });
+
   it("toggles at runtime and evaluates queued chains against the current mode", () => {
     editor = new Editor({ element: document.createElement("div"), content: "hello" });
     expect(editor.state.readOnly).toBe(false);
