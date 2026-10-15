@@ -3,6 +3,13 @@
 Project instructions for inksane. Read this before work.
 Global and personal rules live in the shared AGENTS.md, not here.
 
+## Version control
+
+- If jj is initialized locally, use jj instead of git for version control.
+- Run `jj status` to check. If it reports a working copy, the repo is jj-tracked.
+- Prefer jj for status, diffs, commits, and history. Do not mix git and jj on the same change.
+- Git-only rules below still apply. Never push automatically, and let the user open pull requests.
+
 ## Git and pull requests
 
 - Never push automatically. Leave `git push` to the user.
