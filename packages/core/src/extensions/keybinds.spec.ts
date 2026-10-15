@@ -170,3 +170,34 @@ describe("default keymap configuration", () => {
     editor.destroy();
   });
 });
+
+describe("extension keybinds", () => {
+  it("runs a keybind added by an extension", () => {
+    const mount = document.createElement("div");
+    const editor = new Editor({
+      element: mount,
+      content: "hello",
+      extensions: [
+        {
+          name: "customKeybind",
+          addKeybinds: () => [
+            {
+              key: "Mod-j",
+              run(view) {
+                view.dispatch({ changes: { from: 0, insert: "x" } });
+                return true;
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    press(editor, "j", { ctrlKey: true });
+
+    expect(editor.content).toBe("xhello");
+
+    mount.remove();
+    editor.destroy();
+  });
+});

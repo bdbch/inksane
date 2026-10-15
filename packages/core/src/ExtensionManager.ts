@@ -1,5 +1,5 @@
 import type { Extension as CMExtension } from "@codemirror/state";
-import { type KeyBinding, keymap } from "@codemirror/view";
+import { keymap } from "@codemirror/view";
 import { markdown } from "@codemirror/lang-markdown";
 import type { MarkdownExtension } from "@lezer/markdown";
 import { editorFocusExtension } from "./editorFocus.ts";
@@ -189,9 +189,7 @@ export class ExtensionManager {
    * @param addKeybinds - Provides keybindings from one extension.
    */
   private bindKeymaps(addKeybinds: NonNullable<Extension["addKeybinds"]>) {
-    const keyBinds =
-      addKeybinds({ editor: this.editor })?.filter((kb): kb is KeyBinding => kb !== undefined) ??
-      [];
+    const keyBinds = addKeybinds({ editor: this.editor }) ?? [];
     this._keybindings.push(keymap.of(keyBinds));
   }
 
