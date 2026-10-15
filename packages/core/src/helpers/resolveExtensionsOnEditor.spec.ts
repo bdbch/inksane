@@ -55,13 +55,11 @@ describe("resolveExtensionsOnEditor", () => {
     expect(resolveExtensionsOnEditor(editor, [first, second])).toEqual([first, shared, second]);
   });
 
-  it("throws when two different extensions have the same name", () => {
+  it("keeps the first extension when two have the same name", () => {
     const first: Extension = { name: "duplicate" };
     const second: Extension = { name: "duplicate" };
 
-    expect(() => resolveExtensionsOnEditor(editor, [first, second])).toThrow(
-      "Duplicate extension name detected: duplicate",
-    );
+    expect(resolveExtensionsOnEditor(editor, [first, second])).toEqual([first]);
   });
 
   it("throws when child extensions create a cycle", () => {
