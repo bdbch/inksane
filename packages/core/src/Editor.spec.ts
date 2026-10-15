@@ -412,3 +412,51 @@ describe("selection and state queries", () => {
     });
   });
 });
+
+describe("setOptions", () => {
+  it("updates line wrapping after creation", () => {
+    const mount = document.createElement("div");
+    const editor = new Editor({ element: mount });
+
+    expect(editor.view.contentDOM.classList.contains("cm-lineWrapping")).toBe(true);
+
+    editor.setOptions({ lineWrapping: false });
+    expect(editor.view.contentDOM.classList.contains("cm-lineWrapping")).toBe(false);
+
+    editor.setOptions({ lineWrapping: true });
+    expect(editor.view.contentDOM.classList.contains("cm-lineWrapping")).toBe(true);
+
+    editor.destroy();
+    mount.remove();
+  });
+
+  it("updates content and editable after creation", () => {
+    const mount = document.createElement("div");
+    const editor = new Editor({ element: mount, content: "old" });
+
+    editor.setOptions({ content: "new", editable: false });
+
+    expect(editor.content).toBe("new");
+    expect(editor.state.readOnly).toBe(true);
+
+    editor.destroy();
+    mount.remove();
+  });
+
+  it("uses a new tabSize on later indentations", () => {
+    const mount = document.createElement("div");
+    document.body.append(mount);
+    const editor = new Editor({ element: mount, content: "a", extensions: [BaseKit()] });
+    editor.view.focus();
+
+    editor.setOptions({ tabSize: 4 });
+    editor.view.contentDOM.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Tab", bubbles: true }),
+    );
+
+    expect(editor.content).toBe("    a");
+
+    editor.destroy();
+    mount.remove();
+  });
+});
