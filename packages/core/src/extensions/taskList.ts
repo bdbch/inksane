@@ -17,7 +17,7 @@ declare module "@inksane/core" {
        * @param options - Optional checked state and position or range. Defaults to an unchecked item at the selection.
        * @returns False when every target line is already a task list item with the requested state.
        */
-      setTaskList: (options?: { checked?: boolean; pos?: PosOrRange }) => ReturnType;
+      insertTaskList: (options?: { checked?: boolean; pos?: PosOrRange }) => ReturnType;
       /**
        * Removes task list syntax from the line or selection.
        * @param options - Optional position or range. Defaults to the selection.
@@ -244,7 +244,7 @@ export const TaskListExtension: Extension = {
   },
 
   addCommands() {
-    const setTaskList: NamedCommand<"setTaskList"> = (ctx) => (options) => {
+    const insertTaskList: NamedCommand<"insertTaskList"> = (ctx) => (options) => {
       const { from, to } = resolveFromTo(ctx.state, options?.pos);
       if (from < 0 || from > to || to > ctx.state.doc.length) return false;
 
@@ -279,7 +279,7 @@ export const TaskListExtension: Extension = {
     };
 
     return {
-      setTaskList,
+      insertTaskList,
       removeTaskList,
       toggleTaskList: (ctx) => (options) => {
         const { from, to } = resolveFromTo(ctx.state, options?.pos);
@@ -289,7 +289,7 @@ export const TaskListExtension: Extension = {
         if (lines.every((line) => taskItemPattern.test(line))) {
           return removeTaskList(ctx)(options);
         }
-        return setTaskList(ctx)(options);
+        return insertTaskList(ctx)(options);
       },
     };
   },

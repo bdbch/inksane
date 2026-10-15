@@ -189,16 +189,14 @@ describe("link command URL validation", () => {
     }
   });
 
-  it("rejects a javascript: URL in insertLink", () => {
-    expect(editor.commands.insertLink({ content: "click", url: "javascript:alert(1)" })).toBe(
-      false,
-    );
+  it("rejects a javascript: URL in setLink", () => {
+    expect(editor.commands.setLink({ content: "click", url: "javascript:alert(1)" })).toBe(false);
     expect(editor.content).toBe("Hello world");
   });
 
-  it("rejects a data: URL in insertLink", () => {
+  it("rejects a data: URL in setLink", () => {
     expect(
-      editor.commands.insertLink({
+      editor.commands.setLink({
         content: "click",
         url: "data:text/html,<script>alert(1)</script>",
       }),
@@ -223,9 +221,7 @@ describe("link command URL validation", () => {
   });
 
   it("still inserts safe absolute and relative links", () => {
-    expect(editor.commands.insertLink({ content: "example", url: "https://example.com" })).toBe(
-      true,
-    );
+    expect(editor.commands.setLink({ content: "example", url: "https://example.com" })).toBe(true);
     expect(editor.content).toContain("[example](https://example.com)");
 
     editor.view.dispatch({

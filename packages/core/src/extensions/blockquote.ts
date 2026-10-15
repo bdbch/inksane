@@ -11,7 +11,7 @@ declare module "@inksane/core" {
        * @param options An object containing the position or range.
        * @returns A boolean indicating whether the command was executed successfully.
        */
-      setBlockquote: (options?: { pos?: PosOrRange }) => ReturnType;
+      insertBlockquote: (options?: { pos?: PosOrRange }) => ReturnType;
 
       /**
        * Removes blockquote syntax from the line containing the given position or range, otherwise the current selection.
@@ -67,7 +67,7 @@ export const BlockquoteExtension: Extension = {
 
   addCommands() {
     return {
-      setBlockquote: (ctx) => (options) => {
+      insertBlockquote: (ctx) => (options) => {
         const { from } = resolveFromTo(ctx.state, options?.pos);
         const line = ctx.state.doc.lineAt(from);
 
@@ -97,7 +97,7 @@ export const BlockquoteExtension: Extension = {
           return ctx.editor.commands.removeBlockquote({ pos: { from: line.from, to: line.to } });
         }
 
-        return ctx.editor.commands.setBlockquote({ pos: { from: line.from, to: line.to } });
+        return ctx.editor.commands.insertBlockquote({ pos: { from: line.from, to: line.to } });
       },
     };
   },

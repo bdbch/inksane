@@ -24,11 +24,18 @@ for (const [extensions, commands] of [
   [[], ["insertContent"]],
   [[BoldExtension], ["insertContent", "toggleBold"]],
   [[FootnoteExtension], ["insertContent"]],
-  [[StrikethroughExtension], ["setStrike", "removeStrike", "toggleStrike"]],
-  [[TaskListExtension], ["setTaskList", "removeTaskList", "toggleTaskList"]],
+  [[StrikethroughExtension], ["setStrikethrough", "removeStrikethrough", "toggleStrikethrough"]],
+  [[TaskListExtension], ["insertTaskList", "removeTaskList", "toggleTaskList"]],
   [
     [BaseKit()],
-    ["insertContent", "toggleBold", "toggleItalic", "toggleStrike", "toggleTaskList", "setLink"],
+    [
+      "insertContent",
+      "toggleBold",
+      "toggleItalic",
+      "toggleStrikethrough",
+      "toggleTaskList",
+      "setLink",
+    ],
   ],
 ]) {
   const editor = new Editor({ extensions });
@@ -42,12 +49,12 @@ for (const [extensions, commands] of [
 }
 
 const fixtures = [
-  'import { Editor } from "@inksane/core";\nimport { TaskListExtension } from "@inksane/core/extensions/task-list";\nconst editor = new Editor({ extensions: [TaskListExtension] });\neditor.commands.setTaskList();\neditor.commands.removeTaskList({ pos: 0 });\neditor.chain().toggleTaskList().run();\n// @ts-expect-error TaskList does not provide bold commands.\neditor.commands.toggleBold();',
+  'import { Editor } from "@inksane/core";\nimport { TaskListExtension } from "@inksane/core/extensions/task-list";\nconst editor = new Editor({ extensions: [TaskListExtension] });\neditor.commands.insertTaskList();\neditor.commands.removeTaskList({ pos: 0 });\neditor.chain().toggleTaskList().run();\n// @ts-expect-error TaskList does not provide bold commands.\neditor.commands.toggleBold();',
   'import { Editor } from "@inksane/core";\nimport { FootnoteExtension } from "@inksane/core/extensions/footnotes";\nconst editor = new Editor({ extensions: [FootnoteExtension] });\n// @ts-expect-error Footnotes does not provide bold commands.\neditor.commands.toggleBold();',
-  'import { Editor } from "@inksane/core";\nimport { StrikethroughExtension } from "@inksane/core/extensions/strikethrough";\nconst editor = new Editor({ extensions: [StrikethroughExtension] });\neditor.commands.setStrike();\neditor.commands.removeStrike({ pos: 0 });\neditor.chain().toggleStrike().run();\n// @ts-expect-error Strikethrough does not provide bold commands.\neditor.commands.toggleBold();',
+  'import { Editor } from "@inksane/core";\nimport { StrikethroughExtension } from "@inksane/core/extensions/strikethrough";\nconst editor = new Editor({ extensions: [StrikethroughExtension] });\neditor.commands.setStrikethrough();\neditor.commands.removeStrikethrough({ pos: 0 });\neditor.chain().toggleStrikethrough().run();\n// @ts-expect-error Strikethrough does not provide bold commands.\neditor.commands.toggleBold();',
   'import { Editor } from "@inksane/core";\nconst editor = new Editor({});\neditor.commands.insertContent({ content: "text", from: 0 });\n// @ts-expect-error Bold requires an extension import.\neditor.commands.toggleBold();',
   'import { Editor } from "@inksane/core";\nimport { BoldExtension } from "@inksane/core/extensions/bold";\nconst editor = new Editor({ extensions: [BoldExtension] });\neditor.commands.toggleBold();\n// @ts-expect-error Bold does not provide italic commands.\neditor.commands.toggleItalic();',
-  'import { Editor } from "@inksane/core";\nimport { BaseKit } from "@inksane/core/extensions/base-kit";\nconst editor = new Editor({ extensions: [BaseKit({ link: { onLinkRequest: () => null } })] });\neditor.commands.setHeading({ level: 1 });\neditor.commands.insertHorizontalRule();\neditor.chain().toggleBold().toggleItalic().run();',
+  'import { Editor } from "@inksane/core";\nimport { BaseKit } from "@inksane/core/extensions/base-kit";\nconst editor = new Editor({ extensions: [BaseKit({ link: { onLinkRequest: () => null } })] });\neditor.commands.insertHeading({ level: 1 });\neditor.commands.insertHorizontalRule();\neditor.chain().toggleBold().toggleItalic().run();',
 ];
 const directory = await mkdtemp(join(tmpdir(), "inksane-exports-"));
 try {

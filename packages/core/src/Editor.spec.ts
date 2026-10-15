@@ -394,10 +394,10 @@ describe("selection and state queries", () => {
     it("accepts command arguments", () => {
       const instance = mount("Title", { anchor: 2 });
 
-      expect(instance.canRun("setHeading", { level: 1 })).toBe(true);
+      expect(instance.canRun("insertHeading", { level: 1 })).toBe(true);
       expect(instance.content).toBe("Title");
 
-      expect(instance.commands.setHeading({ level: 1 })).toBe(true);
+      expect(instance.commands.insertHeading({ level: 1 })).toBe(true);
       expect(instance.content).toBe("# Title");
     });
 

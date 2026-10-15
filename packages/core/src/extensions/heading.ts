@@ -11,7 +11,7 @@ declare module "@inksane/core" {
        * @param options An object containing the heading level, and optionally the position or range.
        * @returns A boolean indicating whether the command was executed successfully.
        */
-      setHeading: (options: { level: number; pos?: PosOrRange }) => ReturnType;
+      insertHeading: (options: { level: number; pos?: PosOrRange }) => ReturnType;
 
       /**
        * Toggles the heading level of the line containing the given position or range, otherwise the current selection.
@@ -93,7 +93,7 @@ export const HeadingExtension: Extension = {
 
   addCommands() {
     return {
-      setHeading: (ctx) => (options) => {
+      insertHeading: (ctx) => (options) => {
         const { level, pos } = options;
         if (!isValidHeadingLevel(level)) return false;
 
