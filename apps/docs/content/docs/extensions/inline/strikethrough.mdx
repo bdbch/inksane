@@ -38,25 +38,25 @@ remain literal text.
 
 ## Commands
 
-| Command                  | Description                                                                               |
-| ------------------------ | ----------------------------------------------------------------------------------------- |
-| `setStrike({ pos? })`    | Wraps the range in `~~`. At a caret, inserts `~~~~` and places the caret between markers. |
-| `removeStrike({ pos? })` | Removes the strikethrough enclosing the selection or caret.                               |
-| `toggleStrike({ pos? })` | Removes enclosing strikethrough or adds it when none is present.                          |
+| Command                         | Description                                                                               |
+| ------------------------------- | ----------------------------------------------------------------------------------------- |
+| `setStrikethrough({ pos? })`    | Wraps the range in `~~`. At a caret, inserts `~~~~` and places the caret between markers. |
+| `removeStrikethrough({ pos? })` | Removes the strikethrough enclosing the selection or caret.                               |
+| `toggleStrikethrough({ pos? })` | Removes enclosing strikethrough or adds it when none is present.                          |
 
 All three commands accept an optional `pos` as a number or a `{ from, to }` range. Without `pos`,
 they use the current selection.
 
-`setStrike` returns `false` when the range is already struck through. `removeStrike` returns
-`false` when no strikethrough encloses the range. Removing strikethrough from a caret or a partial
-selection removes the surrounding pair of markers and preserves the text and selection.
+`setStrikethrough` returns `false` when the range is already struck through. `removeStrikethrough`
+returns `false` when no strikethrough encloses the range. Removing strikethrough from a caret or a
+partial selection removes the surrounding pair of markers and preserves the text and selection.
 
 ```js
-editor.commands.toggleStrike();
+editor.commands.toggleStrikethrough();
 
 editor
   .chain()
-  .setStrike({ pos: { from: 0, to: 5 } })
+  .setStrikethrough({ pos: { from: 0, to: 5 } })
   .focus()
   .run();
 ```
@@ -66,9 +66,9 @@ Use `editor.isActive("strikethrough")` to check the selection and
 
 ## Keyboard
 
-| Keys          | Action                                      |
-| ------------- | ------------------------------------------- |
-| `Mod-Shift-x` | `toggleStrike()` on the selection or caret. |
+| Keys          | Action                                             |
+| ------------- | -------------------------------------------------- |
+| `Mod-Shift-x` | `toggleStrikethrough()` on the selection or caret. |
 
 `Mod` is Cmd on macOS and Ctrl on Windows and Linux.
 

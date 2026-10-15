@@ -30,14 +30,17 @@ unregistered feature returns `false`, and its mark range is `null`:
 | ---------------- | ---- | ------------------------- | ---------- |
 | `bold`           | mark | `**bold**` and `__bold__` | —          |
 | `italic`         | mark | `*italic*` and `_italic_` | —          |
+| `strikethrough`  | mark | `~~strikethrough~~`       | —          |
 | `code`           | mark | Inline code               | —          |
 | `link`           | mark | Links                     | `href`     |
+| `image`          | mark | Images                    | —          |
 | `heading`        | node | ATX and Setext headings   | `level`    |
 | `bulletList`     | node | Bullet lists              | —          |
 | `orderedList`    | node | Ordered lists             | —          |
 | `taskList`       | node | Task list items           | `checked`  |
 | `codeBlock`      | node | Fenced code blocks        | —          |
 | `blockquote`     | node | Blockquotes               | —          |
+| `htmlBlock`      | node | HTML blocks               | —          |
 | `horizontalRule` | node | Horizontal rules          | —          |
 
 Pass an attribute to match a specific state. `attrs` is matched as a subset, so
@@ -69,12 +72,13 @@ the editor. Use it to enable or disable a toolbar button.
 
 ```js
 const canBold = editor.canRun("toggleBold");
-const canHeading = editor.canRun("setHeading", { level: 1 });
+const canHeading = editor.canRun("insertHeading", { level: 1 });
 ```
 
 The command runs against a projected copy of the current state, so nothing is dispatched and no
-event fires. An unknown command name throws, which surfaces typos instead of silently disabling a
-button.
+event fires. An unmounted editor returns `false` for every command, because commands need the
+mounted view. An unknown command name throws, which surfaces typos instead of silently disabling a
+button. Calling it directly, like `editor.commands.unknown()`, throws the same error.
 
 ## Next steps
 

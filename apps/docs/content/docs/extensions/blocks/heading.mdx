@@ -34,7 +34,7 @@ const editor = new Editor({
 
 | Command                          | Description                                                                                              |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `setHeading({ level, pos? })`    | Sets the line to a heading. `level` is `1` to `6`. Returns `false` when the line already has that level. |
+| `insertHeading({ level, pos? })` | Sets the line to a heading. `level` is `1` to `6`. Returns `false` when the line already has that level. |
 | `toggleHeading({ level, pos? })` | Sets the level, or removes the heading when the line already has it.                                     |
 | `removeHeading({ pos? })`        | Removes the heading marker from the line.                                                                |
 

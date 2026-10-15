@@ -115,6 +115,9 @@ editor.commands.insertTimestamp(); // boolean
 editor.chain().insertTimestamp().focus().run(); // boolean
 ```
 
+If two extensions register the same command name, the higher-priority extension keeps its command
+and inksane logs a warning. The colliding command from the lower-priority extension is skipped.
+
 The command context contains:
 
 | Field      | Description                                                                             |
@@ -211,6 +214,9 @@ markup: ["LinkMark", "URL"];
 markup: (node) => [{ from: node.from, to: node.to }];
 ```
 
+`markRangesWithWhitespace(node, state, "ListMark")` builds those ranges from a child mark and the
+whitespace after it. It is exported from `@inksane/core`.
+
 `hideSyntax` reveals a node again while the selection touches it. During a drag, the node stays
 revealed until the pointer is released, so revealing cannot flicker.
 
@@ -296,6 +302,8 @@ The input is cleaned with `sanitizeHtml` before any converter runs.
 
 `htmlWidget` renders an HTML string for you, so a widget only passes a string. The markup is trusted
 because the extension writes it. Document text is not, so escape anything you interpolate.
+`isSafeUrl` checks a URL, and `htmlToMarkdown` converts HTML to Markdown with the registered
+converters. Both are exported from `@inksane/core`.
 
 ```ts
 import { escapeHtml, htmlWidget, type Extension } from "@inksane/core";

@@ -48,6 +48,9 @@ const editor = new Editor({
 `PlaceholderThemeStyles` is exported from `@inksane/core/extensions/placeholder`. It maps CSS
 property names to string, number, or `null` values.
 
+The placeholder has no default text color, so it inherits the editor's text color. Set `color` through
+`placeholderTheme` or style `.inksane-placeholder::before` directly.
+
 The empty line has the `.inksane-placeholder` class and a `data-inksane-placeholder` attribute.
 Its `::before` content displays the hint without moving the caret. The editable area also has an
 `aria-placeholder` attribute.

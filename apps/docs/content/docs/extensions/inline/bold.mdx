@@ -31,17 +31,18 @@ is needed. Disable bold with `BaseKit({ bold: false })`.
 
 ## Commands
 
-| Command                         | Description                                                                                |
-| ------------------------------- | ------------------------------------------------------------------------------------------ |
-| `insertBold({ content, pos? })` | Inserts `**content**` at the range.                                                        |
-| `setBold({ pos? })`             | Wraps the range. At a collapsed cursor it inserts `****` and puts the caret in the middle. |
-| `removeBold({ pos? })`          | Removes the `**` around the range.                                                         |
-| `toggleBold({ pos? })`          | Removes bold when the range is bold, adds it otherwise.                                    |
+| Command                       | Description                                                                                                                       |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `setBold({ content?, pos? })` | Wraps the range. With `content`, inserts `**content**`. At a collapsed cursor it inserts `****` and puts the caret in the middle. |
+| `removeBold({ pos? })`        | Removes the `**` around the range.                                                                                                |
+| `toggleBold({ pos? })`        | Removes bold when the range is bold, adds it otherwise.                                                                           |
 
 `setBold` returns `false` when the range is already bold, and `removeBold` returns `false` when it is
 not, so a toggle never nests markers.
 
 ```js
+editor.commands.setBold({ content: "new" });
+
 editor.commands.toggleBold();
 
 editor

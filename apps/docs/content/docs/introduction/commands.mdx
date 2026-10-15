@@ -90,27 +90,33 @@ selection.
 
 ### Bold
 
-| Command                         | Description                                               |
-| ------------------------------- | --------------------------------------------------------- |
-| `insertBold({ content, pos? })` | Inserts `**content**`.                                    |
-| `setBold({ pos? })`             | Wraps the range in `**`, or inserts `****` at the cursor. |
-| `removeBold({ pos? })`          | Removes the `**` around the range.                        |
-| `toggleBold({ pos? })`          | `setBold` or `removeBold`, depending on the range.        |
+| Command                       | Description                                                                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------- |
+| `setBold({ content?, pos? })` | Wraps the range in `**`. With `content`, inserts `**content**`. At a bare cursor, inserts `****`. |
+| `removeBold({ pos? })`        | Removes the `**` around the range.                                                                |
+| `toggleBold({ pos? })`        | `setBold` or `removeBold`, depending on the range.                                                |
 
 ### Italic
 
-| Command                           | Description                                            |
-| --------------------------------- | ------------------------------------------------------ |
-| `insertItalic({ content, pos? })` | Inserts `*content*`.                                   |
-| `setItalic({ pos? })`             | Wraps the range in `*`, or inserts `**` at the cursor. |
-| `removeItalic({ pos? })`          | Removes the `*` around the range.                      |
-| `toggleItalic({ pos? })`          | `setItalic` or `removeItalic`.                         |
+| Command                         | Description                                                                                  |
+| ------------------------------- | -------------------------------------------------------------------------------------------- |
+| `setItalic({ content?, pos? })` | Wraps the range in `*`. With `content`, inserts `*content*`. At a bare cursor, inserts `**`. |
+| `removeItalic({ pos? })`        | Removes the `*` around the range.                                                            |
+| `toggleItalic({ pos? })`        | `setItalic` or `removeItalic`.                                                               |
+
+### Strikethrough
+
+| Command                         | Description                                                  |
+| ------------------------------- | ------------------------------------------------------------ |
+| `setStrikethrough({ pos? })`    | Wraps the range in `~~`, or inserts `~~~~` at a bare cursor. |
+| `removeStrikethrough({ pos? })` | Removes the `~~` around the range.                           |
+| `toggleStrikethrough({ pos? })` | `setStrikethrough` or `removeStrikethrough`.                 |
 
 ### Heading
 
 | Command                          | Description                                                  |
 | -------------------------------- | ------------------------------------------------------------ |
-| `setHeading({ level, pos? })`    | Sets the line to a heading. `level` is `1` to `6`.           |
+| `insertHeading({ level, pos? })` | Sets the line to a heading. `level` is `1` to `6`.           |
 | `toggleHeading({ level, pos? })` | Sets the level, or converts the heading back to a paragraph. |
 | `removeHeading({ pos? })`        | Removes the heading marker from the line.                    |
 
@@ -121,22 +127,29 @@ selection.
 | `toggleBulletList({ pos? })`  | Adds or removes a `-` marker on the line.  |
 | `toggleOrderedList({ pos? })` | Adds or removes a `1.` marker on the line. |
 
+### Task list
+
+| Command                              | Description                                      |
+| ------------------------------------ | ------------------------------------------------ |
+| `insertTaskList({ checked?, pos? })` | Converts the line or selection into a task item. |
+| `removeTaskList({ pos? })`           | Removes the task list syntax.                    |
+| `toggleTaskList({ pos? })`           | `insertTaskList` or `removeTaskList`.            |
+
 ### Blockquote
 
-| Command                      | Description                            |
-| ---------------------------- | -------------------------------------- |
-| `setBlockquote({ pos? })`    | Prefixes the line with `> `.           |
-| `removeBlockquote({ pos? })` | Removes the `> ` prefix.               |
-| `toggleBlockquote({ pos? })` | `setBlockquote` or `removeBlockquote`. |
+| Command                      | Description                               |
+| ---------------------------- | ----------------------------------------- |
+| `insertBlockquote({ pos? })` | Prefixes the line with `> `.              |
+| `removeBlockquote({ pos? })` | Removes the `> ` prefix.                  |
+| `toggleBlockquote({ pos? })` | `insertBlockquote` or `removeBlockquote`. |
 
 ### Link
 
-| Command                              | Description                      |
-| ------------------------------------ | -------------------------------- |
-| `insertLink({ content, url, pos? })` | Inserts `[content](url)`.        |
-| `setLink({ url, pos? })`             | Wraps the range in a link.       |
-| `removeLink({ pos? })`               | Replaces the link with its text. |
-| `toggleLink({ url, pos? })`          | `setLink` or `removeLink`.       |
+| Command                            | Description                                                          |
+| ---------------------------------- | -------------------------------------------------------------------- |
+| `setLink({ url, content?, pos? })` | Wraps the range in a link. With `content`, uses it as the link text. |
+| `removeLink({ pos? })`             | Replaces the link with its text.                                     |
+| `toggleLink({ url, pos? })`        | `setLink` or `removeLink`.                                           |
 
 ### Image
 
@@ -146,15 +159,14 @@ selection.
 
 ### Code
 
-| Command                            | Description                                                        |
-| ---------------------------------- | ------------------------------------------------------------------ |
-| `insertCode({ content, pos? })`    | Inserts inline code.                                               |
-| `setCode({ pos? })`                | Wraps the range in backticks.                                      |
-| `removeCode({ pos? })`             | Removes the backticks.                                             |
-| `toggleCode({ pos? })`             | `setCode` or `removeCode`.                                         |
-| `setCodeBlock({ lang?, pos? })`    | Wraps the range in a fenced code block, with an optional language. |
-| `removeCodeBlock({ pos? })`        | Removes the fence and keeps the content.                           |
-| `toggleCodeBlock({ lang?, pos? })` | `setCodeBlock` or `removeCodeBlock`.                               |
+| Command                            | Description                                                          |
+| ---------------------------------- | -------------------------------------------------------------------- |
+| `setCode({ content?, pos? })`      | Wraps the range in backticks, or inserts `` `content` `` when given. |
+| `removeCode({ pos? })`             | Removes the backticks.                                               |
+| `toggleCode({ pos? })`             | `setCode` or `removeCode`.                                           |
+| `insertCodeBlock({ lang?, pos? })` | Wraps the range in a fenced code block, with an optional language.   |
+| `removeCodeBlock({ pos? })`        | Removes the fence and keeps the content.                             |
+| `toggleCodeBlock({ lang?, pos? })` | `insertCodeBlock` or `removeCodeBlock`.                              |
 
 ### Horizontal rule
 

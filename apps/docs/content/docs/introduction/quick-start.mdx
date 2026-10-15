@@ -112,6 +112,20 @@ editor.isMounted; // true
 `mount()` is ignored when the editor is already mounted. `editor.view` throws until the editor is
 mounted, so check `isMounted` first.
 
+## Update options at runtime
+
+`setOptions` applies the options that can change after creation: `content`, `editable`, `theme`,
+`lineWrapping`, and `tabSize`. Omitted options keep their value.
+
+```js
+editor.setOptions({ editable: false });
+
+editor.setOptions({ lineWrapping: false, tabSize: 4 });
+```
+
+Options fixed at creation, such as `extensions`, `element`, `placeholder`, and `classNames`, are
+ignored by `setOptions`.
+
 ## Destroy the editor
 
 Call `destroy()` when the element goes away, for example in the cleanup of a component effect. It

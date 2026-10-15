@@ -31,6 +31,8 @@ const editor = new Editor({
   `.inksane-html-block` and, like every `htmlWidget`, the `inksane-html` class.
 - Hides the source of the block while the selection is outside it.
 - Hides HTML comments entirely.
+- Adds the `htmlBlock` state query, so `editor.isActive("htmlBlock")` reports whether the selection
+  is inside a block.
 
 Clicking a rendered block moves the cursor into its source so it can be edited. Because a block is a
 single widget, the up and down arrow keys would normally skip over it, so the extension binds
