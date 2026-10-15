@@ -109,7 +109,8 @@ export class Editor extends EventEmitter<EditorEvents> {
    *
    * @param command - The command name, such as `toggleBold`.
    * @param args - The arguments the command would receive.
-   * @returns False in read-only mode, otherwise the boolean the command would return.
+   * @returns False while read-only for commands that change the document, or
+   * the boolean the command would otherwise return.
    */
   public canRun<K extends keyof SingleCommands>(
     command: K,

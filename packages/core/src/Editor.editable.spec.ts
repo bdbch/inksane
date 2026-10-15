@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { Editor } from "./Editor.ts";
 import { BaseKit } from "./extensions/baseKit.ts";
+import { CommandChain, type CommandRegistry } from "./CommandChain.ts";
 
 describe("read-only mode", () => {
   let editor: Editor;
@@ -83,6 +84,53 @@ describe("read-only mode", () => {
     expect(editor.chain().clearContent().insertContent({ content: "new", from: 0 }).run()).toBe(
       false,
     );
+    expect(editor.content).toBe("hello");
+  });
+
+  it("keeps commands that do not change the document available while read-only", () => {
+    const mount = document.createElement("div");
+    document.body.append(mount);
+    editor = new Editor({
+      extensions: [BaseKit()],
+      element: mount,
+      content: "hello",
+      editable: false,
+    });
+
+    expect(editor.canRun("focus")).toBe(true);
+    expect(editor.commands.focus()).toBe(true);
+    expect(editor.focused).toBe(true);
+    expect(editor.content).toBe("hello");
+
+    mount.remove();
+  });
+
+  it("rejects document-changing commands before mount instead of throwing", () => {
+    editor = new Editor({ content: "hello", editable: false });
+
+    expect(editor.commands.clearContent()).toBe(false);
+    expect(editor.content).toBe("hello");
+  });
+
+  it("runs selection-only commands with an empty change array while read-only", () => {
+    editor = new Editor({
+      element: document.createElement("div"),
+      content: "hello",
+      editable: false,
+    });
+
+    const registry: CommandRegistry = {
+      selectEnd: (ctx) => () => {
+        ctx.dispatch({ changes: [], selection: { anchor: ctx.state.doc.length } });
+        return true;
+      },
+    };
+    const chain = CommandChain.create(editor, registry) as unknown as {
+      selectEnd: () => { run: () => boolean };
+    };
+
+    expect(chain.selectEnd().run()).toBe(true);
+    expect(editor.state.selection.main.anchor).toBe(5);
     expect(editor.content).toBe("hello");
   });
 

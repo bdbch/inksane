@@ -1,3 +1,4 @@
+import { ChangeSet } from "@codemirror/state";
 import type { EditorState, TransactionSpec } from "@codemirror/state";
 import type { EditorView } from "@codemirror/view";
 import type { ChainedCommands, Command, CommandContext, SingleCommands } from "./types/commands.ts";
@@ -8,6 +9,14 @@ type CommandStep = {
   command: Command<unknown[]>;
   args: unknown[];
 };
+
+/** Whether a transaction spec would change the document. Empty changes do not. */
+function changesDocument(changes: TransactionSpec["changes"]): boolean {
+  if (changes == null) return false;
+  if (Array.isArray(changes)) return changes.length > 0;
+  if (changes instanceof ChangeSet) return !changes.empty;
+  return true;
+}
 
 /** Flat map of command name to curried impl, populated by ExtensionManager. */
 export type CommandRegistry = Record<string, Command<any[]>>;
@@ -133,8 +142,14 @@ export class CommandChain {
     this.done = true;
 
     const state = this.snapshotState();
-    if (state.readOnly) return false;
+    // An unmounted editor has no view, so reject read-only edits before
+    // runSteps reads editor.view.
+    if (state.readOnly && this.editor.isMounted === false) return false;
+
     const { specs, allSucceeded } = this.runSteps(state);
+    // Read-only blocks document changes. Commands that only move the selection
+    // or focus stay available, so a read-only editor can still be navigated.
+    if (state.readOnly && specs.some((spec) => changesDocument(spec.changes))) return false;
     this.dispatchAll(specs);
 
     return allSucceeded;

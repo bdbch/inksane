@@ -12,7 +12,7 @@ declare module "@inksane/core" {
       cutContent: (
         fromRange: { from: number; to: number },
         toRange: { from: number; to: number },
-      ) => boolean;
+      ) => ReturnType;
     };
   }
 }
@@ -26,11 +26,7 @@ export const cutContent: NamedCommand<"cutContent"> =
       dispatch({
         changes: [
           { from: fromRange.from, to: fromRange.to, insert: "" },
-          {
-            from: toRange.from + slicedContent.length,
-            to: toRange.to + slicedContent.length,
-            insert: slicedContent,
-          },
+          { from: toRange.from, to: toRange.to, insert: slicedContent },
         ],
       });
 
