@@ -154,7 +154,7 @@ export class Editor extends EventEmitter<EditorEvents> {
    * example `["# Title", "", "Body"]`.
    *
    * Prefer {@link getMarkdown} unless the raw line array is specifically
-   * needed. The name `json` never described this shape and is deprecated.
+   * needed.
    */
   public get textJSON(): string[] {
     return this.state.doc.toJSON();
@@ -166,21 +166,6 @@ export class Editor extends EventEmitter<EditorEvents> {
       to: this.state.doc.length,
       insert: Text.of(newContent),
     });
-  }
-
-  /**
-   * @deprecated Use {@link getMarkdown} to read the document, or
-   * {@link textJSON} for the raw CodeMirror line array. `json` returns a
-   * `string[]` line array, not a document AST, and will be removed in a future
-   * major release.
-   */
-  public get json(): string[] {
-    return this.textJSON;
-  }
-
-  /** @deprecated Use {@link setMarkdown} or {@link textJSON}. */
-  public set json(newContent: string[]) {
-    this.textJSON = newContent;
   }
 
   public get binary(): Uint8Array<ArrayBuffer> {

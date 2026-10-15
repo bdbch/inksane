@@ -215,18 +215,6 @@ describe("Editor", () => {
 
       editor.destroy();
     });
-
-    it("keeps json as a deprecated alias of textJSON", () => {
-      const editor = new Editor({ content: "a\nb" });
-
-      expect(editor.json).toEqual(["a", "b"]);
-
-      editor.json = ["c"];
-
-      expect(editor.textJSON).toEqual(["c"]);
-
-      editor.destroy();
-    });
   });
 
   it("registers a configured feature without a kit", () => {
