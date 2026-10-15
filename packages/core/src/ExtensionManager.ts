@@ -49,6 +49,9 @@ export class ExtensionManager {
   /** Flat map of command name to curried impl, collected from extensions. */
   private _commands: CommandRegistry = {};
 
+  /** Command name to the extension name that registered it. */
+  private _commandOwners: Record<string, string> = {};
+
   /**
    * Creates one extension setup lifecycle for the editor and its configured extensions.
    *
@@ -67,7 +70,7 @@ export class ExtensionManager {
       if (ext.addMarkdownDecorations) this.bindMarkdownDecorations(ext.addMarkdownDecorations);
       if (ext.addStateQueries) this.bindStateQueries(ext.addStateQueries);
       if (ext.addHtmlConverters) this.bindHtmlConverters(ext.addHtmlConverters);
-      if (ext.addCommands) this.bindCommands(ext.addCommands);
+      if (ext.addCommands) this.bindCommands(ext);
       if (ext.addKeybinds) this.bindKeymaps(ext.addKeybinds);
       if (ext.addCodeMirrorExtensions) this.bindCmExtensions(ext.addCodeMirrorExtensions);
     }
@@ -147,10 +150,26 @@ export class ExtensionManager {
     if (extension.destroy) editor.on("destroy", extension.destroy.bind(extension, context));
   }
 
-  /** Collects commands from one extension into the registry. */
-  private bindCommands(addCommands: NonNullable<Extension["addCommands"]>) {
-    const commands = addCommands({ editor: this.editor }) ?? {};
-    Object.assign(this._commands, commands);
+  /**
+   * Collects commands from one extension. Extensions run in priority order, so
+   * the first extension to register a name wins. A later collision is skipped
+   * with a warning.
+   */
+  private bindCommands(extension: Extension) {
+    const commands = extension.addCommands?.({ editor: this.editor }) ?? {};
+
+    for (const [name, command] of Object.entries(commands)) {
+      const owner = this._commandOwners[name];
+      if (owner !== undefined) {
+        console.warn(
+          `[inksane] Command "${name}" from "${extension.name}" collides with the one from "${owner}". Keeping "${owner}" from the higher-priority extension.`,
+        );
+        continue;
+      }
+
+      this._commands[name] = command;
+      this._commandOwners[name] = extension.name;
+    }
   }
 
   /** Collects state queries from one extension. */
