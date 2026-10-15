@@ -24,7 +24,6 @@ const defaultStyles: PlaceholderThemeStyles = {
   position: "absolute",
   inset: "0",
   padding: "inherit",
-  color: "#888",
   pointerEvents: "none",
   userSelect: "none",
 };
