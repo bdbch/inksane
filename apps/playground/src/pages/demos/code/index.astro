@@ -1,0 +1,105 @@
+---
+import Base from "../../../layouts/Base.astro";
+---
+
+<Base>
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold">Code blocks</h1>
+        <p class="text-foreground-muted">
+            Fenced code blocks highlight with the language from the fence info string. Most parsers
+            load on demand, so a fence only pulls the parser it needs.
+        </p>
+    </div>
+    <div id="editor-mount" class="border rounded-md"></div>
+</Base>
+
+<script>
+    import { Editor } from "@inksane/core";
+    import { BaseKit } from "@inksane/core/extensions/base-kit";
+    import { EditorView } from "@codemirror/view";
+
+    const fence = "```";
+    const block = (lang: string, body: string) => `${fence}${lang}\n${body}\n${fence}`;
+
+    const content = [
+        "# Code blocks",
+        "",
+        "Write a fence info string to pick the language. Unknown languages stay plain text.",
+        "",
+        "## Shell",
+        block("sh", "pnpm install\npnpm dev\necho $HOME"),
+        "",
+        "## HTML",
+        block("html", '<div class="card">\n  <p>Hello</p>\n</div>'),
+        "",
+        "## CSS",
+        block("css", ".card {\n  display: grid;\n  gap: 8px;\n}"),
+        "",
+        "## JavaScript",
+        block("js", "const items = [1, 2, 3];\nconst sum = items.reduce((total, item) => total + item, 0);"),
+        "",
+        "## TypeScript",
+        block("ts", "type User = { id: number; name: string };\nconst user: User = { id: 1, name: \"Ada\" };"),
+        "",
+        "## JSON",
+        block("json", '{\n  "name": "inksane",\n  "private": true\n}'),
+        "",
+        "## YAML",
+        block("yaml", "name: inksane\npackages:\n  - core\n  - react"),
+        "",
+        "## TOML",
+        block("toml", '[package]\nname = "inksane"\nversion = "1.0.0"'),
+        "",
+        "## Python",
+        block("py", "def greet(name: str) -> str:\n    return f\"Hello, {name}\""),
+        "",
+        "## SQL",
+        block("sql", "select id, name\nfrom users\nwhere active = true\norder by name;"),
+        "",
+        "## XML",
+        block("xml", '<note priority="high">\n  <body>Remember this</body>\n</note>'),
+        "",
+        "## Go",
+        block("go", 'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello")\n}'),
+        "",
+        "## Rust",
+        block("rust", 'fn main() {\n    let greeting = "Hello";\n    println!("{greeting}");\n}'),
+        "",
+        "## Java",
+        block("java", 'class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello");\n    }\n}'),
+        "",
+        "## C/C++",
+        block("cpp", '#include <iostream>\n\nint main() {\n    std::cout << "Hello" << std::endl;\n    return 0;\n}'),
+        "",
+        "## PHP",
+        block("php", '<?php\n$name = "inksane";\necho "Hello, {$name}";'),
+        "",
+        "## Diff",
+        block("diff", "- old line\n+ new line\n  context"),
+        "",
+        "## Dockerfile",
+        block("dockerfile", "FROM node:24-slim\nWORKDIR /app\nRUN pnpm install\nCMD [\"pnpm\", \"dev\"]"),
+        "",
+        "## Markdown",
+        block("md", "# Title\n\nSome **bold** text."),
+        "",
+        "## Unknown language",
+        block("unknown", "This fence stays plain text."),
+    ].join("\n");
+
+    const theme = EditorView.theme({
+        ".cm-content": { paddingTop: "24px", paddingBottom: "24px" },
+        ".cm-line": { paddingLeft: "24px", paddingRight: "24px" },
+    });
+
+    const editor = new Editor({
+        element: document.getElementById("editor-mount")!,
+        content,
+        extensions: [BaseKit()],
+        theme,
+        classNames: { editable: "font-sans" },
+    });
+
+    // @ts-expect-error expose the editor for the browser console
+    window.editor = editor;
+</script>

@@ -22,6 +22,18 @@
   --foreground-muted: var(--color-neutral-500);
   --border: var(--color-neutral-300);
   --border-muted: var(--color-neutral-200);
+
+  --inksane-code-comment: #6e7781;
+  --inksane-code-keyword: #cf222e;
+  --inksane-code-string: #0a3069;
+  --inksane-code-number: #0550ae;
+  --inksane-code-type: #953800;
+  --inksane-code-property: #116329;
+  --inksane-code-function: #8250df;
+  --inksane-code-operator: #57606a;
+  --inksane-code-meta: #6e7781;
+  --inksane-code-invalid: #cf222e;
+  --inksane-code-inserted: #116329;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -32,6 +44,18 @@
     --foreground-muted: var(--color-neutral-400);
     --border: var(--color-neutral-800);
     --border-muted: var(--color-neutral-900);
+
+    --inksane-code-comment: #8b949e;
+    --inksane-code-keyword: #ff7b72;
+    --inksane-code-string: #a5d6ff;
+    --inksane-code-number: #79c0ff;
+    --inksane-code-type: #ffa657;
+    --inksane-code-property: #7ee787;
+    --inksane-code-function: #d2a8ff;
+    --inksane-code-operator: #8b949e;
+    --inksane-code-meta: #8b949e;
+    --inksane-code-invalid: #ffa198;
+    --inksane-code-inserted: #7ee787;
   }
 }
 

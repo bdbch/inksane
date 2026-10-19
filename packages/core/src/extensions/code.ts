@@ -1,6 +1,13 @@
+import type { LanguageDescription } from "@codemirror/language";
+import type { HighlightStyle } from "@codemirror/language";
 import { insertContent } from "../commands/index.ts";
+import { codeHighlightExtension } from "../helpers/codeHighlight.ts";
+import { codeHighlightStyle } from "../helpers/codeHighlightStyle.ts";
+import { defaultCodeLanguages } from "../helpers/defaultCodeLanguages.ts";
 import { resolveFromTo } from "../helpers/resolveFromTo.ts";
 import type { Extension, PosOrRange } from "../types/index.ts";
+
+export { codeHighlightStyle, defaultCodeLanguages };
 
 declare module "@inksane/core" {
   interface Commands<ReturnType> {
@@ -73,172 +80,200 @@ const languageFromClass = (element: Element): string => {
   return match ? match[1] : "";
 };
 
-export const CodeExtension: Extension = {
-  name: "code",
-
-  addMarkdownDecorations() {
-    return [
-      {
-        nodeName: "InlineCode",
-        className: "inksane-mark-inline-code",
-        hideSyntax: true,
-      },
-      {
-        nodeName: "FencedCode",
-        lineClass: "inksane-code-block",
-        hideSyntax: true,
-        markup: ["CodeMark", "CodeInfo"],
-      },
-      {
-        nodeName: "CodeBlock",
-        lineClass: "inksane-code-block",
-      },
-    ];
-  },
-
-  addStateQueries() {
-    return [
-      { name: "code", nodeNames: ["InlineCode"] },
-      { name: "codeBlock", kind: "node", nodeNames: ["FencedCode", "CodeBlock"] },
-    ];
-  },
-
-  addHtmlConverters() {
-    return [
-      {
-        block: true,
-        match: (element) => element.tagName.toLowerCase() === "pre",
-        toMarkdown: (element) => {
-          const code = element.querySelector("code");
-          const body = ((code ?? element).textContent ?? "").replace(/\n$/, "");
-          const tickCount = fenceTickCount(body);
-          const fence = fenceFor(code ? languageFromClass(code) : "", tickCount);
-          return `${fence}\n${body}\n${"`".repeat(tickCount)}`;
-        },
-      },
-      {
-        match: (element) => element.tagName.toLowerCase() === "code",
-        toMarkdown: (element) => {
-          const content = element.textContent ?? "";
-          const fence = "`".repeat(inlineTickCount(content));
-          const pad = content.startsWith("`") || content.endsWith("`") ? " " : "";
-          return `${fence}${pad}${content}${pad}${fence}`;
-        },
-      },
-    ];
-  },
-
-  addCommands() {
-    return {
-      setCode: (ctx) => (options) => {
-        const { from, to } = resolveFromTo(ctx.state, options?.pos);
-
-        if (options?.content !== undefined) {
-          return insertContent(ctx)({ content: `\`${options.content}\``, from, to });
-        }
-
-        const selectedText = ctx.state.sliceDoc(from, to);
-
-        if (isAlreadyCode(selectedText)) {
-          return false;
-        } else {
-          return insertContent(ctx)({ content: `\`${selectedText}\``, from, to });
-        }
-      },
-
-      removeCode: (ctx) => (options) => {
-        const { from, to } = resolveFromTo(ctx.state, options?.pos);
-        const selectedText = ctx.state.sliceDoc(from, to);
-        const match = isAlreadyCode(selectedText);
-
-        if (!match) {
-          return false;
-        } else {
-          return insertContent(ctx)({ content: match[1], from, to });
-        }
-      },
-
-      toggleCode: (ctx) => (options) => {
-        const { from, to } = resolveFromTo(ctx.state, options?.pos);
-        const selectedText = ctx.state.sliceDoc(from, to);
-
-        if (isAlreadyCode(selectedText)) {
-          return ctx.editor.commands.removeCode({ pos: { from, to } });
-        } else {
-          return ctx.editor.commands.setCode({ pos: { from, to } });
-        }
-      },
-
-      insertCodeBlock: (ctx) => (options) => {
-        const { from, to } = resolveFromTo(ctx.state, options?.pos);
-        const selectedText = ctx.state.sliceDoc(from, to);
-
-        if (isAlreadyCodeBlock(selectedText)) {
-          return false;
-        }
-
-        const tickCount = fenceTickCount(selectedText);
-        const fence = fenceFor(options?.lang, tickCount);
-        return insertContent(ctx)({
-          content: `${fence}\n${selectedText}\n${"`".repeat(tickCount)}`,
-          from,
-          to,
-        });
-      },
-
-      removeCodeBlock: (ctx) => (options) => {
-        const { from, to } = resolveFromTo(ctx.state, options?.pos);
-        const selectedText = ctx.state.sliceDoc(from, to);
-        const match = isAlreadyCodeBlock(selectedText);
-
-        if (!match) {
-          return false;
-        }
-
-        return insertContent(ctx)({ content: match[1], from, to });
-      },
-
-      toggleCodeBlock: (ctx) => (options) => {
-        const { from, to } = resolveFromTo(ctx.state, options?.pos);
-        const selectedText = ctx.state.sliceDoc(from, to);
-
-        if (isAlreadyCodeBlock(selectedText)) {
-          return ctx.editor.commands.removeCodeBlock({ pos: { from, to } });
-        } else {
-          return ctx.editor.commands.insertCodeBlock({ pos: { from, to }, lang: options?.lang });
-        }
-      },
-    };
-  },
-
-  addKeybinds(ctx) {
-    return [
-      {
-        key: "Mod-.",
-        run(view) {
-          const { from, to } = view.state.selection.main;
-          if (from !== to) {
-            return ctx.editor.commands.toggleCode();
-          }
-          view.dispatch({
-            changes: { from, to, insert: "``" },
-            selection: { anchor: from + 1, head: from + 1 },
-          });
-          return true;
-        },
-      },
-      {
-        key: "Mod-Shift-.",
-        run() {
-          return ctx.editor.commands.toggleCodeBlock();
-        },
-      },
-      {
-        key: "Mod-Shift->",
-        run() {
-          return ctx.editor.commands.toggleCodeBlock();
-        },
-      },
-    ];
-  },
+/** Options for the code extension. */
+export type CodeExtensionOptions = {
+  /**
+   * Languages available to fenced code blocks. Most parsers load on demand.
+   * Defaults to the common languages listed in the code extension docs.
+   */
+  languages?: readonly LanguageDescription[];
+  /** Token colors for fenced code blocks. Defaults to the built-in style. */
+  highlightStyle?: HighlightStyle;
 };
+
+/**
+ * Adds inline code, fenced code blocks, and syntax highlighting.
+ *
+ * @param options - Languages and highlight style for fenced code blocks.
+ * @example
+ * new Editor({ extensions: [CodeExtension({ languages: [myLanguage] })] });
+ */
+export function CodeExtension(options: CodeExtensionOptions = {}): Extension {
+  return {
+    name: "code",
+
+    addMarkdownCodeLanguages() {
+      return options.languages ?? defaultCodeLanguages;
+    },
+
+    addCodeMirrorExtensions() {
+      return [codeHighlightExtension(options.highlightStyle ?? codeHighlightStyle)];
+    },
+
+    addMarkdownDecorations() {
+      return [
+        {
+          nodeName: "InlineCode",
+          className: "inksane-mark-inline-code",
+          hideSyntax: true,
+        },
+        {
+          nodeName: "FencedCode",
+          lineClass: "inksane-code-block",
+          hideSyntax: true,
+          markup: ["CodeMark", "CodeInfo"],
+        },
+        {
+          nodeName: "CodeBlock",
+          lineClass: "inksane-code-block",
+        },
+      ];
+    },
+
+    addStateQueries() {
+      return [
+        { name: "code", nodeNames: ["InlineCode"] },
+        { name: "codeBlock", kind: "node", nodeNames: ["FencedCode", "CodeBlock"] },
+      ];
+    },
+
+    addHtmlConverters() {
+      return [
+        {
+          block: true,
+          match: (element) => element.tagName.toLowerCase() === "pre",
+          toMarkdown: (element) => {
+            const code = element.querySelector("code");
+            const body = ((code ?? element).textContent ?? "").replace(/\n$/, "");
+            const tickCount = fenceTickCount(body);
+            const fence = fenceFor(code ? languageFromClass(code) : "", tickCount);
+            return `${fence}\n${body}\n${"`".repeat(tickCount)}`;
+          },
+        },
+        {
+          match: (element) => element.tagName.toLowerCase() === "code",
+          toMarkdown: (element) => {
+            const content = element.textContent ?? "";
+            const fence = "`".repeat(inlineTickCount(content));
+            const pad = content.startsWith("`") || content.endsWith("`") ? " " : "";
+            return `${fence}${pad}${content}${pad}${fence}`;
+          },
+        },
+      ];
+    },
+
+    addCommands() {
+      return {
+        setCode: (ctx) => (options) => {
+          const { from, to } = resolveFromTo(ctx.state, options?.pos);
+
+          if (options?.content !== undefined) {
+            return insertContent(ctx)({ content: `\`${options.content}\``, from, to });
+          }
+
+          const selectedText = ctx.state.sliceDoc(from, to);
+
+          if (isAlreadyCode(selectedText)) {
+            return false;
+          } else {
+            return insertContent(ctx)({ content: `\`${selectedText}\``, from, to });
+          }
+        },
+
+        removeCode: (ctx) => (options) => {
+          const { from, to } = resolveFromTo(ctx.state, options?.pos);
+          const selectedText = ctx.state.sliceDoc(from, to);
+          const match = isAlreadyCode(selectedText);
+
+          if (!match) {
+            return false;
+          } else {
+            return insertContent(ctx)({ content: match[1], from, to });
+          }
+        },
+
+        toggleCode: (ctx) => (options) => {
+          const { from, to } = resolveFromTo(ctx.state, options?.pos);
+          const selectedText = ctx.state.sliceDoc(from, to);
+
+          if (isAlreadyCode(selectedText)) {
+            return ctx.editor.commands.removeCode({ pos: { from, to } });
+          } else {
+            return ctx.editor.commands.setCode({ pos: { from, to } });
+          }
+        },
+
+        insertCodeBlock: (ctx) => (options) => {
+          const { from, to } = resolveFromTo(ctx.state, options?.pos);
+          const selectedText = ctx.state.sliceDoc(from, to);
+
+          if (isAlreadyCodeBlock(selectedText)) {
+            return false;
+          }
+
+          const tickCount = fenceTickCount(selectedText);
+          const fence = fenceFor(options?.lang, tickCount);
+          return insertContent(ctx)({
+            content: `${fence}\n${selectedText}\n${"`".repeat(tickCount)}`,
+            from,
+            to,
+          });
+        },
+
+        removeCodeBlock: (ctx) => (options) => {
+          const { from, to } = resolveFromTo(ctx.state, options?.pos);
+          const selectedText = ctx.state.sliceDoc(from, to);
+          const match = isAlreadyCodeBlock(selectedText);
+
+          if (!match) {
+            return false;
+          }
+
+          return insertContent(ctx)({ content: match[1], from, to });
+        },
+
+        toggleCodeBlock: (ctx) => (options) => {
+          const { from, to } = resolveFromTo(ctx.state, options?.pos);
+          const selectedText = ctx.state.sliceDoc(from, to);
+
+          if (isAlreadyCodeBlock(selectedText)) {
+            return ctx.editor.commands.removeCodeBlock({ pos: { from, to } });
+          } else {
+            return ctx.editor.commands.insertCodeBlock({ pos: { from, to }, lang: options?.lang });
+          }
+        },
+      };
+    },
+
+    addKeybinds(ctx) {
+      return [
+        {
+          key: "Mod-.",
+          run(view) {
+            const { from, to } = view.state.selection.main;
+            if (from !== to) {
+              return ctx.editor.commands.toggleCode();
+            }
+            view.dispatch({
+              changes: { from, to, insert: "``" },
+              selection: { anchor: from + 1, head: from + 1 },
+            });
+            return true;
+          },
+        },
+        {
+          key: "Mod-Shift-.",
+          run() {
+            return ctx.editor.commands.toggleCodeBlock();
+          },
+        },
+        {
+          key: "Mod-Shift->",
+          run() {
+            return ctx.editor.commands.toggleCodeBlock();
+          },
+        },
+      ];
+    },
+  };
+}

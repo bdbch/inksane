@@ -1,13 +1,14 @@
 ---
 title: Code
-description: "The code extension: inline code, fenced code blocks, commands, and keybindings."
+description: "The code extension: inline code, fenced code blocks, syntax highlighting, commands, and keybindings."
 ---
 
-The `code` extension renders inline code and fenced code blocks and adds the code commands.
+The `code` extension renders inline code and fenced code blocks, highlights fenced code, and adds
+the code commands.
 
 ## Setup
 
-`CodeExtension` enables both inline code and code blocks. Import it and register it with the editor:
+`CodeExtension` is a factory. Import it and register it with the editor:
 
 ```ts
 import { Editor } from "@inksane/core";
@@ -15,22 +16,165 @@ import { CodeExtension } from "@inksane/core/extensions/code";
 
 const editor = new Editor({
   element: document.getElementById("editor")!,
-  extensions: [CodeExtension],
+  extensions: [CodeExtension()],
 });
 ```
 
 The element with the ID `editor` must already exist. If you use [BaseKit](/kits/base-kit),
-code is already included. `BaseKit({ code: false })` disables both inline code and code blocks.
+code is already included. `BaseKit({ code: false })` disables inline code, code blocks, and syntax
+highlighting.
 
 ## What it adds
 
 - Decorates `InlineCode` with `.inksane-mark-inline-code` and hides the backticks.
 - Adds `.inksane-code-block` to the lines of a `FencedCode` block and hides the fence and the
   language hint.
+- Parses and highlights fenced code with the language from the fence info string.
 - Converts pasted `<pre>` and `<code>` elements to fenced and inline code.
 
 When the pasted content contains backticks, the fence grows so the code block stays valid: the
 extension uses at least three backticks, or one more than the longest run inside the content.
+
+## Syntax highlighting
+
+The extension ships a default set of languages. Most parsers load on demand with a dynamic import
+the first time a fence uses that language.
+
+HTML, CSS, and JavaScript are already part of the base Markdown language. Markdown fences reuse the
+editor's Markdown parser. Those four stay in the main bundle, and the other default parsers load in
+separate chunks.
+
+Fence info matches an alias exactly. The language name also works, for example `javascript` or
+`typescript`. Code fences with an unknown language stay plain text. No parser is requested.
+
+PHP fences should include the `<?php` opening tag. Without it, the PHP parser treats the content as
+plain text.
+
+| Fence info                                                     | Language   |
+| -------------------------------------------------------------- | ---------- |
+| `js`, `jsx`, `mjs`, `cjs`, `ecmascript`, `node`                | JavaScript |
+| `ts`, `typescript`                                             | TypeScript |
+| `tsx`                                                          | TSX        |
+| `html`, `htm`, `xhtml`                                         | HTML       |
+| `css`                                                          | CSS        |
+| `json`                                                         | JSON       |
+| `yaml`, `yml`                                                  | YAML       |
+| `toml`                                                         | TOML       |
+| `sh`, `bash`, `zsh`, `shell`, `ksh`                            | Shell      |
+| `py`, `python`                                                 | Python     |
+| `sql`                                                          | SQL        |
+| `xml`, `xsl`, `xsd`, `svg`, `rss`, `wsdl`                      | XML        |
+| `go`, `golang`                                                 | Go         |
+| `rust`, `rs`                                                   | Rust       |
+| `java`                                                         | Java       |
+| `c`, `cpp`, `c++`, `cc`, `cxx`, `h`, `hpp`, `hh`, `hxx`, `ino` | C/C++      |
+| `php`                                                          | PHP        |
+| `diff`, `patch`                                                | Diff       |
+| `dockerfile`, `docker`                                         | Dockerfile |
+| `md`, `markdown`                                               | Markdown   |
+
+### Options
+
+```ts
+import { CodeExtension } from "@inksane/core/extensions/code";
+
+const editor = new Editor({
+  element: mount,
+  extensions: [CodeExtension({ languages: [myLanguage] })],
+});
+```
+
+| Option           | Type                             | Default        | Description                                                             |
+| ---------------- | -------------------------------- | -------------- | ----------------------------------------------------------------------- |
+| `languages`      | `readonly LanguageDescription[]` | common set     | Languages available to fenced code blocks. Most parsers load on demand. |
+| `highlightStyle` | `HighlightStyle`                 | built-in style | Token colors for fenced code blocks.                                    |
+
+Pass `languages: []` to keep code blocks editable but turn parsing and highlighting off.
+
+### Custom languages
+
+A language is a CodeMirror `LanguageDescription`. Import `defaultCodeLanguages` to extend the
+default list or use your own list.
+
+```ts
+import { LanguageDescription, LanguageSupport, StreamLanguage } from "@codemirror/language";
+import { CodeExtension, defaultCodeLanguages } from "@inksane/core/extensions/code";
+
+const kotlin = LanguageDescription.of({
+  name: "Kotlin",
+  alias: ["kotlin", "kt", "kts"],
+  load: () =>
+    import("@codemirror/legacy-modes/mode/clike").then(
+      (module) => new LanguageSupport(StreamLanguage.define(module.kotlin)),
+    ),
+});
+
+const editor = new Editor({
+  element: mount,
+  extensions: [CodeExtension({ languages: [...defaultCodeLanguages, kotlin] })],
+});
+```
+
+The Kotlin example wraps a legacy mode with `StreamLanguage`. A language package that exposes
+`LanguageSupport` can be used directly.
+
+For a parser that is already available, pass `support` instead of `load`:
+
+```ts
+import { LanguageDescription } from "@codemirror/language";
+
+const myLanguage = LanguageDescription.of({
+  name: "MyLanguage",
+  alias: ["mylang", "ml"],
+  support: myLanguageSupport,
+});
+```
+
+`myLanguageSupport` is a `LanguageSupport` instance, for example from a CodeMirror language package.
+
+### Highlight colors
+
+The default style reads CSS variables, so a theme can override colors without replacing the style.
+The fallbacks target light backgrounds. It only styles code block content, not Markdown outside the
+fences.
+
+| Variable                  | Token                     |
+| ------------------------- | ------------------------- |
+| `--inksane-code-comment`  | Comments                  |
+| `--inksane-code-keyword`  | Keywords                  |
+| `--inksane-code-string`   | Strings                   |
+| `--inksane-code-number`   | Numbers, booleans, atoms  |
+| `--inksane-code-type`     | Type and class names      |
+| `--inksane-code-property` | Properties and labels     |
+| `--inksane-code-function` | Function names            |
+| `--inksane-code-operator` | Operators and punctuation |
+| `--inksane-code-meta`     | Meta and annotations      |
+| `--inksane-code-invalid`  | Invalid and deleted text  |
+| `--inksane-code-inserted` | Inserted text             |
+
+```css
+:root {
+  --inksane-code-keyword: #c678dd;
+  --inksane-code-string: #98c379;
+}
+```
+
+For a custom palette, pass a `HighlightStyle` from `@codemirror/language` as `highlightStyle`.
+Custom styles should be unscoped. `themeType` is respected, so a dark-only style applies only while
+the editor uses a dark theme.
+
+To extend the built-in style, import `codeHighlightStyle` and combine its specs:
+
+```ts
+import { HighlightStyle } from "@codemirror/language";
+import { tags } from "@lezer/highlight";
+import { codeHighlightStyle } from "@inksane/core/extensions/code";
+
+const highlightStyle = HighlightStyle.define([
+  ...codeHighlightStyle.specs,
+  { tag: tags.escape, color: "#0969da" },
+]);
+```
 
 ## Commands
 
