@@ -1,0 +1,99 @@
+---
+import Base from "../../../layouts/Base.astro";
+---
+
+<Base>
+    <div class="mb-4 flex items-center gap-2 flex-wrap">
+        <button data-action="log-yaml">Log YAML</button>
+        <button data-action="add-body">Set cursor in body</button>
+        <button data-action="reset">Reset</button>
+    </div>
+    <pre id="yaml-output" class="mb-4 hidden rounded-md border border-border-muted bg-background-muted p-4 text-xs"></pre>
+    <div id="editor-mount" class="border"></div>
+</Base>
+
+<script>
+    import { Editor } from "@inksane/core";
+    import { BaseKit } from "@inksane/core/extensions/base-kit";
+    import { FrontmatterExtension, getYaml } from "@inksane/core/extensions/frontmatter";
+    import { EditorView } from "@codemirror/view";
+
+    const content = `---
+title: Designing with YAML frontmatter
+description: A note about metadata, properties, and nested values.
+draft: false
+tags:
+  - markdown
+  - metadata
+  - editor
+author:
+  name: Ada Lovelace
+  role: Writer
+  social:
+    bluesky: "@ada.example"
+    github: ada
+review:
+  status: approved
+  reviewers:
+    - Grace
+    - Alan
+---
+
+Frontmatter sits at the top of the document. Move the cursor out of it to see the properties table. Click the table, or move the cursor into the YAML block, to edit the source.
+
+## Why frontmatter
+
+It keeps document metadata next to the content without a database.
+
+\`\`\`yaml
+title: A note
+tags: [markdown]
+\`\`\`
+`;
+
+    const theme = EditorView.theme({
+        ".cm-content": { paddingTop: "24px", paddingBottom: "24px" },
+        ".cm-line": { paddingLeft: "24px", paddingRight: "24px" },
+    });
+
+    const editor = new Editor({
+        element: document.getElementById("editor-mount")!,
+        content,
+        extensions: [BaseKit(), FrontmatterExtension],
+        theme,
+    });
+
+    const output = document.getElementById("yaml-output")!;
+    const buttons = document.querySelectorAll("button[data-action]");
+
+    buttons.forEach((btn) => {
+        const action = (btn as HTMLButtonElement).dataset.action;
+
+        btn.addEventListener("click", () => {
+            switch (action) {
+                case "log-yaml": {
+                    const yaml = getYaml(editor);
+                    output.textContent = JSON.stringify(yaml, null, 2);
+                    output.classList.remove("hidden");
+                    console.log(yaml);
+                    break;
+                }
+                case "add-body":
+                    editor.view.dispatch({
+                        selection: { anchor: editor.content.indexOf("Frontmatter sits") },
+                    });
+                    editor.view.focus();
+                    break;
+                case "reset":
+                    editor.setMarkdown(content);
+                    output.classList.add("hidden");
+                    break;
+                default:
+                    console.warn(`No action defined for ${action}`);
+            }
+        });
+    });
+
+    // @ts-expect-error expose the editor for manual testing
+    window.editor = editor;
+</script>

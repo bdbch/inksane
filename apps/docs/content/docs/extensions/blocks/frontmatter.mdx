@@ -1,0 +1,144 @@
+---
+title: Frontmatter
+description: "Leading YAML metadata rendered as a properties table, with parsed values available through getYaml()."
+---
+
+The `frontmatter` extension recognizes a YAML block at the start of the document. While the
+selection is outside the block, it renders the values as a collapsible properties table. When the
+selection enters the block, the raw YAML is shown and can be edited.
+
+Without the extension, the `---` fences parse as horizontal rules.
+
+## Setup
+
+Import `FrontmatterExtension` and add it to the editor's `extensions` option:
+
+```ts
+import { Editor } from "@inksane/core";
+import { FrontmatterExtension } from "@inksane/core/extensions/frontmatter";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  content: "---\ntitle: Release notes\ndraft: false\n---\n\nBody",
+  extensions: [FrontmatterExtension],
+});
+```
+
+BaseKit does not include frontmatter. Register the extension next to it.
+
+## What it adds
+
+- Parses a leading `---` ... `---` block as a `Frontmatter` node, so the fences are never
+  horizontal rules.
+- Replaces the block with a properties table while the selection is outside it.
+- Reveals the YAML source when the selection is inside the block.
+- Renders nested maps and lists as collapsible groups.
+- Adds the `frontmatter` state query, so `editor.isActive("frontmatter")` reports whether the
+  selection is inside the block.
+- Exports `getYaml(editor)` for reading the parsed values.
+
+Only a block at the very start of the document counts. A block without a closing fence keeps its
+normal Markdown meaning.
+
+## Read the values
+
+`getYaml` parses the document's leading frontmatter and returns plain JSON values:
+
+```ts
+import { getYaml } from "@inksane/core/extensions/frontmatter";
+
+const data = getYaml(editor);
+
+console.log(data?.title);
+console.log(data?.tags);
+```
+
+The return value is a `FrontmatterData` object, or `null` when the document has no frontmatter or
+the YAML is invalid. An empty block returns `{}`. Import `FrontmatterData` or `FrontmatterValue`
+from the extension entry when you need to name those types.
+
+The editor content stays the source of truth. Call `getYaml` whenever you need the current values,
+for example in an update listener or before saving.
+
+Nested maps become objects. Lists become arrays. Scalars keep their types, so `true` is a boolean
+and `42` is a number. YAML-specific values are converted to JSON-safe values: timestamps become ISO
+strings, sets become arrays, and map-like values become objects. Recursive aliases are rejected
+with a parse error.
+
+```yaml
+---
+title: A note
+draft: false
+tags:
+  - docs
+  - editor
+author:
+  name: Ada
+---
+```
+
+```ts
+{
+  title: "A note",
+  draft: false,
+  tags: ["docs", "editor"],
+  author: { name: "Ada" }
+}
+```
+
+## Edit the block
+
+Click the properties table, or move the cursor into the YAML block, to show the source. Move the
+cursor outside the block to show the table again.
+
+Invalid YAML still appears as a block, with the parser error shown in place of the table. Click the
+error or move the cursor into the block to fix the source.
+
+## Styling
+
+The extension renders plain class names, so you can style it with your own CSS:
+
+```css
+[data-inksane-editor-content] {
+  .inksane-frontmatter-widget {
+    padding-block: 12px;
+  }
+
+  .inksane-frontmatter-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e5e5e5;
+    color: #737373;
+  }
+
+  .inksane-frontmatter-title {
+    flex: 1;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .inksane-frontmatter-row {
+    display: grid;
+    grid-template-columns: 20px minmax(120px, 28%) 1fr;
+    gap: 8px;
+    padding: 3px 4px;
+  }
+
+  .inksane-frontmatter-key {
+    color: #737373;
+  }
+
+  .inksane-frontmatter-children {
+    margin-left: 9px;
+    padding-left: 14px;
+    border-left: 1px solid #e5e5e5;
+  }
+
+  .inksane-frontmatter-line {
+    background: #f5f5f5;
+    font-family: ui-monospace, monospace;
+  }
+}
+```
