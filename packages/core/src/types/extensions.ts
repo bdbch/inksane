@@ -95,8 +95,8 @@ export type MarkdownDecorationConfig = {
   nodeName: string;
   /** The CSS class applied to the node. */
   className?: string;
-  /** The CSS class applied to every line within the node. */
-  lineClass?: string;
+  /** The CSS class applied to every line within the node, or a factory for nodes that vary. */
+  lineClass?: string | ((node: SyntaxNode, state: EditorState) => string | null);
   /**
    * Which parts of the node count as markdown markup.
    * Defaults to the node's direct `*Mark` children.

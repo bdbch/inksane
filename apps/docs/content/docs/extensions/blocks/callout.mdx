@@ -1,0 +1,100 @@
+---
+title: Callouts
+description: "Obsidian-style callouts in blockquotes, with type styling and source reveal."
+---
+
+The `callout` extension turns blockquotes that start with `[!type]` into callouts. It replaces the
+marker and title with a styled heading while the selection is outside the block. The source is
+visible again when the selection enters it.
+
+```markdown
+> [!note] Release notes
+> The editor now supports callouts.
+```
+
+## Setup
+
+Import `BlockquoteExtension` and `CalloutExtension`, then pass them through the editor's
+`extensions` option. The blockquote extension hides the `>` markers.
+
+```ts
+import { Editor } from "@inksane/core";
+import { BlockquoteExtension } from "@inksane/core/extensions/blockquote";
+import { CalloutExtension } from "@inksane/core/extensions/callout";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [BlockquoteExtension, CalloutExtension],
+});
+```
+
+[BaseKit](/kits/base-kit) includes callouts. Disable the feature with
+`BaseKit({ callout: false })`.
+
+## What it adds
+
+- Parses `[!type]` as a `CalloutMarker` node, so it is not treated as a link.
+- Adds `.inksane-callout` and `.inksane-callout--{type}` to every line in the callout.
+- Hides `[!type] title` and renders a `.inksane-callout-title` widget.
+- Shows the type's default title when the callout has no explicit title.
+- Reveals the raw blockquote source while the selection is inside it.
+- Moves the selection into the source when the title is clicked.
+
+## Types
+
+| Type        | Aliases                |
+| ----------- | ---------------------- |
+| `note`      |                        |
+| `abstract`  | `summary`, `tldr`      |
+| `info`      |                        |
+| `todo`      |                        |
+| `tip`       | `hint`                 |
+| `important` |                        |
+| `success`   | `check`, `done`        |
+| `question`  | `help`, `faq`          |
+| `warning`   | `caution`, `attention` |
+| `failure`   | `fail`, `missing`      |
+| `danger`    | `error`                |
+| `bug`       |                        |
+| `example`   |                        |
+| `quote`     | `cite`                 |
+
+Aliases share the style of their canonical type. Other types render as callouts with the type as
+their default title and a `.inksane-callout--{type}` class.
+
+## Styling
+
+Each line receives the callout class and a type class, so a CSS variable can drive the color. The
+blockquote extension still marks the text with `.inksane-blockquote`, so the sample resets its border
+and padding.
+
+```css
+[data-inksane-editor-content] {
+  .inksane-callout {
+    --inksane-callout-color: #448aff;
+    border-left-color: var(--inksane-callout-color);
+    background: color-mix(in srgb, var(--inksane-callout-color) 7%, transparent);
+    color: inherit;
+    padding-left: 12px;
+  }
+
+  .inksane-callout .inksane-blockquote {
+    border-left: 0;
+    padding-left: 0;
+    color: inherit;
+  }
+
+  .inksane-callout--warning {
+    --inksane-callout-color: #ff9100;
+  }
+
+  .inksane-callout--danger {
+    --inksane-callout-color: #ff1744;
+  }
+
+  .inksane-callout-title {
+    color: color-mix(in srgb, var(--inksane-callout-color) 65%, var(--foreground));
+    font-weight: 600;
+  }
+}
+```

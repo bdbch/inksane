@@ -38,6 +38,7 @@ describe("BaseKit", () => {
         BaseKit({
           blockquote: false,
           bold: false,
+          callout: false,
           code: false,
           defaultKeymap: false,
           heading: false,

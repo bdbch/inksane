@@ -45,6 +45,7 @@
     "./extensions/base-kit": "./dist/extensions/base-kit.mjs",
     "./extensions/blockquote": "./dist/extensions/blockquote.mjs",
     "./extensions/bold": "./dist/extensions/bold.mjs",
+    "./extensions/callout": "./dist/extensions/callout.mjs",
     "./extensions/code": "./dist/extensions/code.mjs",
     "./extensions/definition-list": "./dist/extensions/definition-list.mjs",
     "./extensions/footnotes": "./dist/extensions/footnotes.mjs",

@@ -20,6 +20,7 @@ export default defineConfig({
       "extensions/code": "src/extensions/code.ts",
       "extensions/definition-list": "src/extensions/definitionList.ts",
       "extensions/blockquote": "src/extensions/blockquote.ts",
+      "extensions/callout": "src/extensions/callout.ts",
       "extensions/list": "src/extensions/list.ts",
       "extensions/footnotes": "src/extensions/footnotes.ts",
       "extensions/frontmatter": "src/extensions/frontmatter.ts",

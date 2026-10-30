@@ -189,6 +189,77 @@
     padding-left: 8px;
   }
 
+  .inksane-callout {
+    --inksane-callout-color: #448aff;
+    padding-left: 12px;
+    border-left-color: var(--inksane-callout-color);
+    background: color-mix(in srgb, var(--inksane-callout-color) 8%, transparent);
+    color: var(--foreground);
+  }
+
+  .inksane-callout .inksane-blockquote {
+    border-left: 0;
+    padding-left: 0;
+    color: inherit;
+  }
+
+  .inksane-callout--abstract {
+    --inksane-callout-color: #00b8d4;
+  }
+
+  .inksane-callout--info {
+    --inksane-callout-color: #00acc1;
+  }
+
+  .inksane-callout--todo {
+    --inksane-callout-color: #448aff;
+  }
+
+  .inksane-callout--tip {
+    --inksane-callout-color: #00bfa5;
+  }
+
+  .inksane-callout--important {
+    --inksane-callout-color: #00b8d4;
+  }
+
+  .inksane-callout--success {
+    --inksane-callout-color: #43a047;
+  }
+
+  .inksane-callout--question {
+    --inksane-callout-color: #ffab00;
+  }
+
+  .inksane-callout--warning {
+    --inksane-callout-color: #ff9100;
+  }
+
+  .inksane-callout--failure {
+    --inksane-callout-color: #ff5252;
+  }
+
+  .inksane-callout--danger {
+    --inksane-callout-color: #ff1744;
+  }
+
+  .inksane-callout--bug {
+    --inksane-callout-color: #ff5252;
+  }
+
+  .inksane-callout--example {
+    --inksane-callout-color: #7c4dff;
+  }
+
+  .inksane-callout--quote {
+    --inksane-callout-color: #757575;
+  }
+
+  .inksane-callout-title {
+    color: color-mix(in srgb, var(--inksane-callout-color) 65%, var(--foreground));
+    font-weight: 600;
+  }
+
   .inksane-list-marker {
     display: inline-block;
     color: var(--foreground-muted);

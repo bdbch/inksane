@@ -62,8 +62,11 @@ function addLineClassDecorations(
   ranges: DecorationRanges,
   state: EditorState,
   node: SyntaxNode,
-  className: string,
+  lineClass: string | ((node: SyntaxNode, state: EditorState) => string | null),
 ): void {
+  const className = typeof lineClass === "function" ? lineClass(node, state) : lineClass;
+  if (!className) return;
+
   const start = state.doc.lineAt(node.from).number;
   const end = state.doc.lineAt(node.to).number;
   for (let number = start; number <= end; number++) {

@@ -1,6 +1,7 @@
 import type { Extension } from "../types/extensions.ts";
 import { BlockquoteExtension } from "./blockquote.ts";
 import { BoldExtension } from "./bold.ts";
+import { CalloutExtension } from "./callout.ts";
 import { CodeExtension } from "./code.ts";
 import type { CodeExtensionOptions } from "./code.ts";
 import { DefinitionListExtension } from "./definitionList.ts";
@@ -41,6 +42,8 @@ export type BaseKitOptions = {
   blockquote?: boolean;
   /** Enable bold text. */
   bold?: boolean;
+  /** Enable Obsidian-style callouts inside blockquotes. */
+  callout?: boolean;
   /** Enable inline code and code blocks, or configure their languages and highlighting. */
   code?: boolean | CodeExtensionOptions;
   /** Enable standard editing and search shortcuts. */
@@ -103,6 +106,7 @@ export function BaseKit(options: BaseKitOptions = {}): Extension {
         ["code", CodeExtension(typeof options.code === "object" ? options.code : {})],
         ["definitionList", DefinitionListExtension],
         ["blockquote", BlockquoteExtension],
+        ["callout", CalloutExtension],
         ["list", ListExtension],
         ["footnotes", FootnoteExtension],
         ["taskList", TaskListExtension],
