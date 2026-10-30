@@ -18,6 +18,7 @@ export default defineConfig({
       "extensions/html": "src/extensions/html.ts",
       "extensions/image": "src/extensions/image.ts",
       "extensions/code": "src/extensions/code.ts",
+      "extensions/definition-list": "src/extensions/definitionList.ts",
       "extensions/blockquote": "src/extensions/blockquote.ts",
       "extensions/list": "src/extensions/list.ts",
       "extensions/footnotes": "src/extensions/footnotes.ts",

@@ -1,0 +1,77 @@
+---
+title: Definition lists
+description: "Parse Markdown definition lists and convert pasted HTML definition lists."
+---
+
+The `definitionList` extension parses a term followed by one or more definitions. Write each
+definition on its own line with a leading colon:
+
+```md
+Term
+: First definition
+: Second definition
+```
+
+Terms and definitions render as separate blocks. Definitions have an indented left border by
+default in the playground styles.
+
+## Setup
+
+Import `DefinitionListExtension` and register it with the editor:
+
+```ts
+import { Editor } from "@inksane/core";
+import { DefinitionListExtension } from "@inksane/core/extensions/definition-list";
+
+const editor = new Editor({
+  content: "Term\n: Definition",
+  extensions: [DefinitionListExtension],
+});
+```
+
+[BaseKit](/kits/base-kit) includes definition lists. Disable them with
+`BaseKit({ definitionList: false })`.
+
+## HTML paste
+
+Pasting a `<dl>` converts its `<dt>` and `<dd>` children to Markdown. When several terms share a
+definition, the definition is repeated for each term because the Markdown syntax pairs one term
+with its definitions. Paragraphs and line breaks inside a `<dd>` become separate `: Definition`
+lines:
+
+```html
+<dl>
+  <dt>First</dt>
+  <dt>Second</dt>
+  <dd>Meaning</dd>
+</dl>
+```
+
+This converts to:
+
+```md
+First
+: Meaning
+
+Second
+: Meaning
+```
+
+## Styling
+
+The extension adds `.inksane-definition-term` to terms and `.inksane-definition` to definitions.
+Style these classes in your editor stylesheet:
+
+```css
+[data-inksane-editor-content] {
+  .inksane-definition-term {
+    font-weight: 600;
+  }
+
+  .inksane-definition {
+    border-left: 2px solid var(--border-muted);
+    margin-left: 8px;
+    padding-left: 8px;
+  }
+}
+```

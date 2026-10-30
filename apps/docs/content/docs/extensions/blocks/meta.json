@@ -3,6 +3,7 @@
   "pages": [
     "heading",
     "list",
+    "definition-list",
     "task-list",
     "footnotes",
     "blockquote",

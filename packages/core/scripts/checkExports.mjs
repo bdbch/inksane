@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { Editor } from "@inksane/core";
 import { BaseKit } from "@inksane/core/extensions/base-kit";
 import { BoldExtension } from "@inksane/core/extensions/bold";
+import { DefinitionListExtension } from "@inksane/core/extensions/definition-list";
 import { FootnoteExtension } from "@inksane/core/extensions/footnotes";
 import { FrontmatterExtension } from "@inksane/core/extensions/frontmatter";
 import { StrikethroughExtension } from "@inksane/core/extensions/strikethrough";
@@ -15,7 +16,7 @@ import { TaskListExtension } from "@inksane/core/extensions/task-list";
 const packageDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const pkg = JSON.parse(await readFile(join(packageDir, "package.json"), "utf8"));
 const subpaths = Object.keys(pkg.exports).filter((path) => path.startsWith("./extensions/"));
-assert.equal(subpaths.length, 21);
+assert.equal(subpaths.length, 22);
 for (const path of subpaths) {
   const extension = await import(`@inksane/core/${path.slice(2)}`);
   assert.ok(Object.keys(extension).length > 0, path);
@@ -24,6 +25,7 @@ for (const path of subpaths) {
 for (const [extensions, commands] of [
   [[], ["insertContent"]],
   [[BoldExtension], ["insertContent", "toggleBold"]],
+  [[DefinitionListExtension], ["insertContent"]],
   [[FootnoteExtension], ["insertContent"]],
   [[FrontmatterExtension], ["insertContent"]],
   [[StrikethroughExtension], ["setStrikethrough", "removeStrikethrough", "toggleStrikethrough"]],

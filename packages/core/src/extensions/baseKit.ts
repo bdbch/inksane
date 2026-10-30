@@ -3,6 +3,7 @@ import { BlockquoteExtension } from "./blockquote.ts";
 import { BoldExtension } from "./bold.ts";
 import { CodeExtension } from "./code.ts";
 import type { CodeExtensionOptions } from "./code.ts";
+import { DefinitionListExtension } from "./definitionList.ts";
 import { FootnoteExtension } from "./footnotes.ts";
 import { HeadingExtension } from "./heading.ts";
 import { HistoryExtension } from "./history.ts";
@@ -22,6 +23,7 @@ import { TaskListExtension } from "./taskList.ts";
 import "./blockquote.ts";
 import "./bold.ts";
 import "./code.ts";
+import "./definitionList.ts";
 import "./heading.ts";
 import "./horizontalRule.ts";
 import "./image.ts";
@@ -40,6 +42,8 @@ export type BaseKitOptions = {
   code?: boolean | CodeExtensionOptions;
   /** Enable standard editing and search shortcuts. */
   defaultKeymap?: boolean;
+  /** Enable Markdown definition lists. */
+  definitionList?: boolean;
   /** Enable footnote references and definitions. */
   footnotes?: boolean;
   /** Enable headings. */
@@ -92,6 +96,7 @@ export function BaseKit(options: BaseKitOptions = {}): Extension {
         ["html", HtmlExtension],
         ["image", ImageExtension],
         ["code", CodeExtension(typeof options.code === "object" ? options.code : {})],
+        ["definitionList", DefinitionListExtension],
         ["blockquote", BlockquoteExtension],
         ["list", ListExtension],
         ["footnotes", FootnoteExtension],
