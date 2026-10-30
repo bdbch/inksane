@@ -64,9 +64,10 @@ their default title and a `.inksane-callout--{type}` class.
 
 ## Styling
 
-Each line receives the callout class and a type class, so a CSS variable can drive the color. The
-blockquote extension still marks the text with `.inksane-blockquote`, so the sample resets its border
-and padding.
+Each line receives the callout class and a type class, so a CSS variable can drive the color. Callout
+lines keep CodeMirror's `.cm-line` class. Avoid setting `padding` on `.inksane-callout` because it
+replaces the line padding the editor sets and shifts the text. The blockquote extension still marks
+the text with `.inksane-blockquote`, so the sample resets its border and padding.
 
 ```css
 [data-inksane-editor-content] {
@@ -75,7 +76,6 @@ and padding.
     border-left-color: var(--inksane-callout-color);
     background: color-mix(in srgb, var(--inksane-callout-color) 7%, transparent);
     color: inherit;
-    padding-left: 12px;
   }
 
   .inksane-callout .inksane-blockquote {

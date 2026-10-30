@@ -191,7 +191,6 @@
 
   .inksane-callout {
     --inksane-callout-color: #448aff;
-    padding-left: 12px;
     border-left-color: var(--inksane-callout-color);
     background: color-mix(in srgb, var(--inksane-callout-color) 8%, transparent);
     color: var(--foreground);
