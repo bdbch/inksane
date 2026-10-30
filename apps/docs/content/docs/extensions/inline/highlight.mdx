@@ -1,0 +1,60 @@
+---
+title: Highlight
+description: "The highlight extension: == syntax, commands, HTML pasting, and CSS styling."
+---
+
+The `highlight` extension renders `==text==` as highlighted text. It adds a command to toggle the
+formatting around the selection or at the cursor.
+
+## Setup
+
+Import `HighlightExtension` and register it with the editor:
+
+```ts
+import { Editor } from "@inksane/core";
+import { HighlightExtension } from "@inksane/core/extensions/highlight";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [HighlightExtension],
+});
+```
+
+This extension is opt-in and is not included in [BaseKit](/kits/base-kit).
+
+## What it adds
+
+- Parses paired `==` markers and hides them while the text is not selected.
+- Converts pasted `<mark>` elements to `==text==`.
+- Registers `toggleHighlight`.
+
+The editor keeps the markers in its Markdown source. Escaped markers and markers inside code remain
+literal text.
+
+## Command
+
+`toggleHighlight({ pos? })` toggles highlighting around the current selection. At a cursor, it
+inserts `====` and places the cursor between the markers. `pos` can be a number or a `{ from, to }`
+range. Without `pos`, the command uses the current selection.
+
+```js
+editor.commands.toggleHighlight();
+
+editor
+  .chain()
+  .toggleHighlight({ pos: { from: 0, to: 5 } })
+  .focus()
+  .run();
+```
+
+Use `editor.isActive("highlight")` to check whether the selection is highlighted.
+
+## Styling
+
+Add a rule for the `.inksane-mark-highlight` class:
+
+```css
+[data-inksane-editor-content] .inksane-mark-highlight {
+  background-color: yellow;
+}
+```

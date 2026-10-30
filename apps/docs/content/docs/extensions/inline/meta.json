@@ -1,4 +1,4 @@
 {
   "title": "Inline syntax",
-  "pages": ["bold", "italic", "strikethrough", "link", "image", "code"]
+  "pages": ["bold", "italic", "strikethrough", "highlight", "superscript", "subscript", "link", "image", "code"]
 }

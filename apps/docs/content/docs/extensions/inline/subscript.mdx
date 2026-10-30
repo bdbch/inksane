@@ -1,0 +1,62 @@
+---
+title: Subscript
+description: "The subscript extension: ~ syntax, a toggle command, HTML pasting, and CSS styling."
+---
+
+The `subscript` extension renders `~text~` as subscript text. It adds a command to toggle the
+formatting around the selection or at the cursor.
+
+## Setup
+
+Import `SubscriptExtension` and register it with the editor:
+
+```ts
+import { Editor } from "@inksane/core";
+import { SubscriptExtension } from "@inksane/core/extensions/subscript";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [SubscriptExtension],
+});
+```
+
+This extension is opt-in and is not included in [BaseKit](/kits/base-kit).
+
+## What it adds
+
+- Parses paired `~` markers and hides them while the text is not selected.
+- Converts pasted `<sub>` elements to `~text~`.
+- Registers `toggleSubscript`.
+
+The editor keeps the markers in its Markdown source. Escaped markers and markers inside code remain
+literal text. A single tilde inside a strikethrough marker pair remains part of the strikethrough
+syntax.
+
+## Command
+
+`toggleSubscript({ pos? })` toggles subscript around the current selection. At a cursor, it inserts
+`~~` and places the cursor between the markers. `pos` can be a number or a `{ from, to }` range.
+Without `pos`, the command uses the current selection.
+
+```js
+editor.commands.toggleSubscript();
+
+editor
+  .chain()
+  .toggleSubscript({ pos: { from: 0, to: 5 } })
+  .focus()
+  .run();
+```
+
+Use `editor.isActive("subscript")` to check whether the selection is subscript.
+
+## Styling
+
+Add a rule for the `.inksane-mark-subscript` class:
+
+```css
+[data-inksane-editor-content] .inksane-mark-subscript {
+  vertical-align: sub;
+  font-size: smaller;
+}
+```
