@@ -49,6 +49,7 @@
     "./extensions/footnotes": "./dist/extensions/footnotes.mjs",
     "./extensions/frontmatter": "./dist/extensions/frontmatter.mjs",
     "./extensions/heading": "./dist/extensions/heading.mjs",
+    "./extensions/highlight": "./dist/extensions/highlight.mjs",
     "./extensions/history": "./dist/extensions/history.mjs",
     "./extensions/horizontal-rule": "./dist/extensions/horizontal-rule.mjs",
     "./extensions/html": "./dist/extensions/html.mjs",
@@ -59,6 +60,8 @@
     "./extensions/list": "./dist/extensions/list.mjs",
     "./extensions/placeholder": "./dist/extensions/placeholder.mjs",
     "./extensions/strikethrough": "./dist/extensions/strikethrough.mjs",
+    "./extensions/subscript": "./dist/extensions/subscript.mjs",
+    "./extensions/superscript": "./dist/extensions/superscript.mjs",
     "./extensions/task-list": "./dist/extensions/task-list.mjs",
     "./package.json": "./package.json"
   },
