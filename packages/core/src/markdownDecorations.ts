@@ -2,6 +2,7 @@ import { syntaxTree } from "@codemirror/language";
 import {
   type EditorState,
   type Extension,
+  type Line,
   type Range,
   StateEffect,
   StateField,
@@ -62,15 +63,14 @@ function addLineClassDecorations(
   ranges: DecorationRanges,
   state: EditorState,
   node: SyntaxNode,
-  lineClass: string | ((node: SyntaxNode, state: EditorState) => string | null),
+  lineClass: string | ((node: SyntaxNode, state: EditorState, line: Line) => string | null),
 ): void {
-  const className = typeof lineClass === "function" ? lineClass(node, state) : lineClass;
-  if (!className) return;
-
   const start = state.doc.lineAt(node.from).number;
   const end = state.doc.lineAt(node.to).number;
   for (let number = start; number <= end; number++) {
-    ranges.push(Decoration.line({ class: className }).range(state.doc.line(number).from));
+    const line = state.doc.line(number);
+    const className = typeof lineClass === "function" ? lineClass(node, state, line) : lineClass;
+    if (className) ranges.push(Decoration.line({ class: className }).range(line.from));
   }
 }
 

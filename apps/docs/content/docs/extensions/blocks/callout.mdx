@@ -34,7 +34,8 @@ const editor = new Editor({
 ## What it adds
 
 - Consumes the callout head as a `CalloutHead` block, so `[!type]` is not treated as a link.
-- Adds `.inksane-callout` and `.inksane-callout--{type}` to every line in the callout.
+- Adds `.inksane-callout` and `.inksane-callout--{type}` to every line in the callout. Nested
+  callout lines keep only the innermost type class.
 - Hides `[!type] title` and renders a `.inksane-callout-title` widget.
 - Shows the type's default title when the callout has no explicit title.
 - Reveals the raw blockquote source while the selection is inside it.

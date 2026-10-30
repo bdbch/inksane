@@ -151,6 +151,37 @@ describe("callouts", () => {
     expect(editor.view.contentDOM.querySelector(".inksane-callout-title")).toBeNull();
   });
 
+  it("moves the selection to the marker in indented, listed, and nested blockquotes", () => {
+    for (const content of [
+      "  > [!note] Read this\n  > Body text",
+      "- > [!note] Read this\n  > Body text",
+      "> > [!note] Read this\n> > Body text",
+    ]) {
+      const editor = mount(content);
+
+      editor.view.contentDOM
+        .querySelector(".inksane-callout-title")
+        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+      expect(editor.state.selection.main.anchor).toBe(editor.content.indexOf("[!note]"));
+    }
+  });
+
+  it("gives nested callout lines only the innermost type class", () => {
+    const editor = mount("> [!warning] Outer\n> > [!tip] Inner\n> > Body text");
+    const lines = Array.from(editor.view.contentDOM.querySelectorAll(".cm-line"));
+
+    const outer = lines.find((line) => line.textContent?.includes("Outer"));
+    const inner = lines.find((line) => line.textContent?.includes("Inner"));
+    const body = lines.find((line) => line.textContent?.includes("Body text"));
+
+    expect(outer?.classList.contains("inksane-callout--warning")).toBe(true);
+    expect(inner?.classList.contains("inksane-callout--tip")).toBe(true);
+    expect(inner?.classList.contains("inksane-callout--warning")).toBe(false);
+    expect(body?.classList.contains("inksane-callout--tip")).toBe(true);
+    expect(body?.classList.contains("inksane-callout--warning")).toBe(false);
+  });
+
   it("uses the current marker position after edits above the callout", () => {
     const editor = mount("Before\n\n> [!note] Read this\n> Body text");
     expect(editor.content.indexOf("[!note]")).toBe(10);

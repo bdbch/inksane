@@ -1,4 +1,5 @@
-import type { EditorState } from "@codemirror/state";
+import { syntaxTree } from "@codemirror/language";
+import type { EditorState, Line } from "@codemirror/state";
 import type { EditorView, WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
 import type { BlockContext, BlockParser, MarkdownConfig } from "@lezer/markdown";
@@ -112,6 +113,24 @@ function readCallout(node: SyntaxNode, state: EditorState): CalloutInfo | null {
   };
 }
 
+/** Finds the innermost callout blockquote that touches the line. */
+function innermostCallout(state: EditorState, line: Line): SyntaxNode | null {
+  let found: SyntaxNode | null = null;
+
+  syntaxTree(state).iterate({
+    from: line.from,
+    to: line.to,
+    enter(node) {
+      if (node.name !== "Blockquote") return;
+      if (node.from > line.to || node.to < line.from) return;
+      if (!readCallout(node.node, state)) return;
+      found = node.node;
+    },
+  });
+
+  return found;
+}
+
 /** Reads the current marker position from the reused widget's DOM position. */
 function markerFromWidget(view: EditorView, element: HTMLElement): number | null {
   let pos: number;
@@ -122,9 +141,19 @@ function markerFromWidget(view: EditorView, element: HTMLElement): number | null
   }
 
   const line = view.state.doc.lineAt(pos);
-  const source = view.state.doc.sliceString(line.from, line.to);
-  const quoteMark = /^>[ \t]*/.exec(source);
-  return quoteMark ? line.from + quoteMark[0].length : null;
+  let markerFrom: number | null = null;
+
+  syntaxTree(view.state).iterate({
+    from: line.from,
+    to: line.to,
+    enter(node) {
+      if (node.name !== "CalloutHead") return;
+      markerFrom = node.from;
+      return false;
+    },
+  });
+
+  return markerFrom;
 }
 
 function createCalloutWidget(callout: CalloutInfo): WidgetType {
@@ -166,9 +195,14 @@ export const CalloutExtension: Extension = {
     return [
       {
         nodeName: "Blockquote",
-        lineClass: (node, state) => {
+        lineClass: (node, state, line) => {
           const callout = readCallout(node, state);
-          return callout ? `inksane-callout inksane-callout--${callout.style}` : null;
+          if (!callout) return null;
+
+          const innermost = innermostCallout(state, line);
+          return innermost?.from === node.from
+            ? `inksane-callout inksane-callout--${callout.style}`
+            : null;
         },
         hideSyntax: true,
         markup: (node, state): MarkupRange[] => {

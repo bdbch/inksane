@@ -1,4 +1,4 @@
-import type { Extension as CMExtension, EditorState } from "@codemirror/state";
+import type { Extension as CMExtension, EditorState, Line } from "@codemirror/state";
 import type { LanguageDescription } from "@codemirror/language";
 import type { KeyBinding, WidgetType } from "@codemirror/view";
 import type { MarkdownExtension } from "@lezer/markdown";
@@ -95,8 +95,8 @@ export type MarkdownDecorationConfig = {
   nodeName: string;
   /** The CSS class applied to the node. */
   className?: string;
-  /** The CSS class applied to every line within the node, or a factory for nodes that vary. */
-  lineClass?: string | ((node: SyntaxNode, state: EditorState) => string | null);
+  /** The CSS class applied to every line within the node, or a factory for classes that vary by line. */
+  lineClass?: string | ((node: SyntaxNode, state: EditorState, line: Line) => string | null);
   /**
    * Which parts of the node count as markdown markup.
    * Defaults to the node's direct `*Mark` children.
