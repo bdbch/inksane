@@ -8,13 +8,14 @@ import { Editor } from "@inksane/core";
 import { BaseKit } from "@inksane/core/extensions/base-kit";
 import { BoldExtension } from "@inksane/core/extensions/bold";
 import { FootnoteExtension } from "@inksane/core/extensions/footnotes";
+import { FrontmatterExtension } from "@inksane/core/extensions/frontmatter";
 import { StrikethroughExtension } from "@inksane/core/extensions/strikethrough";
 import { TaskListExtension } from "@inksane/core/extensions/task-list";
 
 const packageDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const pkg = JSON.parse(await readFile(join(packageDir, "package.json"), "utf8"));
 const subpaths = Object.keys(pkg.exports).filter((path) => path.startsWith("./extensions/"));
-assert.equal(subpaths.length, 17);
+assert.equal(subpaths.length, 18);
 for (const path of subpaths) {
   const extension = await import(`@inksane/core/${path.slice(2)}`);
   assert.ok(Object.keys(extension).length > 0, path);
@@ -24,6 +25,7 @@ for (const [extensions, commands] of [
   [[], ["insertContent"]],
   [[BoldExtension], ["insertContent", "toggleBold"]],
   [[FootnoteExtension], ["insertContent"]],
+  [[FrontmatterExtension], ["insertContent"]],
   [[StrikethroughExtension], ["setStrikethrough", "removeStrikethrough", "toggleStrikethrough"]],
   [[TaskListExtension], ["insertTaskList", "removeTaskList", "toggleTaskList"]],
   [
@@ -56,6 +58,7 @@ const fixtures = [
   'import { Editor } from "@inksane/core";\nimport { BoldExtension } from "@inksane/core/extensions/bold";\nconst editor = new Editor({ extensions: [BoldExtension] });\neditor.commands.toggleBold();\n// @ts-expect-error Bold does not provide italic commands.\neditor.commands.toggleItalic();',
   'import { Editor } from "@inksane/core";\nimport { BaseKit } from "@inksane/core/extensions/base-kit";\nconst editor = new Editor({ extensions: [BaseKit({ link: { onLinkRequest: () => null } })] });\neditor.commands.insertHeading({ level: 1 });\neditor.commands.insertHorizontalRule();\neditor.chain().toggleBold().toggleItalic().run();',
   'import { Editor } from "@inksane/core";\nimport { CodeExtension, codeHighlightStyle, defaultCodeLanguages } from "@inksane/core/extensions/code";\nconst editor = new Editor({ extensions: [CodeExtension({ languages: defaultCodeLanguages, highlightStyle: codeHighlightStyle })] });\neditor.commands.toggleCodeBlock();\neditor.chain().insertCodeBlock({ lang: "ts" }).run();',
+  'import { Editor } from "@inksane/core";\nimport { FrontmatterExtension, getYaml } from "@inksane/core/extensions/frontmatter";\nimport type { FrontmatterData, FrontmatterValue } from "@inksane/core/extensions/frontmatter";\nconst editor = new Editor({ content: "---\\ntitle: Hi\\n---", extensions: [FrontmatterExtension] });\nconst yaml: FrontmatterData | null = getYaml(editor);\nconst value: FrontmatterValue | undefined = yaml?.title;\nvoid value;',
 ];
 const directory = await mkdtemp(join(tmpdir(), "inksane-exports-"));
 try {

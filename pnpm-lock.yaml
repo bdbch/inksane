@@ -123,6 +123,9 @@ catalogs:
     y-protocols:
       specifier: ^1.0.7
       version: 1.0.7
+    yaml:
+      specifier: ^2.9.1
+      version: 2.9.1
     yjs:
       specifier: ^13.6.33
       version: 13.6.33
@@ -313,6 +316,9 @@ importers:
       '@lezer/markdown':
         specifier: 'catalog:'
         version: 1.7.2
+      yaml:
+        specifier: 'catalog:'
+        version: 2.9.1
     devDependencies:
       '@types/node':
         specifier: ^26.1.1

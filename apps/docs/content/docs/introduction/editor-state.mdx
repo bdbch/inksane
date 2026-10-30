@@ -42,6 +42,7 @@ unregistered feature returns `false`, and its mark range is `null`:
 | `blockquote`     | node | Blockquotes               | —          |
 | `htmlBlock`      | node | HTML blocks               | —          |
 | `horizontalRule` | node | Horizontal rules          | —          |
+| `frontmatter`    | node | YAML frontmatter          | —          |
 
 Pass an attribute to match a specific state. `attrs` is matched as a subset, so
 `isActive("link")` is true for any link and `isActive("link", { href })` only for that one.
