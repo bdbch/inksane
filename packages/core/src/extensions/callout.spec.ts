@@ -114,6 +114,15 @@ describe("callouts", () => {
     );
   });
 
+  it("keeps indented code inside blockquotes as code", () => {
+    const editor = mount(">     [!note] Literal code\n>     Body");
+
+    expect(editor.view.contentDOM.querySelector(".inksane-callout-title")).toBeNull();
+    expect(editor.view.contentDOM.querySelector(".cm-line.inksane-callout")).toBeNull();
+    expect(editor.view.contentDOM.textContent).toContain("[!note] Literal code");
+    expect(editor.getMarkdown()).toBe(">     [!note] Literal code\n>     Body\n\nOutside");
+  });
+
   it("does not treat an inline marker as a callout", () => {
     const editor = mount("Text [!note] here");
 

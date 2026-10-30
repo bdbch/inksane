@@ -92,13 +92,12 @@ type CalloutInfo = {
 
 const titleCase = (value: string): string => value.charAt(0).toUpperCase() + value.slice(1);
 
-/** Reads a callout from the first line of a blockquote. */
+/** Reads the callout head child of a blockquote. */
 function readCallout(node: SyntaxNode, state: EditorState): CalloutInfo | null {
-  const line = state.doc.lineAt(node.from);
-  const source = state.doc.sliceString(node.from, line.to);
-  const quoteMark = /^>[ \t]*/.exec(source);
-  const markerFrom = node.from + (quoteMark?.[0].length ?? 0);
-  const match = CALLOUT_LINE.exec(source.slice(quoteMark?.[0].length ?? 0));
+  const head = node.getChild("CalloutHead");
+  if (!head) return null;
+
+  const match = CALLOUT_LINE.exec(state.doc.sliceString(head.from, head.to));
   if (!match) return null;
 
   const type = match[1].toLowerCase();
@@ -108,8 +107,8 @@ function readCallout(node: SyntaxNode, state: EditorState): CalloutInfo | null {
     type,
     style: CALLOUT_STYLES.get(type) ?? type,
     title,
-    markerFrom,
-    lineTo: line.to,
+    markerFrom: head.from,
+    lineTo: head.to,
   };
 }
 
