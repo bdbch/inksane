@@ -98,6 +98,22 @@ describe("callouts", () => {
     expect(editor.view.contentDOM.textContent).toContain("plain quote");
   });
 
+  it("recognizes a callout at the start of a nested blockquote", () => {
+    const editor = mount("> > [!note] Deep\n> > Body text");
+
+    expect(editor.view.contentDOM.querySelector(".inksane-callout-title")?.textContent).toBe(
+      "Deep",
+    );
+  });
+
+  it("recognizes a callout at the start of a blockquote inside a list", () => {
+    const editor = mount("- > [!note] Nested\n  > Body text");
+
+    expect(editor.view.contentDOM.querySelector(".inksane-callout-title")?.textContent).toBe(
+      "Nested",
+    );
+  });
+
   it("does not treat an inline marker as a callout", () => {
     const editor = mount("Text [!note] here");
 
@@ -133,6 +149,42 @@ describe("callouts", () => {
 
     expect(editor.state.selection.main.anchor).toBe(editor.content.indexOf("[!note]"));
     expect(editor.view.contentDOM.querySelector(".inksane-callout-title")).toBeNull();
+  });
+
+  it("uses the current marker position after edits above the callout", () => {
+    const editor = mount("Before\n\n> [!note] Read this\n> Body text");
+    expect(editor.content.indexOf("[!note]")).toBe(10);
+
+    editor.view.dispatch({ changes: { from: 0, insert: "0123456789abc\n\n" } });
+    expect(editor.content.indexOf("[!note]")).toBe(25);
+
+    editor.view.contentDOM
+      .querySelector(".inksane-callout-title")
+      ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    expect(editor.state.selection.main.anchor).toBe(25);
+  });
+
+  it("keeps shortcut reference links working", () => {
+    const editor = mount("[!note] is a link.\n\n[!note]: https://example.com", [
+      BlockquoteExtension,
+      CalloutExtension,
+      LinkExtension(),
+    ]);
+
+    expect(findNode(editor, "Link")).toBe(true);
+    expect(editor.getMarkdown()).toContain("[!note]: https://example.com");
+  });
+
+  it("keeps shortcut reference links inside later blockquote lines", () => {
+    const editor = mount("> Intro [!note]\n>\n> [!note]: https://example.com", [
+      BlockquoteExtension,
+      CalloutExtension,
+      LinkExtension(),
+    ]);
+
+    expect(findNode(editor, "Link")).toBe(true);
+    expect(editor.view.contentDOM.querySelector(".inksane-callout")).toBeNull();
   });
 
   it("does not parse the marker as a link", () => {

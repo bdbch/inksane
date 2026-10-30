@@ -33,7 +33,7 @@ const editor = new Editor({
 
 ## What it adds
 
-- Parses `[!type]` as a `CalloutMarker` node, so it is not treated as a link.
+- Consumes the callout head as a `CalloutHead` block, so `[!type]` is not treated as a link.
 - Adds `.inksane-callout` and `.inksane-callout--{type}` to every line in the callout.
 - Hides `[!type] title` and renders a `.inksane-callout-title` widget.
 - Shows the type's default title when the callout has no explicit title.
@@ -61,6 +61,12 @@ const editor = new Editor({
 
 Aliases share the style of their canonical type. Other types render as callouts with the type as
 their default title and a `.inksane-callout--{type}` class.
+
+## Links and references
+
+Callouts are only recognized inside blockquotes. A shortcut reference link such as `[!note]` in a
+normal paragraph keeps its link behavior, including a matching `[!note]: https://example.com`
+definition.
 
 ## Styling
 

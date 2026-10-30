@@ -1,7 +1,7 @@
 import type { EditorState } from "@codemirror/state";
-import type { WidgetType } from "@codemirror/view";
+import type { EditorView, WidgetType } from "@codemirror/view";
 import type { SyntaxNode } from "@lezer/common";
-import type { InlineParser, MarkdownConfig } from "@lezer/markdown";
+import type { BlockContext, BlockParser, MarkdownConfig } from "@lezer/markdown";
 import { escapeHtml } from "../helpers/escapeHtml.ts";
 import { htmlWidget } from "../helpers/htmlWidget.ts";
 import type { Extension, MarkupRange } from "../types/index.ts";
@@ -43,28 +43,37 @@ const CALLOUT_TITLES = new Map<string, string>([
   ["faq", "FAQ"],
 ]);
 
-/** ASCII code for `[`, so other characters skip the slice below. */
-const OPEN_BRACKET = "[".charCodeAt(0);
+/** A blockquote head like `[!note] Title`, without the quote marker. */
+const CALLOUT_LINE = /^\[!([A-Za-z][A-Za-z0-9-]*)\](?:[ \t]+(.*?))?[ \t]*$/;
 
-/** `[!type]`, but not when a link target or reference follows. */
-const CALLOUT_MARKER = /^\[![A-Za-z][A-Za-z0-9-]*\](?!\(|\[)/;
+/** Lezer keeps the open parent block private, but its start marks the blockquote head. */
+type BlockContextWithBlock = BlockContext & { block?: { from: number } };
 
-const calloutMarkerParser: InlineParser = {
-  name: "CalloutMarker",
-  before: "Link",
-  parse(cx, next, pos) {
-    if (next !== OPEN_BRACKET) return -1;
+/**
+ * Consumes a callout head as its own block so Lezer does not parse
+ * `[!note]` as a link. Normal links outside blockquotes stay untouched.
+ */
+const calloutHeadParser: BlockParser = {
+  name: "CalloutHead",
+  parse(cx, line) {
+    if (cx.parentType().name !== "Blockquote") return false;
 
-    const match = CALLOUT_MARKER.exec(cx.slice(pos, cx.end));
-    if (!match) return -1;
+    // Only the first line of the blockquote can start a callout.
+    const block = (cx as BlockContextWithBlock).block;
+    if (!block || block.from < cx.lineStart || block.from > cx.lineStart + line.pos) return false;
+    if (!CALLOUT_LINE.test(line.text.slice(line.pos))) return false;
 
-    return cx.addElement(cx.elt("CalloutMarker", pos, pos + match[0].length));
+    const from = cx.lineStart + line.pos;
+    const to = cx.lineStart + line.text.length;
+    cx.addElement(cx.elt("CalloutHead", from, to));
+    cx.nextLine();
+    return true;
   },
 };
 
 const calloutSyntax: MarkdownConfig = {
-  defineNodes: ["CalloutMarker"],
-  parseInline: [calloutMarkerParser],
+  defineNodes: [{ name: "CalloutHead", block: true }],
+  parseBlock: [calloutHeadParser],
 };
 
 type CalloutInfo = {
@@ -88,9 +97,7 @@ function readCallout(node: SyntaxNode, state: EditorState): CalloutInfo | null {
   const source = state.doc.sliceString(node.from, line.to);
   const quoteMark = /^>[ \t]*/.exec(source);
   const markerFrom = node.from + (quoteMark?.[0].length ?? 0);
-  const match = /^\[!([A-Za-z][A-Za-z0-9-]*)\](?:[ \t]+(.*?))?[ \t]*$/.exec(
-    source.slice(quoteMark?.[0].length ?? 0),
-  );
+  const match = CALLOUT_LINE.exec(source.slice(quoteMark?.[0].length ?? 0));
   if (!match) return null;
 
   const type = match[1].toLowerCase();
@@ -105,6 +112,21 @@ function readCallout(node: SyntaxNode, state: EditorState): CalloutInfo | null {
   };
 }
 
+/** Reads the current marker position from the reused widget's DOM position. */
+function markerFromWidget(view: EditorView, element: HTMLElement): number | null {
+  let pos: number;
+  try {
+    pos = view.posAtDOM(element);
+  } catch {
+    return null;
+  }
+
+  const line = view.state.doc.lineAt(pos);
+  const source = view.state.doc.sliceString(line.from, line.to);
+  const quoteMark = /^>[ \t]*/.exec(source);
+  return quoteMark ? line.from + quoteMark[0].length : null;
+}
+
 function createCalloutWidget(callout: CalloutInfo): WidgetType {
   const html = `<span class="inksane-callout-title inksane-callout-title--${callout.style}" data-callout-type="${escapeHtml(callout.type)}">${escapeHtml(callout.title)}</span>`;
 
@@ -113,8 +135,11 @@ function createCalloutWidget(callout: CalloutInfo): WidgetType {
     onRender: (element, view) => {
       element.addEventListener("mousedown", (event) => event.preventDefault());
       element.addEventListener("click", () => {
+        const markerFrom = markerFromWidget(view, element);
+        if (markerFrom === null) return;
+
         view.dispatch({
-          selection: { anchor: callout.markerFrom },
+          selection: { anchor: markerFrom },
           userEvent: "select.callout",
         });
         view.focus();
