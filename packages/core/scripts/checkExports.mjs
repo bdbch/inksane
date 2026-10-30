@@ -15,7 +15,7 @@ import { TaskListExtension } from "@inksane/core/extensions/task-list";
 const packageDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const pkg = JSON.parse(await readFile(join(packageDir, "package.json"), "utf8"));
 const subpaths = Object.keys(pkg.exports).filter((path) => path.startsWith("./extensions/"));
-assert.equal(subpaths.length, 18);
+assert.equal(subpaths.length, 21);
 for (const path of subpaths) {
   const extension = await import(`@inksane/core/${path.slice(2)}`);
   assert.ok(Object.keys(extension).length > 0, path);
@@ -61,6 +61,19 @@ const fixtures = [
   'import { Editor } from "@inksane/core";\nimport { FrontmatterExtension, getYaml } from "@inksane/core/extensions/frontmatter";\nimport type { FrontmatterData, FrontmatterValue } from "@inksane/core/extensions/frontmatter";\nconst editor = new Editor({ content: "---\\ntitle: Hi\\n---", extensions: [FrontmatterExtension] });\nconst yaml: FrontmatterData | null = getYaml(editor);\nconst value: FrontmatterValue | undefined = yaml?.title;\nvoid value;',
 ];
 const directory = await mkdtemp(join(tmpdir(), "inksane-exports-"));
+for (const [path, name] of [
+  ["highlight", "Highlight"],
+  ["subscript", "Subscript"],
+  ["superscript", "Superscript"],
+]) {
+  fixtures.push(`import { Editor } from "@inksane/core";
+import { ${name}Extension } from "@inksane/core/extensions/${path}";
+const editor = new Editor({ extensions: [${name}Extension] });
+editor.commands.toggle${name}();
+editor.chain().toggle${name}({ pos: 0 }).run();
+// @ts-expect-error This extension does not provide bold commands.
+editor.commands.toggleBold();`);
+}
 try {
   await mkdir(join(directory, "node_modules/@inksane"), { recursive: true });
   await symlink(packageDir, join(directory, "node_modules/@inksane/core"), "dir");
