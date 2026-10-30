@@ -18,6 +18,8 @@ import { ListExtension } from "./list.ts";
 import { PlaceholderExtension } from "./placeholder.ts";
 import { StrikethroughExtension } from "./strikethrough.ts";
 import { TaskListExtension } from "./taskList.ts";
+import { WikiLinkExtension } from "./wikiLink.ts";
+import type { WikiLinkOptions } from "./wikiLink.ts";
 
 // Kit imports must also load the command types declared by its children.
 import "./blockquote.ts";
@@ -31,6 +33,7 @@ import "./italic.ts";
 import "./list.ts";
 import "./strikethrough.ts";
 import "./taskList.ts";
+import "./wikiLink.ts";
 
 /** Standard editor features. All are enabled unless set to false. */
 export type BaseKitOptions = {
@@ -70,6 +73,8 @@ export type BaseKitOptions = {
   strikethrough?: boolean;
   /** Enable GFM task lists. */
   taskList?: boolean;
+  /** Enable `[[wiki links]]`, configure their target resolver, or disable them. */
+  wikiLink?: boolean | WikiLinkOptions;
 };
 
 /**
@@ -101,6 +106,10 @@ export function BaseKit(options: BaseKitOptions = {}): Extension {
         ["list", ListExtension],
         ["footnotes", FootnoteExtension],
         ["taskList", TaskListExtension],
+        [
+          "wikiLink",
+          WikiLinkExtension(typeof options.wikiLink === "object" ? options.wikiLink : {}),
+        ],
         ["keybinds", KeybindExtension],
         ["defaultKeymap", DefaultKeymapExtension],
       ];

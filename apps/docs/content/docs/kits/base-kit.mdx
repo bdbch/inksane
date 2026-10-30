@@ -36,10 +36,11 @@ React bindings accept the same `extensions: [BaseKit()]` option through `useInks
 
 ## Options
 
-All features are enabled by default. Set an option to `false` to disable it. The `link` and `code`
-options also accept a configuration object. `BaseKitOptions` is exported from
-`@inksane/core/extensions/base-kit`, `LinkOptions` from `@inksane/core/extensions/link`, and
-`CodeExtensionOptions` from `@inksane/core/extensions/code`.
+All features are enabled by default. Set an option to `false` to disable it. The `link`, `wikiLink`,
+and `code` options also accept a configuration object. `BaseKitOptions` is exported from
+`@inksane/core/extensions/base-kit`, `LinkOptions` from `@inksane/core/extensions/link`,
+`WikiLinkOptions` from `@inksane/core/extensions/wiki-link`, and `CodeExtensionOptions` from
+`@inksane/core/extensions/code`.
 
 | Option           | Type                              | Default | Feature                                                                             |
 | ---------------- | --------------------------------- | ------- | ----------------------------------------------------------------------------------- |
@@ -47,6 +48,7 @@ options also accept a configuration object. `BaseKitOptions` is exported from
 | `italic`         | `boolean`                         | `true`  | [Italic](/extensions/inline/italic)                                                 |
 | `strikethrough`  | `boolean`                         | `true`  | [Strikethrough](/extensions/inline/strikethrough)                                   |
 | `link`           | `boolean \| LinkOptions`          | `true`  | [Link](/extensions/inline/link)                                                     |
+| `wikiLink`       | `boolean \| WikiLinkOptions`      | `true`  | [Wiki links](/extensions/inline/wiki-link)                                          |
 | `image`          | `boolean`                         | `true`  | [Image](/extensions/inline/image)                                                   |
 | `code`           | `boolean \| CodeExtensionOptions` | `true`  | [Inline code, code blocks, and syntax highlighting](/extensions/inline/code)        |
 | `heading`        | `boolean`                         | `true`  | [Headings](/extensions/blocks/heading)                                              |
@@ -83,6 +85,32 @@ const editor = new Editor({
   ],
 });
 ```
+
+### Configure wiki links
+
+Pass a target resolver through the kit to make wiki links respond to Mod-click. The host decides
+what each target maps to.
+
+```ts
+import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [
+    BaseKit({
+      wikiLink: {
+        resolveTarget: (target) => {
+          window.location.href = `/notes/${encodeURIComponent(target)}`;
+        },
+      },
+    }),
+  ],
+});
+```
+
+Use `BaseKit({ wikiLink: false })` to turn wiki links off. See
+[Wiki links](/extensions/inline/wiki-link) for the syntax, commands, and styling.
 
 ### Placeholder and indentation
 

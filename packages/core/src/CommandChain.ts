@@ -29,12 +29,16 @@ type SpeculativeEditor = {
 };
 
 /** Builds the bound commands object from a registry. */
-export function createBoundCommands(editor: Editor, registry: CommandRegistry): SingleCommands {
+export function createBoundCommands(
+  editor: Editor,
+  registry: CommandRegistry,
+  isSpeculative = false,
+): SingleCommands {
   const bound: Record<string, (...args: unknown[]) => boolean> = {};
 
   for (const name of Object.keys(registry)) {
     bound[name] = (...args: unknown[]) => {
-      const chain = CommandChain.create(editor, registry);
+      const chain = CommandChain.create(editor, registry, isSpeculative);
       // Proxy forwards unknown keys to add(name, args), returns the chain.
       (chain as unknown as Record<string, (...args: unknown[]) => ChainedCommands>)[name](...args);
       return chain.run();
@@ -77,7 +81,7 @@ function createSpeculativeEditor(editor: Editor, registry: CommandRegistry): Edi
       return view;
     },
     get commands() {
-      return createBoundCommands(sandbox as unknown as Editor, registry);
+      return createBoundCommands(sandbox as unknown as Editor, registry, true);
     },
   };
 
@@ -103,7 +107,7 @@ export function canRunCommand(
   if (!editor.isMounted) return false;
 
   const sandbox = createSpeculativeEditor(editor, registry);
-  const commands = createBoundCommands(sandbox, registry) as Record<
+  const commands = createBoundCommands(sandbox, registry, true) as Record<
     string,
     (...args: unknown[]) => boolean
   >;
@@ -118,17 +122,19 @@ export function canRunCommand(
 export class CommandChain {
   private editor: Editor;
   private registry: CommandRegistry;
+  private isSpeculative: boolean;
   private steps: CommandStep[] = [];
   private done = false;
 
-  constructor(editor: Editor, registry: CommandRegistry) {
+  constructor(editor: Editor, registry: CommandRegistry, isSpeculative = false) {
     this.editor = editor;
     this.registry = registry;
+    this.isSpeculative = isSpeculative;
   }
 
   /** Wraps a chain in a proxy so any command name becomes a chainable method. */
-  static create(editor: Editor, registry: CommandRegistry): ChainedCommands {
-    const chain = new CommandChain(editor, registry);
+  static create(editor: Editor, registry: CommandRegistry, isSpeculative = false): ChainedCommands {
+    const chain = new CommandChain(editor, registry, isSpeculative);
     const proxy = new Proxy(chain, {
       get(target, prop: string) {
         if (prop in target || typeof prop !== "string") {
@@ -189,6 +195,7 @@ export class CommandChain {
         editor: this.editor,
         state: projected,
         view: this.editor.view,
+        isSpeculative: this.isSpeculative,
         dispatch: (spec: TransactionSpec) => {
           specs.push(spec);
           projected = projected.update(spec).state;

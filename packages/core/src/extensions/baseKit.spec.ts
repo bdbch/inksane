@@ -52,6 +52,7 @@ describe("BaseKit", () => {
           placeholder: false,
           strikethrough: false,
           taskList: false,
+          wikiLink: false,
         }),
       ],
     });
@@ -89,6 +90,30 @@ describe("BaseKit", () => {
       extensions: [BaseKit({ link: false }), LinkExtension({ onLinkRequest: () => null })],
     });
     expect(editor.commands).toHaveProperty("setLink");
+  });
+
+  it("renders wiki links through the kit", () => {
+    editor = new Editor({
+      element: document.createElement("div"),
+      content: "[[Note|Visible]]",
+      extensions: [BaseKit()],
+    });
+
+    expect(editor.view.dom.querySelector(".inksane-mark-wiki-link")).not.toBeNull();
+    expect(editor.view.dom.querySelector(".inksane-mark-link-open")).toBeNull();
+  });
+
+  it("configures wiki link resolution through kit options", () => {
+    const resolveTarget = vi.fn();
+    editor = new Editor({
+      element: document.createElement("div"),
+      content: "[[Note]]",
+      extensions: [BaseKit({ wikiLink: { resolveTarget } })],
+    });
+    editor.view.dispatch({ selection: { anchor: 3 } });
+
+    expect(editor.commands.openWikiLink()).toBe(true);
+    expect(resolveTarget).toHaveBeenCalledWith("Note");
   });
 
   it("registers only the selected feature without a kit", () => {

@@ -1,0 +1,72 @@
+---
+import Base from "../../../layouts/Base.astro";
+---
+
+<Base>
+    <div class="mb-4 flex items-center gap-2 flex-wrap">
+        <button data-action="insert">Insert wiki link</button>
+        <button data-action="open">Open link at cursor</button>
+        <button data-action="reset">Reset</button>
+    </div>
+    <p id="status" class="mb-4 text-sm text-foreground-muted"></p>
+    <div id="editor-mount" class="border"></div>
+</Base>
+
+<script>
+    import { Editor } from "@inksane/core";
+    import { BaseKit } from "@inksane/core/extensions/base-kit";
+    import { EditorView } from "@codemirror/view";
+
+    const content = `Wiki links connect notes without URLs.
+
+Read [[Design notes]] for the outline. The labeled form [[meeting-notes|meeting notes]] keeps the source target out of the way.
+
+Move the cursor into a link to reveal the source. Use Ctrl-click or Cmd-click to activate it.
+`;
+
+    const status = document.getElementById("status")!;
+
+    const theme = EditorView.theme({
+        ".cm-content": { paddingTop: "24px", paddingBottom: "24px" },
+        ".cm-line": { paddingLeft: "24px", paddingRight: "24px" },
+    });
+
+    const editor = new Editor({
+        element: document.getElementById("editor-mount")!,
+        content,
+        extensions: [
+            BaseKit({
+                wikiLink: {
+                    resolveTarget: (target) => {
+                        status.textContent = `Resolved target: ${target}`;
+                    },
+                },
+            }),
+        ],
+        theme,
+    });
+
+    document.querySelectorAll("button[data-action]").forEach((button) => {
+        const action = (button as HTMLButtonElement).dataset.action;
+
+        button.addEventListener("click", () => {
+            switch (action) {
+                case "insert":
+                    editor.chain().insertWikiLink({ target: "new-note" }).focus().run();
+                    break;
+                case "open":
+                    status.textContent = editor.commands.openWikiLink()
+                        ? "Resolved the link at the cursor."
+                        : "No wiki link at the cursor.";
+                    break;
+                case "reset":
+                    editor.setMarkdown(content);
+                    status.textContent = "";
+                    break;
+            }
+        });
+    });
+
+    // @ts-expect-error expose the editor for manual testing
+    window.editor = editor;
+</script>

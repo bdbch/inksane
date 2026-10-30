@@ -86,6 +86,11 @@
     @apply underline;
   }
 
+  .inksane-mark-wiki-link {
+    color: var(--color-indigo-600);
+    cursor: pointer;
+  }
+
   .inksane-mark-link-open {
     display: inline-block;
     margin-left: 4px;

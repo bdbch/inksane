@@ -64,6 +64,7 @@
     "./extensions/subscript": "./dist/extensions/subscript.mjs",
     "./extensions/superscript": "./dist/extensions/superscript.mjs",
     "./extensions/task-list": "./dist/extensions/task-list.mjs",
+    "./extensions/wiki-link": "./dist/extensions/wiki-link.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {

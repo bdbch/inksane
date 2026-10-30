@@ -24,6 +24,7 @@ export default defineConfig({
       "extensions/footnotes": "src/extensions/footnotes.ts",
       "extensions/frontmatter": "src/extensions/frontmatter.ts",
       "extensions/task-list": "src/extensions/taskList.ts",
+      "extensions/wiki-link": "src/extensions/wikiLink.ts",
       "extensions/keybinds": "src/extensions/keybinds.ts",
       "extensions/history": "src/extensions/history.ts",
     },

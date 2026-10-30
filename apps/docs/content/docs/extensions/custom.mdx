@@ -124,12 +124,13 @@ and inksane logs a warning. The colliding command from the lower-priority extens
 
 The command context contains:
 
-| Field      | Description                                                                             |
-| ---------- | --------------------------------------------------------------------------------------- |
-| `editor`   | The editor instance.                                                                    |
-| `state`    | The current editor state.                                                               |
-| `view`     | The CodeMirror view.                                                                    |
-| `dispatch` | Applies a transaction. Use this instead of `view.dispatch` so a chain stays one update. |
+| Field           | Description                                                                             |
+| --------------- | --------------------------------------------------------------------------------------- |
+| `editor`        | The editor instance.                                                                    |
+| `state`         | The current editor state.                                                               |
+| `view`          | The CodeMirror view.                                                                    |
+| `isSpeculative` | True during `canRun()`. Skip navigation, dialogs, and other external side effects.      |
+| `dispatch`      | Applies a transaction. Use this instead of `view.dispatch` so a chain stays one update. |
 
 In a chain, `state` is projected to include the changes made by earlier commands in that chain.
 

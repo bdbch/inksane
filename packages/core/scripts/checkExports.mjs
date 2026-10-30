@@ -12,11 +12,12 @@ import { FootnoteExtension } from "@inksane/core/extensions/footnotes";
 import { FrontmatterExtension } from "@inksane/core/extensions/frontmatter";
 import { StrikethroughExtension } from "@inksane/core/extensions/strikethrough";
 import { TaskListExtension } from "@inksane/core/extensions/task-list";
+import { WikiLinkExtension } from "@inksane/core/extensions/wiki-link";
 
 const packageDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const pkg = JSON.parse(await readFile(join(packageDir, "package.json"), "utf8"));
 const subpaths = Object.keys(pkg.exports).filter((path) => path.startsWith("./extensions/"));
-assert.equal(subpaths.length, 22);
+assert.equal(subpaths.length, 23);
 for (const path of subpaths) {
   const extension = await import(`@inksane/core/${path.slice(2)}`);
   assert.ok(Object.keys(extension).length > 0, path);
@@ -30,6 +31,7 @@ for (const [extensions, commands] of [
   [[FrontmatterExtension], ["insertContent"]],
   [[StrikethroughExtension], ["setStrikethrough", "removeStrikethrough", "toggleStrikethrough"]],
   [[TaskListExtension], ["insertTaskList", "removeTaskList", "toggleTaskList"]],
+  [[WikiLinkExtension()], ["insertWikiLink", "openWikiLink"]],
   [
     [BaseKit()],
     [
@@ -39,6 +41,7 @@ for (const [extensions, commands] of [
       "toggleStrikethrough",
       "toggleTaskList",
       "setLink",
+      "insertWikiLink",
     ],
   ],
 ]) {
@@ -55,6 +58,7 @@ for (const [extensions, commands] of [
 const fixtures = [
   'import { Editor } from "@inksane/core";\nimport { TaskListExtension } from "@inksane/core/extensions/task-list";\nconst editor = new Editor({ extensions: [TaskListExtension] });\neditor.commands.insertTaskList();\neditor.commands.removeTaskList({ pos: 0 });\neditor.chain().toggleTaskList().run();\n// @ts-expect-error TaskList does not provide bold commands.\neditor.commands.toggleBold();',
   'import { Editor } from "@inksane/core";\nimport { FootnoteExtension } from "@inksane/core/extensions/footnotes";\nconst editor = new Editor({ extensions: [FootnoteExtension] });\n// @ts-expect-error Footnotes does not provide bold commands.\neditor.commands.toggleBold();',
+  'import { Editor } from "@inksane/core";\nimport { WikiLinkExtension, type WikiLinkOptions } from "@inksane/core/extensions/wiki-link";\nconst options: WikiLinkOptions = { resolveTarget: (target) => console.log(target) };\nconst editor = new Editor({ extensions: [WikiLinkExtension(options)] });\neditor.commands.insertWikiLink({ target: "Note", label: "My note" });\neditor.commands.openWikiLink({ pos: 0 });\n// @ts-expect-error Wiki links do not provide bold commands.\neditor.commands.toggleBold();',
   'import { Editor } from "@inksane/core";\nimport { StrikethroughExtension } from "@inksane/core/extensions/strikethrough";\nconst editor = new Editor({ extensions: [StrikethroughExtension] });\neditor.commands.setStrikethrough();\neditor.commands.removeStrikethrough({ pos: 0 });\neditor.chain().toggleStrikethrough().run();\n// @ts-expect-error Strikethrough does not provide bold commands.\neditor.commands.toggleBold();',
   'import { Editor } from "@inksane/core";\nconst editor = new Editor({});\neditor.commands.insertContent({ content: "text", from: 0 });\n// @ts-expect-error Bold requires an extension import.\neditor.commands.toggleBold();',
   'import { Editor } from "@inksane/core";\nimport { BoldExtension } from "@inksane/core/extensions/bold";\nconst editor = new Editor({ extensions: [BoldExtension] });\neditor.commands.toggleBold();\n// @ts-expect-error Bold does not provide italic commands.\neditor.commands.toggleItalic();',

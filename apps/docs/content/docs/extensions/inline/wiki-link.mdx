@@ -1,0 +1,124 @@
+---
+title: Wiki links
+description: "The wiki link extension: [[target]], [[target|label]], commands, and target resolution."
+---
+
+The `wikiLink` extension parses Obsidian-style wiki links. It renders `[[target]]` and
+`[[target|label]]` as editable text with a distinct class, without treating them as URLs.
+
+`WikiLinkExtension` is a factory, so call it when registering the extension.
+
+## Setup
+
+Import the factory from the wiki link subpath and pass its result through `extensions`:
+
+```ts
+import { Editor } from "@inksane/core";
+import { WikiLinkExtension } from "@inksane/core/extensions/wiki-link";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  content: "See [[Design notes]] and [[meeting-notes|the meeting notes]].",
+  extensions: [
+    WikiLinkExtension({
+      resolveTarget: (target) => {
+        window.location.href = `/notes/${encodeURIComponent(target)}`;
+      },
+    }),
+  ],
+});
+```
+
+The element with the ID `editor` must already exist. Call `WikiLinkExtension()` without options if
+you only need parsing, rendering, and commands.
+
+### With BaseKit
+
+[BaseKit](/kits/base-kit) already includes wiki links. Configure them through the kit's `wikiLink`
+option instead of adding a second wiki link extension:
+
+```ts
+import { Editor } from "@inksane/core";
+import { BaseKit } from "@inksane/core/extensions/base-kit";
+
+const editor = new Editor({
+  element: document.getElementById("editor")!,
+  extensions: [
+    BaseKit({
+      wikiLink: {
+        resolveTarget: (target) => console.log("Open", target),
+      },
+    }),
+  ],
+});
+```
+
+Use `BaseKit({ wikiLink: false })` to disable wiki links or before registering a separate
+replacement. `WikiLinkOptions` is exported from `@inksane/core/extensions/wiki-link`.
+
+## Syntax
+
+| Source                | Rendered while the selection is outside |
+| --------------------- | --------------------------------------- |
+| `[[target]]`          | `target`                                |
+| `[[target\|label]]`   | `label`                                 |
+| `[[target\|My note]]` | `My note`                               |
+
+The brackets, the target, and the pipe are hidden while the selection is outside the link. Moving
+the selection into the link reveals the source text again. The document keeps the original syntax.
+
+Targets cannot contain brackets, newlines, or a pipe. Labels cannot contain brackets or newlines.
+Malformed input stays literal text.
+
+## Options
+
+| Option          | Type                       | Description                                                                 |
+| --------------- | -------------------------- | --------------------------------------------------------------------------- |
+| `resolveTarget` | `(target: string) => void` | Called when a wiki link is activated. The host decides what a target means. |
+
+A rendered wiki link is activated with **Mod-click** (Ctrl-click or Cmd-click). Plain clicks keep
+their normal editing behavior and place the caret. Without `resolveTarget`, links render and edit
+but do nothing when activated.
+
+The handler can route to a note, open a file, or show a create-note dialog for a missing target.
+Only the host knows how targets map to documents, so the extension does not assume a URL format.
+
+`editor.canRun("openWikiLink")` checks whether the command can run without calling `resolveTarget`,
+so toolbar availability checks cannot trigger navigation.
+
+## Commands
+
+| Command                                    | Description                                                                                                                                              |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `insertWikiLink({ target, label?, pos? })` | Inserts a wiki link. Selected text becomes the label when `label` is omitted. Returns `false` for an empty or invalid target or label.                   |
+| `openWikiLink({ target?, pos? })`          | Passes the wiki link target at the range to `resolveTarget`. When `target` is given, it resolves that value instead. Returns `false` without a resolver. |
+
+```js
+editor.chain().insertWikiLink({ target: "Design notes" }).focus().run();
+
+editor.commands.insertWikiLink({
+  target: "meeting-notes",
+  label: "Meeting notes",
+});
+
+editor.commands.openWikiLink();
+```
+
+## State query
+
+Use `editor.isActive("wikiLink")` when the selection is inside a wiki link. The query is reported
+under the name `wikiLink`.
+
+## Styling
+
+```css
+[data-inksane-editor-content] {
+  .inksane-mark-wiki-link {
+    color: #4f46e5;
+    cursor: pointer;
+  }
+}
+```
+
+The class is applied while the link is rendered and while its source is revealed, so the link keeps
+its identity in both states.

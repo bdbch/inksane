@@ -25,6 +25,11 @@ export interface CommandContext {
   state: EditorState;
   view: EditorView;
   dispatch: (spec: TransactionSpec) => void;
+  /**
+   * True while the command runs as a `canRun()` availability check. Commands
+   * with external side effects, such as navigation or dialogs, must skip them.
+   */
+  isSpeculative: boolean;
 }
 
 /** Curried impl: ctx applied at construction, args at call time. Returns false to skip. */
