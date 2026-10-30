@@ -1,4 +1,5 @@
 import type { Extension as CMExtension } from "@codemirror/state";
+import { LanguageDescription } from "@codemirror/language";
 import { keymap } from "@codemirror/view";
 import { markdown } from "@codemirror/lang-markdown";
 import type { MarkdownExtension } from "@lezer/markdown";
@@ -34,6 +35,9 @@ export class ExtensionManager {
   /** Stores Markdown parser additions from configured extensions. */
   private _markdownSyntax: MarkdownExtension[] = [];
 
+  /** Stores languages that can parse fenced code blocks. */
+  private _markdownCodeLanguages: LanguageDescription[] = [];
+
   /** Stores syntax-tree decorations declared by configured extensions. */
   private _markdownDecorations: MarkdownDecorationConfig[] = [];
 
@@ -67,6 +71,9 @@ export class ExtensionManager {
     for (const ext of sortedExtensions) {
       this.bindEvents(ext);
       if (ext.addMarkdownSyntax) this.bindMarkdownSyntax(ext.addMarkdownSyntax);
+      if (ext.addMarkdownCodeLanguages) {
+        this.bindMarkdownCodeLanguages(ext.addMarkdownCodeLanguages);
+      }
       if (ext.addMarkdownDecorations) this.bindMarkdownDecorations(ext.addMarkdownDecorations);
       if (ext.addStateQueries) this.bindStateQueries(ext.addStateQueries);
       if (ext.addHtmlConverters) this.bindHtmlConverters(ext.addHtmlConverters);
@@ -87,7 +94,13 @@ export class ExtensionManager {
       editorFocusExtension,
       // Extensions own editing shortcuts. The language keymap would override
       // their Enter and Backspace bindings with Markdown continuation.
-      markdown({ extensions: this._markdownSyntax, addKeymap: false }),
+      markdown({
+        extensions: this._markdownSyntax,
+        // Exact aliases keep "jsonc" from matching "json" by fuzzy substring.
+        codeLanguages: (info) =>
+          LanguageDescription.matchLanguageName(this._markdownCodeLanguages, info, false),
+        addKeymap: false,
+      }),
       createMarkdownDecorations(this._markdownDecorations),
       htmlPasteHandler(this._htmlConverters),
       ...this._keybindings,
@@ -182,6 +195,14 @@ export class ExtensionManager {
   private bindMarkdownSyntax(addMarkdownSyntax: NonNullable<Extension["addMarkdownSyntax"]>) {
     const syntax = addMarkdownSyntax({ editor: this.editor }) ?? [];
     this._markdownSyntax.push(...syntax);
+  }
+
+  /** Collects lazy language descriptions for fenced code blocks. */
+  private bindMarkdownCodeLanguages(
+    addMarkdownCodeLanguages: NonNullable<Extension["addMarkdownCodeLanguages"]>,
+  ) {
+    const languages = addMarkdownCodeLanguages({ editor: this.editor }) ?? [];
+    this._markdownCodeLanguages.push(...languages);
   }
 
   /** Collects syntax-tree decoration rules for the shared Markdown decoration plugin. */

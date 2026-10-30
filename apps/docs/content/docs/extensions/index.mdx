@@ -24,7 +24,7 @@ See the [BaseKit reference](/kits/base-kit) for setup, options, and replacing a 
 ## Individual imports
 
 Import only the extensions you want and pass them through `extensions`. Most feature extensions
-are objects. `LinkExtension` and `BaseKit` are factories:
+are objects. `CodeExtension`, `LinkExtension`, and `BaseKit` are factories:
 
 ```ts
 import { Editor } from "@inksane/core";
@@ -107,6 +107,7 @@ React bindings also accept this option.
 | --------------------------------------------------- | -------------------------------------------------------------- |
 | Automatic feature extensions                        | Register `BaseKit()` or individual extensions.                 |
 | `LinkExtension` imported from `@inksane/core`       | Import it from `@inksane/core/extensions/link`.                |
+| `CodeExtension` used as an object                   | Call the factory: `CodeExtension()`.                           |
 | `placeholderTheme` imported from `@inksane/core`    | Import it from `@inksane/core/extensions/placeholder`.         |
 | Editor option `defaultKeymap: false`                | Pass `BaseKit({ defaultKeymap: false })` through `extensions`. |
 | A configured extension replaces the default by name | Disable the kit feature before adding its replacement.         |

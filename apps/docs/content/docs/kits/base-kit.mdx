@@ -36,29 +36,30 @@ React bindings accept the same `extensions: [BaseKit()]` option through `useInks
 
 ## Options
 
-All features are enabled by default. Set an option to `false` to disable it. The `link` option also
-accepts a configuration object. `BaseKitOptions` is exported from
-`@inksane/core/extensions/base-kit`, and `LinkOptions` from `@inksane/core/extensions/link`.
+All features are enabled by default. Set an option to `false` to disable it. The `link` and `code`
+options also accept a configuration object. `BaseKitOptions` is exported from
+`@inksane/core/extensions/base-kit`, `LinkOptions` from `@inksane/core/extensions/link`, and
+`CodeExtensionOptions` from `@inksane/core/extensions/code`.
 
-| Option           | Type                     | Default | Feature                                                                             |
-| ---------------- | ------------------------ | ------- | ----------------------------------------------------------------------------------- |
-| `bold`           | `boolean`                | `true`  | [Bold](/extensions/inline/bold)                                                     |
-| `italic`         | `boolean`                | `true`  | [Italic](/extensions/inline/italic)                                                 |
-| `strikethrough`  | `boolean`                | `true`  | [Strikethrough](/extensions/inline/strikethrough)                                   |
-| `link`           | `boolean \| LinkOptions` | `true`  | [Link](/extensions/inline/link)                                                     |
-| `image`          | `boolean`                | `true`  | [Image](/extensions/inline/image)                                                   |
-| `code`           | `boolean`                | `true`  | [Inline code and code blocks](/extensions/inline/code)                              |
-| `heading`        | `boolean`                | `true`  | [Headings](/extensions/blocks/heading)                                              |
-| `list`           | `boolean`                | `true`  | [Bullet and ordered lists](/extensions/blocks/list)                                 |
-| `taskList`       | `boolean`                | `true`  | [Task lists](/extensions/blocks/task-list)                                          |
-| `footnotes`      | `boolean`                | `true`  | [Footnotes](/extensions/blocks/footnotes)                                           |
-| `blockquote`     | `boolean`                | `true`  | [Blockquotes](/extensions/blocks/blockquote)                                        |
-| `horizontalRule` | `boolean`                | `true`  | [Horizontal rules](/extensions/blocks/horizontal-rule)                              |
-| `html`           | `boolean`                | `true`  | [HTML rendering](/extensions/blocks/html)                                           |
-| `history`        | `boolean`                | `true`  | [Undo and redo](/extensions/features/history)                                       |
-| `keybinds`       | `boolean`                | `true`  | [Tab indentation](/extensions/features/keybindings#indentation)                     |
-| `defaultKeymap`  | `boolean`                | `true`  | [Editing and search shortcuts](/extensions/features/keybindings#the-default-keymap) |
-| `placeholder`    | `boolean`                | `true`  | [Placeholder support](/extensions/features/placeholder)                             |
+| Option           | Type                              | Default | Feature                                                                             |
+| ---------------- | --------------------------------- | ------- | ----------------------------------------------------------------------------------- |
+| `bold`           | `boolean`                         | `true`  | [Bold](/extensions/inline/bold)                                                     |
+| `italic`         | `boolean`                         | `true`  | [Italic](/extensions/inline/italic)                                                 |
+| `strikethrough`  | `boolean`                         | `true`  | [Strikethrough](/extensions/inline/strikethrough)                                   |
+| `link`           | `boolean \| LinkOptions`          | `true`  | [Link](/extensions/inline/link)                                                     |
+| `image`          | `boolean`                         | `true`  | [Image](/extensions/inline/image)                                                   |
+| `code`           | `boolean \| CodeExtensionOptions` | `true`  | [Inline code, code blocks, and syntax highlighting](/extensions/inline/code)        |
+| `heading`        | `boolean`                         | `true`  | [Headings](/extensions/blocks/heading)                                              |
+| `list`           | `boolean`                         | `true`  | [Bullet and ordered lists](/extensions/blocks/list)                                 |
+| `taskList`       | `boolean`                         | `true`  | [Task lists](/extensions/blocks/task-list)                                          |
+| `footnotes`      | `boolean`                         | `true`  | [Footnotes](/extensions/blocks/footnotes)                                           |
+| `blockquote`     | `boolean`                         | `true`  | [Blockquotes](/extensions/blocks/blockquote)                                        |
+| `horizontalRule` | `boolean`                         | `true`  | [Horizontal rules](/extensions/blocks/horizontal-rule)                              |
+| `html`           | `boolean`                         | `true`  | [HTML rendering](/extensions/blocks/html)                                           |
+| `history`        | `boolean`                         | `true`  | [Undo and redo](/extensions/features/history)                                       |
+| `keybinds`       | `boolean`                         | `true`  | [Tab indentation](/extensions/features/keybindings#indentation)                     |
+| `defaultKeymap`  | `boolean`                         | `true`  | [Editing and search shortcuts](/extensions/features/keybindings#the-default-keymap) |
+| `placeholder`    | `boolean`                         | `true`  | [Placeholder support](/extensions/features/placeholder)                             |
 
 ### Configure links
 

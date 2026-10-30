@@ -55,6 +55,7 @@ const fixtures = [
   'import { Editor } from "@inksane/core";\nconst editor = new Editor({});\neditor.commands.insertContent({ content: "text", from: 0 });\n// @ts-expect-error Bold requires an extension import.\neditor.commands.toggleBold();',
   'import { Editor } from "@inksane/core";\nimport { BoldExtension } from "@inksane/core/extensions/bold";\nconst editor = new Editor({ extensions: [BoldExtension] });\neditor.commands.toggleBold();\n// @ts-expect-error Bold does not provide italic commands.\neditor.commands.toggleItalic();',
   'import { Editor } from "@inksane/core";\nimport { BaseKit } from "@inksane/core/extensions/base-kit";\nconst editor = new Editor({ extensions: [BaseKit({ link: { onLinkRequest: () => null } })] });\neditor.commands.insertHeading({ level: 1 });\neditor.commands.insertHorizontalRule();\neditor.chain().toggleBold().toggleItalic().run();',
+  'import { Editor } from "@inksane/core";\nimport { CodeExtension, codeHighlightStyle, defaultCodeLanguages } from "@inksane/core/extensions/code";\nconst editor = new Editor({ extensions: [CodeExtension({ languages: defaultCodeLanguages, highlightStyle: codeHighlightStyle })] });\neditor.commands.toggleCodeBlock();\neditor.chain().insertCodeBlock({ lang: "ts" }).run();',
 ];
 const directory = await mkdtemp(join(tmpdir(), "inksane-exports-"));
 try {

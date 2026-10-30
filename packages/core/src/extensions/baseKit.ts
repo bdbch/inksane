@@ -2,6 +2,7 @@ import type { Extension } from "../types/extensions.ts";
 import { BlockquoteExtension } from "./blockquote.ts";
 import { BoldExtension } from "./bold.ts";
 import { CodeExtension } from "./code.ts";
+import type { CodeExtensionOptions } from "./code.ts";
 import { FootnoteExtension } from "./footnotes.ts";
 import { HeadingExtension } from "./heading.ts";
 import { HistoryExtension } from "./history.ts";
@@ -35,8 +36,8 @@ export type BaseKitOptions = {
   blockquote?: boolean;
   /** Enable bold text. */
   bold?: boolean;
-  /** Enable inline code and code blocks. */
-  code?: boolean;
+  /** Enable inline code and code blocks, or configure their languages and highlighting. */
+  code?: boolean | CodeExtensionOptions;
   /** Enable standard editing and search shortcuts. */
   defaultKeymap?: boolean;
   /** Enable footnote references and definitions. */
@@ -90,7 +91,7 @@ export function BaseKit(options: BaseKitOptions = {}): Extension {
         ["horizontalRule", HorizontalRuleExtension],
         ["html", HtmlExtension],
         ["image", ImageExtension],
-        ["code", CodeExtension],
+        ["code", CodeExtension(typeof options.code === "object" ? options.code : {})],
         ["blockquote", BlockquoteExtension],
         ["list", ListExtension],
         ["footnotes", FootnoteExtension],

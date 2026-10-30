@@ -1,4 +1,5 @@
 import type { Extension as CMExtension, EditorState } from "@codemirror/state";
+import type { LanguageDescription } from "@codemirror/language";
 import type { KeyBinding, WidgetType } from "@codemirror/view";
 import type { MarkdownExtension } from "@lezer/markdown";
 import type { SyntaxNode } from "@lezer/common";
@@ -125,6 +126,11 @@ export type Extension = ExtensionEventHandlers & {
   priority?: number;
 
   addMarkdownSyntax?: (ctx: EditorContext) => MarkdownExtension[];
+  /**
+   * Language descriptions available to fenced code blocks. Their parsers
+   * load on demand. Descriptions are matched against the fence info string.
+   */
+  addMarkdownCodeLanguages?: (ctx: EditorContext) => readonly LanguageDescription[];
   addMarkdownDecorations?: (ctx: EditorContext) => MarkdownDecorationConfig[];
   addStateQueries?: (ctx: EditorContext) => StateQueryConfig[];
   addHtmlConverters?: (ctx: EditorContext) => HtmlConverter[];

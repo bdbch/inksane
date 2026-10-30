@@ -24,6 +24,9 @@ export const MyExtension: Extension = {
   addMarkdownSyntax({ editor }) {
     return [];
   },
+  addMarkdownCodeLanguages({ editor }) {
+    return [];
+  },
   addMarkdownDecorations({ editor }) {
     return [];
   },
@@ -47,16 +50,17 @@ export const MyExtension: Extension = {
 
 ## Hooks
 
-| Hook                      | Returns                     | Purpose                                                  |
-| ------------------------- | --------------------------- | -------------------------------------------------------- |
-| `addExtensions`           | `Extension[]`               | Child extensions, resolved recursively.                  |
-| `addCommands`             | command implementations     | Register commands by name.                               |
-| `addKeybinds`             | CodeMirror `KeyBinding[]`   | Bind keys.                                               |
-| `addCodeMirrorExtensions` | CodeMirror `Extension[]`    | Add CodeMirror features that do not fit the other hooks. |
-| `addMarkdownSyntax`       | Lezer `MarkdownExtension[]` | Teach the Markdown parser new syntax.                    |
-| `addMarkdownDecorations`  | decoration configs          | Style or replace parsed nodes.                           |
-| `addStateQueries`         | state query configs         | Name the nodes that make a feature active.               |
-| `addHtmlConverters`       | `HtmlConverter[]`           | Turn pasted HTML into Markdown.                          |
+| Hook                       | Returns                            | Purpose                                                  |
+| -------------------------- | ---------------------------------- | -------------------------------------------------------- |
+| `addExtensions`            | `Extension[]`                      | Child extensions, resolved recursively.                  |
+| `addCommands`              | command implementations            | Register commands by name.                               |
+| `addKeybinds`              | CodeMirror `KeyBinding[]`          | Bind keys.                                               |
+| `addCodeMirrorExtensions`  | CodeMirror `Extension[]`           | Add CodeMirror features that do not fit the other hooks. |
+| `addMarkdownSyntax`        | Lezer `MarkdownExtension[]`        | Teach the Markdown parser new syntax.                    |
+| `addMarkdownCodeLanguages` | CodeMirror `LanguageDescription[]` | Add languages for fenced code blocks.                    |
+| `addMarkdownDecorations`   | decoration configs                 | Style or replace parsed nodes.                           |
+| `addStateQueries`          | state query configs                | Name the nodes that make a feature active.               |
+| `addHtmlConverters`        | `HtmlConverter[]`                  | Turn pasted HTML into Markdown.                          |
 
 ## Compose with child extensions
 
@@ -179,6 +183,32 @@ addMarkdownSyntax(): MarkdownExtension[] {
 ```
 
 The node names your parser produces are what `addMarkdownDecorations` looks up.
+
+## Fenced code languages
+
+`addMarkdownCodeLanguages` returns CodeMirror `LanguageDescription` values. The Markdown parser
+matches them against each fence info string and loads the parser on demand.
+
+```ts
+import { LanguageDescription, LanguageSupport, StreamLanguage } from "@codemirror/language";
+
+addMarkdownCodeLanguages() {
+  return [
+    LanguageDescription.of({
+      name: "Kotlin",
+      alias: ["kotlin", "kt", "kts"],
+      load: () =>
+        import("@codemirror/legacy-modes/mode/clike").then((module) =>
+          new LanguageSupport(StreamLanguage.define(module.kotlin)),
+        ),
+    }),
+  ];
+}
+```
+
+The descriptions from all extensions are combined. See
+[Code syntax highlighting](/extensions/inline/code#syntax-highlighting) for the built-in list and
+custom language options.
 
 ## Decorations
 
