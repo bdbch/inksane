@@ -1,7 +1,7 @@
 import type { EditorState } from "@codemirror/state";
 import type { EditorView, WidgetType } from "@codemirror/view";
 import type { Input, SyntaxNode } from "@lezer/common";
-import type { BlockContext, BlockParser, MarkdownConfig } from "@lezer/markdown";
+import type { BlockContext, BlockParser, MarkdownConfig, MarkdownParser } from "@lezer/markdown";
 import type { Editor } from "../Editor.ts";
 import { findFrontmatter, isFrontmatterOpening, parseFrontmatter } from "../helpers/frontmatter.ts";
 import type { FrontmatterData } from "../helpers/frontmatter.ts";
@@ -14,7 +14,18 @@ export type { FrontmatterData, FrontmatterValue } from "../helpers/frontmatter.t
 /** Lezer keeps the parse input private, but the closing fence must be found before lines are consumed. */
 type LookaheadContext = BlockContext & { input?: Input };
 
-/** Reads the parsed YAML values from a document's leading frontmatter block. */
+/**
+ * Reads the parsed YAML values from a document's leading frontmatter block.
+ *
+ * @param editor - The editor whose current Markdown document to read.
+ * @returns The parsed values, an empty object for an empty block, or null when
+ * frontmatter is absent or the YAML is invalid.
+ * @example
+ * ```ts
+ * const properties = getYaml(editor);
+ * console.log(properties?.title);
+ * ```
+ */
 export function getYaml(editor: Editor): FrontmatterData | null {
   return parseFrontmatter(editor.content).data;
 }
@@ -53,10 +64,33 @@ const frontmatterParser: BlockParser = {
   },
 };
 
-const frontmatterSyntax: MarkdownConfig = {
-  defineNodes: [{ name: "Frontmatter", block: true }, "FrontmatterMark", "FrontmatterContent"],
-  parseBlock: [frontmatterParser],
-};
+function createFrontmatterSyntax(): MarkdownConfig {
+  let parser: MarkdownParser | undefined;
+  return {
+    defineNodes: [{ name: "Frontmatter", block: true }, "FrontmatterMark", "FrontmatterContent"],
+    parseBlock: [
+      {
+        ...frontmatterParser,
+        parse(cx, line) {
+          parser = cx.parser;
+          return frontmatterParser.parse!(cx, line);
+        },
+      },
+    ],
+    wrap(inner, input, fragments, ranges) {
+      const leading = fragments.find((fragment) => fragment.from === 0 && fragment.offset === 0);
+      if (!leading || !parser) return inner;
+
+      const previous = leading.tree.topNode.firstChild;
+      const range = findFrontmatter(input.read(0, input.length));
+      const previousEnd = previous?.name === "Frontmatter" ? previous.to : null;
+      if (previousEnd === (range?.to ?? null)) return inner;
+
+      // A distant fence edit can change the opening block outside the fragment gap.
+      return parser.createParse(input, [], ranges);
+    },
+  };
+}
 
 /** Opens the block for editing, landing on a YAML line instead of a fence. */
 function editFrontmatter(view: EditorView): void {
@@ -136,12 +170,27 @@ function createFrontmatterWidget(node: SyntaxNode, state: EditorState): WidgetTy
   });
 }
 
-/** Recognizes leading YAML frontmatter and renders it as a properties table. */
+/**
+ * Recognizes leading YAML frontmatter and renders it as a properties table.
+ * Add this extension to the editor's `extensions` option. It takes no options.
+ * The table reveals the YAML source when the cursor enters the block.
+ * Use {@link getYaml} to read the parsed values.
+ *
+ * @example
+ * ```ts
+ * const editor = new Editor({
+ *   content: "---\ntitle: Notes\n---\n\nBody",
+ *   extensions: [FrontmatterExtension],
+ * });
+ * const properties = getYaml(editor);
+ * ```
+ * @see https://github.com/bdbch/inksane/blob/main/apps/docs/content/docs/extensions/blocks/frontmatter.mdx
+ */
 export const FrontmatterExtension: Extension = {
   name: "frontmatter",
 
   addMarkdownSyntax() {
-    return [frontmatterSyntax];
+    return [createFrontmatterSyntax()];
   },
 
   addMarkdownDecorations() {

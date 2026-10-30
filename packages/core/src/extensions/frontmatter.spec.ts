@@ -56,6 +56,22 @@ describe("frontmatter", () => {
     expect(countNodes("HorizontalRule")).toBe(1);
   });
 
+  it("reparses the opening block when a distant closing fence is added or removed", () => {
+    const content = `---\n${"title: Release notes\n\n".repeat(100)}`;
+    mount(content);
+    expect(countNodes("HorizontalRule")).toBe(1);
+
+    editor.view.dispatch({ changes: { from: content.length, insert: "---" } });
+
+    expect(countNodes("Frontmatter")).toBe(1);
+    expect(countNodes("HorizontalRule")).toBe(0);
+
+    editor.view.dispatch({ changes: { from: content.length, to: content.length + 3 } });
+
+    expect(countNodes("Frontmatter")).toBe(0);
+    expect(countNodes("HorizontalRule")).toBe(1);
+  });
+
   it("only recognizes a block at the start of the document", () => {
     mount("Body text\n\n---\ntitle: Release notes\n---");
 
