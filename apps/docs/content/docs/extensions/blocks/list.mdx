@@ -1,9 +1,10 @@
 ---
 title: List
-description: "The list extension: bullet and ordered lists, with rendered markers."
+description: "The list extension: bullet and ordered lists, nested items, conversion, and rendered markers."
 ---
 
-The `list` extension renders bullet and ordered lists and adds commands to toggle them.
+The `list` extension renders bullet and ordered lists. It adds commands to toggle lists, convert
+their type, and nest or unnest items.
 
 ## Setup
 
@@ -28,6 +29,8 @@ const editor = new Editor({
   the computed number for ordered lists.
 - Converts pasted `<ul>` and `<ol>` elements to `-` and `1.` lines. The `start` attribute of an
   ordered list is preserved, and multi-line items are indented to line up under the marker.
+- Handles multi-line selections and nested lists in its commands.
+- Binds Tab and Shift+Tab to nest and unnest list items when the selection is inside a list.
 
 The rendered marker is not the source text. The document keeps the Markdown marker, and the list
 extension renders the bullet or number in its place.
@@ -37,22 +40,43 @@ items count up, and a block separated by a blank line restarts at its own marker
 
 ## Commands
 
-| Command                       | Description                                |
-| ----------------------------- | ------------------------------------------ |
-| `toggleBulletList({ pos? })`  | Adds or removes a `-` marker on the line.  |
-| `toggleOrderedList({ pos? })` | Adds or removes a `1.` marker on the line. |
+| Command                       | Description                                              |
+| ----------------------------- | -------------------------------------------------------- |
+| `toggleBulletList({ pos? })`  | Adds or removes bullet markers on the selected lines.    |
+| `toggleOrderedList({ pos? })` | Adds or removes ordered markers on the selected lines.   |
+| `toggleListType({ pos? })`    | Converts selected list items between bullet and ordered. |
+| `sinkListItem({ pos? })`      | Indents selected list items one level.                   |
+| `liftListItem({ pos? })`      | Outdents selected list items one level.                  |
 
-Both work on the line that contains the position. Toggling a bullet list on a line that is already an
-ordered list replaces the marker instead of stacking them.
+All commands accept an optional `pos` as a number or a `{ from, to }` range. Without it, they use the
+current selection. A multi-line selection applies the command to every selected line.
+
+`toggleBulletList` and `toggleOrderedList` remove markers only when every selected line already has
+that plain list type. Otherwise they add or convert markers. Converting a task item to a plain list
+item removes its checkbox. Toggling a bullet list on an ordered item replaces the marker instead of
+stacking them. The spacing after the marker is kept, so an indented code block inside a list item
+stays a code block.
+
+`toggleListType` converts only list items and keeps their text, including task checkboxes. The first
+selected item decides the target type. It also adjusts the indentation of nested items so the list
+keeps its structure. Lists inside blockquotes convert in place and keep their quote prefix.
+List-like text inside code blocks is ignored.
+
+`sinkListItem` indents each selected item under its previous sibling. `liftListItem` moves each
+selected item up one level. Nested content moves with its item. The first item in a list cannot sink,
+and a top-level item cannot lift. Indentation keeps outer blockquote prefixes in place and counts
+tabs by their column width.
 
 ```js
 editor.commands.toggleBulletList();
+editor.commands.toggleListType();
+editor.commands.sinkListItem();
 
 editor.chain().toggleOrderedList().focus().run();
 ```
 
-There is no default keybinding. Bind your own with
-[`addKeybinds`](/extensions/custom#keybindings).
+Tab and Shift+Tab do the same when the selection is inside a list. Outside a list they indent and
+dedent lines with spaces. See [keybindings](/extensions/features/keybindings#indentation).
 
 ## Styling
 

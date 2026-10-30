@@ -122,10 +122,18 @@ selection.
 
 ### List
 
-| Command                       | Description                                |
-| ----------------------------- | ------------------------------------------ |
-| `toggleBulletList({ pos? })`  | Adds or removes a `-` marker on the line.  |
-| `toggleOrderedList({ pos? })` | Adds or removes a `1.` marker on the line. |
+| Command                       | Description                                              |
+| ----------------------------- | -------------------------------------------------------- |
+| `toggleBulletList({ pos? })`  | Adds or removes bullet markers on the selected lines.    |
+| `toggleOrderedList({ pos? })` | Adds or removes ordered markers on the selected lines.   |
+| `toggleListType({ pos? })`    | Converts selected list items between bullet and ordered. |
+| `sinkListItem({ pos? })`      | Indents selected list items one level.                   |
+| `liftListItem({ pos? })`      | Outdents selected list items one level.                  |
+
+List commands work across multi-line selections. `toggleBulletList` and `toggleOrderedList` remove
+markers when every selected line already has that list type. `toggleListType` uses the first selected
+item to choose the target type and keeps item text. Indentation commands move nested content with
+their item. The `keybinds` extension binds Tab and Shift+Tab to the same nesting behavior.
 
 ### Task list
 

@@ -96,6 +96,57 @@ describe("default keymap", () => {
   });
 });
 
+describe("list indentation", () => {
+  let editor: Editor;
+
+  beforeEach(() => {
+    editor = new Editor({
+      element: document.createElement("div"),
+      content: "- one\n- two",
+      extensions: [BaseKit()],
+    });
+  });
+
+  afterEach(() => {
+    editor.view.dom.parentElement?.remove();
+    editor.destroy();
+  });
+
+  it("sinks the current list item on Tab", () => {
+    editor.view.dispatch({ selection: { anchor: 6 } });
+
+    press(editor, "Tab");
+
+    expect(editor.content).toBe("- one\n  - two");
+  });
+
+  it("lifts the current list item on Shift-Tab", () => {
+    editor.setMarkdown("- one\n  - two");
+    editor.view.dispatch({ selection: { anchor: 8 } });
+
+    press(editor, "Tab", { shiftKey: true });
+
+    expect(editor.content).toBe("- one\n- two");
+  });
+
+  it("leaves the first item in place instead of inserting spaces", () => {
+    editor.view.dispatch({ selection: { anchor: 0 } });
+
+    press(editor, "Tab");
+
+    expect(editor.content).toBe("- one\n- two");
+  });
+
+  it("sinks a multi-line list selection", () => {
+    editor.setMarkdown("- one\n- two\n- three");
+    editor.view.dispatch({ selection: { anchor: 6, head: editor.content.length } });
+
+    press(editor, "Tab");
+
+    expect(editor.content).toBe("- one\n  - two\n  - three");
+  });
+});
+
 describe("newline input", () => {
   /** Loads content, puts the caret at the given position, and presses Enter. */
   const typeEnter = (content: string, anchor: number | "end", times = 1) => {

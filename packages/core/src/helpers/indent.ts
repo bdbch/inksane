@@ -1,7 +1,7 @@
 import { ChangeSet, EditorState, type ChangeSpec, type TransactionSpec } from "@codemirror/state";
 
 /** The line numbers affected by a selection range (or the cursor's line). */
-function selectedLines(state: EditorState, from: number, to: number): number[] {
+export function selectedLineNumbers(state: EditorState, from: number, to: number): number[] {
   const startLine = state.doc.lineAt(from);
   const endLine = state.doc.lineAt(to);
 
@@ -36,7 +36,7 @@ export function liftLine(state: EditorState, lineNumber: number, unit: string): 
 export function indentLines(state: EditorState, dir: 1 | -1, unit: string): TransactionSpec | null {
   const lineNumbers = new Set<number>();
   for (const range of state.selection.ranges) {
-    for (const number of selectedLines(state, range.from, range.to)) {
+    for (const number of selectedLineNumbers(state, range.from, range.to)) {
       lineNumbers.add(number);
     }
   }

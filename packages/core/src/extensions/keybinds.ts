@@ -1,6 +1,7 @@
 import { defaultKeymap, indentWithTab } from "@codemirror/commands";
 import { searchKeymap } from "@codemirror/search";
 import { indentLines } from "../helpers/indent.ts";
+import { liftListItems, selectionIsInList, sinkListItems } from "../helpers/listIndent.ts";
 import type { Extension } from "../types/index.ts";
 
 const DEFAULT_TAB_SIZE = 2;
@@ -17,6 +18,13 @@ export const KeybindExtension: Extension = {
       {
         key: "Tab",
         run(view) {
+          const { from, to } = view.state.selection.main;
+          if (selectionIsInList(view.state, from, to)) {
+            const listTransaction = sinkListItems(view.state, from, to);
+            if (listTransaction) view.dispatch(listTransaction);
+            return true;
+          }
+
           const transaction = indentLines(view.state, 1, indentUnit());
           if (!transaction) return false;
           view.dispatch(transaction);
@@ -26,6 +34,13 @@ export const KeybindExtension: Extension = {
       {
         key: "Shift-Tab",
         run(view) {
+          const { from, to } = view.state.selection.main;
+          if (selectionIsInList(view.state, from, to)) {
+            const listTransaction = liftListItems(view.state, from, to);
+            if (listTransaction) view.dispatch(listTransaction);
+            return true;
+          }
+
           const transaction = indentLines(view.state, -1, indentUnit());
           if (!transaction) return false;
           view.dispatch(transaction);

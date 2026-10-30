@@ -4,7 +4,8 @@ description: "Register editing and indentation keymaps, use feature shortcuts, a
 ---
 
 Two extensions provide general editing shortcuts. `DefaultKeymapExtension` adds standard editing
-and search bindings. `KeybindExtension` adds Tab indentation using the editor's `tabSize` option.
+and search bindings. `KeybindExtension` adds Tab indentation using the editor's `tabSize` option and
+nests list items.
 
 ## Setup
 
@@ -52,10 +53,15 @@ Search keys include:
 Tab indents the selected lines, or the current line when nothing is selected. Shift+Tab dedents. The
 `KeybindExtension` owns these bindings and honors the `tabSize` option, which defaults to `2`.
 
-The commands return `false` when there is nothing to indent, for example when a dedent would go past
-the start of a line, and the key is left to the browser. `indentWithTab` from the default keymap
-is a fallback when `DefaultKeymapExtension` is also registered. It uses CodeMirror's language
-indentation rather than the editor's `tabSize`.
+When every selected non-blank line is inside a list, Tab and Shift+Tab nest and unnest the list items
+instead. Tab moves each item under its previous sibling, and Shift+Tab moves each item up one level.
+The first item in a list cannot sink, and a top-level item cannot lift, so the key leaves those items
+in place instead of inserting spaces.
+
+Outside a list, the commands return `false` when there is nothing to indent, for example when a
+dedent would go past the start of a line, and the key is left to the browser. `indentWithTab` from the
+default keymap is a fallback when `DefaultKeymapExtension` is also registered. It uses CodeMirror's
+language indentation rather than the editor's `tabSize`.
 
 ## Precedence
 
@@ -83,8 +89,8 @@ Windows and Linux.
 | `Mod-z`       | Undo                              | [History](/extensions/features/history)               |
 | `Mod-y`       | Redo                              | [History](/extensions/features/history)               |
 | `Mod-Shift-z` | Redo                              | [History](/extensions/features/history)               |
-| `Tab`         | Indent the selection or the line  | `keybinds`                                            |
-| `Shift-Tab`   | Dedent the selection or the line  | `keybinds`                                            |
+| `Tab`         | Nest a list item, or indent lines | `keybinds`                                            |
+| `Shift-Tab`   | Unnest a list item, or dedent     | `keybinds`                                            |
 | `ArrowUp`     | Move into an adjacent HTML block  | [HTML](/extensions/blocks/html)                       |
 | `ArrowDown`   | Move into an adjacent HTML block  | [HTML](/extensions/blocks/html)                       |
 
