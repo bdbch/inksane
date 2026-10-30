@@ -30,7 +30,7 @@ export const SuperscriptExtension: Extension = {
     return [
       {
         match: (element) => element.tagName.toLowerCase() === "sup",
-        toMarkdown: (element, { renderChildren }) => `^${renderChildren(element).trim()}^`,
+        toMarkdown: (element, { renderChildren }) => `^${renderChildren(element)}^`,
       },
     ];
   },

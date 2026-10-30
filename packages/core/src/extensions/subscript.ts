@@ -30,7 +30,7 @@ export const SubscriptExtension: Extension = {
     return [
       {
         match: (element) => element.tagName.toLowerCase() === "sub",
-        toMarkdown: (element, { renderChildren }) => `~${renderChildren(element).trim()}~`,
+        toMarkdown: (element, { renderChildren }) => `~${renderChildren(element)}~`,
       },
     ];
   },

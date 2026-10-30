@@ -30,7 +30,7 @@ export const HighlightExtension: Extension = {
     return [
       {
         match: (element) => element.tagName.toLowerCase() === "mark",
-        toMarkdown: (element, { renderChildren }) => `==${renderChildren(element).trim()}==`,
+        toMarkdown: (element, { renderChildren }) => `==${renderChildren(element)}==`,
       },
     ];
   },

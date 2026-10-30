@@ -60,6 +60,12 @@ describe("subscript", () => {
     expect(editor.content).toBe("hello");
   });
 
+  it.each([1, 7])("leaves strikethrough delimiters intact at position %s", (pos) => {
+    create("~~gone~~");
+    expect(editor.commands.toggleSubscript({ pos })).toBe(false);
+    expect(editor.content).toBe("~~gone~~");
+  });
+
   it("formats selected text containing spaces", () => {
     create(" hello world ");
     editor.commands.toggleSubscript({ pos: { from: 0, to: 13 } });
@@ -82,7 +88,7 @@ describe("subscript", () => {
     expect(editor.view.contentDOM.querySelector(".inksane-mark-subscript")).toBeNull();
   });
 
-  it.each(["2", "hello world"])("converts HTML containing %s on paste", (text) => {
+  it.each(["2", "hello world", " hello "])("converts HTML containing %s on paste", (text) => {
     create("");
     const event = new Event("paste", { bubbles: true, cancelable: true });
     Object.defineProperty(event, "clipboardData", {

@@ -1,3 +1,4 @@
+import { syntaxTree } from "@codemirror/language";
 import { insertContent } from "../commands/index.ts";
 import type { CommandContext } from "../types/commands.ts";
 import type { PosOrRange } from "../types/index.ts";
@@ -12,6 +13,14 @@ export function toggleInlineMark(
   pos?: PosOrRange,
 ): boolean {
   const { from, to } = resolveFromTo(ctx.state, pos);
+  // A strikethrough delimiter is not an empty subscript pair.
+  if (
+    marker === "~" &&
+    from === to &&
+    syntaxTree(ctx.state).resolveInner(from).name === "StrikethroughMark"
+  ) {
+    return false;
+  }
   const width = marker.length;
   let range = getActiveMarkRange(
     ctx.state,

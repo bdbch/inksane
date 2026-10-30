@@ -83,7 +83,7 @@ describe("superscript", () => {
     expect(editor.view.contentDOM.querySelector(".inksane-mark-superscript")).toBeNull();
   });
 
-  it.each(["2", "hello world"])("converts HTML containing %s on paste", (text) => {
+  it.each(["2", "hello world", " hello "])("converts HTML containing %s on paste", (text) => {
     create("");
     const event = new Event("paste", { bubbles: true, cancelable: true });
     Object.defineProperty(event, "clipboardData", {
